@@ -1,229 +1,354 @@
 @extends('layouts.frontend')
 
+@section('title', $product->name . ' | Boxima Fitness')
+
 @section('content')
-<div class="bg-dark-900 py-10 border-b border-dark-800">
-    <div class="container mx-auto px-4">
-        <!-- Breadcrumb -->
-        <nav class="text-sm font-heading tracking-widest uppercase text-gray-400">
-            <a href="{{ route('home') }}" class="hover:text-brand-500 transition-colors">Home</a>
-            <span class="mx-2">/</span>
-            <a href="{{ route('products.index') }}" class="hover:text-brand-500 transition-colors">Equipment</a>
-            @if($product->category)
-                <span class="mx-2">/</span>
-                <a href="{{ route('category.show', $product->category->id) }}" class="hover:text-brand-500 transition-colors">{{ $product->category->name }}</a>
-            @endif
-            <span class="mx-2">/</span>
-            <span class="text-white">{{ $product->name }}</span>
-        </nav>
-    </div>
+
+@php
+    $activeVariations = $product->variations->where('is_active', true)->values();
+    $isVariableProduct = $activeVariations->isNotEmpty();
+    $firstVariationPrice = $isVariableProduct ? (float) ($activeVariations->first()->price ?? 0) : null;
+@endphp
+
+{{-- PAGE HEADER --}}
+<div class="hero-dark-wrapper" style="padding-bottom: 0;">
+    <section class="page-header page-header-teal" style="padding-bottom:30px;">
+        <div class="container position-relative" style="z-index:2">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb breadcrumb-xrt">
+                    <li class="breadcrumb-item"><a href="{{ route('home') }}">Home</a></li>
+                    <li class="breadcrumb-item"><a href="{{ route('products.index') }}">Shop</a></li>
+                    @if($product->category)
+                        <li class="breadcrumb-item"><a href="{{ route('category.show', $product->category->id) }}">{{ $product->category->name }}</a></li>
+                    @endif
+                    <li class="breadcrumb-item active">{{ $product->name }}</li>
+                </ol>
+            </nav>
+        </div>
+    </section>
 </div>
 
-<div class="bg-dark-900 py-16">
-    <div class="container mx-auto px-4">
-        <div class="flex flex-col lg:flex-row gap-12">
-            <!-- Product Images Gallery -->
-            <div class="w-full lg:w-1/2">
-                <div class="bg-white p-6 relative h-[500px] flex items-center justify-center mb-4 border border-dark-800">
-                    @if($product->images->count() > 0)
-                        <img id="main-product-image" src="{{ Storage::url($product->images->first()->image_path) }}" alt="{{ $product->name }}" class="max-w-full max-h-full object-contain mix-blend-multiply">
-                    @else
-                        <div class="flex flex-col items-center justify-center text-gray-400">
-                            <i class="bi bi-image text-5xl mb-3"></i>
-                            <span class="uppercase font-heading tracking-widest text-sm">No Image Available</span>
+{{-- PRODUCT DETAIL --}}
+<section class="py-5" id="productDetailWrap">
+    <div class="container">
+        <div class="row g-5">
+
+            {{-- GALLERY --}}
+            <div class="col-lg-6">
+                <div class="product-gallery">
+                    <div class="gallery-main" style="padding: 30px;">
+                        @if($product->images->count() > 0)
+                            <img src="{{ Storage::url($product->images->first()->image_path) }}"
+                                 alt="{{ $product->name }}"
+                                 id="mainProductImg"
+                                 style="max-width:100%; max-height:450px; object-fit:contain;">
+                        @else
+                            <img src="{{ asset('frontend/images/dumbbell.png') }}"
+                                 alt="{{ $product->name }}"
+                                 id="mainProductImg"
+                                 style="max-width:100%; max-height:450px; object-fit:contain; opacity:0.5;">
+                        @endif
+                    </div>
+
+                    @if($product->images->count() > 1)
+                        <div class="gallery-thumbs mt-3">
+                            @foreach($product->images as $image)
+                                <div class="gallery-thumb {{ $loop->first ? 'active' : '' }}"
+                                     onclick="switchImage(this, '{{ Storage::url($image->image_path) }}')">
+                                    <img src="{{ Storage::url($image->image_path) }}" alt="Thumbnail">
+                                </div>
+                            @endforeach
                         </div>
                     @endif
-                    
-                    @if($product->sale_price)
-                        <div class="absolute top-4 left-4 bg-brand-500 text-white font-heading font-bold px-3 py-1 uppercase text-sm tracking-widest">Sale</div>
-                    @endif
                 </div>
-                
-                @if($product->images->count() > 1)
-                    <div class="grid grid-cols-4 gap-4">
-                        @foreach($product->images as $image)
-                            <div class="bg-white p-2 h-24 border border-dark-700 cursor-pointer hover:border-brand-500 transition-colors" onclick="document.getElementById('main-product-image').src='{{ Storage::url($image->image_path) }}'">
-                                <img src="{{ Storage::url($image->image_path) }}" class="w-full h-full object-contain mix-blend-multiply" alt="Thumbnail">
-                            </div>
-                        @endforeach
-                    </div>
-                @endif
             </div>
 
-            <!-- Product Info -->
-            <div class="w-full lg:w-1/2">
-                @if($product->brand)
-                    <div class="text-gray-400 uppercase font-heading tracking-widest text-sm mb-2">
-                        Brand: <a href="{{ route('brand.show', $product->brand->id) }}" class="text-white hover:text-brand-500 transition-colors">{{ $product->brand->name }}</a>
-                    </div>
-                @endif
-                <h1 class="font-heading text-4xl md:text-5xl font-bold uppercase tracking-wide text-white mb-4 leading-tight">{{ $product->name }}</h1>
-                
-                <div class="flex items-center gap-4 mb-6">
-                    <div class="flex text-brand-500 text-lg">
-                        <i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-half"></i>
-                    </div>
-                    <a href="#reviews" class="text-gray-400 hover:text-white transition-colors text-sm font-heading tracking-widest uppercase">(3 Customer Reviews)</a>
-                </div>
+            {{-- PRODUCT INFO --}}
+            <div class="col-lg-6">
+                <div class="product-detail-info">
 
-                @php
-                    $activeVariations = $product->variations->where('is_active', true)->values();
-                    $isVariableProduct = $activeVariations->isNotEmpty();
-                    $simplePrice = (float) ($product->sale_price ?? $product->base_price ?? 0);
-                    $firstVariationPrice = $isVariableProduct ? (float) ($activeVariations->first()->price ?? 0) : null;
-                @endphp
-
-                <div class="text-3xl font-heading font-bold flex items-center gap-4 mb-8">
-                    <span id="product-price" class="text-brand-500">
-                        @if($isVariableProduct)
-                            ${{ number_format($firstVariationPrice, 2) }}
-                        @elseif($product->sale_price)
-                            ${{ number_format($product->sale_price, 2) }}
-                        @else
-                            ${{ number_format($product->base_price, 2) }}
-                        @endif
+                    <span class="section-badge section-badge-teal mb-2">
+                        {{ $product->brand ? $product->brand->name : 'BOXIMA PREMIUM' }}
                     </span>
-                    @if(!$isVariableProduct && $product->sale_price)
-                        <span class="text-gray-600 line-through text-xl">${{ number_format($product->base_price, 2) }}</span>
-                    @endif
-                </div>
 
-                <div class="text-gray-300 mb-8 leading-relaxed max-w-xl">
-                    {{ $product->short_description ?? 'High-performance gym equipment designed for intensive use. Built with durable materials to withstand the toughest workouts.' }}
-                </div>
+                    <h1 class="product-detail-title" id="pdTitle">{{ $product->name }}</h1>
 
-                <div class="bg-dark-800 p-6 border border-dark-700 mb-8">
-                    @if(session('success'))
-                        <div class="bg-green-600 text-white p-3 mb-4 text-sm font-bold uppercase tracking-widest">{{ session('success') }}</div>
-                    @endif
-                    @if(session('error'))
-                        <div class="bg-red-600 text-white p-3 mb-4 text-sm font-bold uppercase tracking-widest">{{ session('error') }}</div>
-                    @endif
-                    <form action="{{ route('cart.add') }}" method="POST" class="flex flex-col gap-4" id="product-cart-form">
-                        @csrf
-                        <input type="hidden" name="product_id" value="{{ $product->id }}">
-                        @if($isVariableProduct)
-                            <div>
-                                <label class="text-xs uppercase tracking-widest text-gray-400 block mb-2">Select Variation</label>
-                                <select name="product_variation_id" id="product_variation_id" class="w-full bg-dark-900 border border-dark-700 text-white px-3 py-3" required>
-                                    @foreach($activeVariations as $variation)
-                                        @php
-                                            $attrs = collect($variation->attributes ?? [])->map(fn ($val, $key) => ucfirst($key) . ': ' . $val)->implode(' | ');
-                                        @endphp
-                                        <option value="{{ $variation->id }}" data-price="{{ (float) $variation->price }}">
-                                            {{ $attrs !== '' ? $attrs : ('Variation #' . $variation->id) }} - ${{ number_format((float) $variation->price, 2) }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                            </div>
-                        @endif
+                    <div class="product-rating mb-3">
+                        <i class="bi bi-star-fill"></i>
+                        <i class="bi bi-star-fill"></i>
+                        <i class="bi bi-star-fill"></i>
+                        <i class="bi bi-star-fill"></i>
+                        <i class="bi bi-star-half"></i>
+                        <span class="ms-2 text-muted" style="font-size:0.85rem;">(3 Customer Reviews)</span>
+                    </div>
 
-                        <div class="flex flex-col sm:flex-row gap-4">
-                        <!-- Quantity -->
-                        <div class="flex border border-dark-700 w-32 bg-dark-900">
-                            <button type="button" class="w-10 flex items-center justify-center text-gray-400 hover:text-white hover:bg-dark-700 transition" onclick="document.getElementById('qty').stepDown()"><i class="bi bi-dash"></i></button>
-                            <input type="number" id="qty" name="quantity" value="1" min="1" class="w-12 text-center bg-transparent border-none text-white focus:outline-none focus:ring-0 font-bold p-0">
-                            <button type="button" class="w-10 flex items-center justify-center text-gray-400 hover:text-white hover:bg-dark-700 transition" onclick="document.getElementById('qty').stepUp()"><i class="bi bi-plus"></i></button>
-                        </div>
-                        
-                        <!-- Add to Cart -->
-                        <button type="submit" class="btn-brand flex-grow py-3 px-6 text-lg tracking-widest flex items-center justify-center gap-2">
-                            Add to Cart <i class="bi bi-bag-plus"></i>
-                        </button>
-                        </div>
-                    </form>
-
-                    @auth
-                        <form action="{{ route('wishlist.toggle') }}" method="POST" class="mt-3">
-                            @csrf
-                            <input type="hidden" name="product_id" value="{{ $product->id }}">
+                    <div class="d-flex align-items-center gap-3 mb-4">
+                        <span class="product-detail-price" id="product-price">
                             @if($isVariableProduct)
-                                <input type="hidden" name="product_variation_id" id="wishlist_variation_id" value="{{ $activeVariations->first()->id }}">
+                                ₹{{ number_format($firstVariationPrice, 0) }}
+                            @elseif($product->sale_price)
+                                ₹{{ number_format($product->sale_price, 0) }}
+                            @else
+                                ₹{{ number_format($product->base_price, 0) }}
                             @endif
-                            <button type="submit" class="w-full border border-dark-600 text-gray-300 hover:border-brand-500 hover:text-brand-500 transition py-3 uppercase tracking-widest text-sm flex items-center justify-center gap-2">
-                                Wishlist <i class="bi bi-heart"></i>
-                            </button>
-                        </form>
-                    @endauth
+                        </span>
+                        @if(!$isVariableProduct && $product->sale_price)
+                            <span class="product-detail-price-old">₹{{ number_format($product->base_price, 0) }}</span>
+                            @php $disc = round((($product->base_price - $product->sale_price) / $product->base_price) * 100); @endphp
+                            <span class="badge-sale fs-6">{{ $disc }}% OFF</span>
+                        @endif
+                    </div>
 
+                    <p class="text-muted mb-4">
+                        {{ $product->short_description ?? 'High-performance gym equipment designed for intensive use. Built with durable materials to withstand the toughest workouts.' }}
+                    </p>
+
+                    {{-- Variation selector as weight options --}}
                     @if($isVariableProduct)
-                        <div class="mt-4 border-t border-dark-700 pt-4">
-                            <div class="text-xs uppercase tracking-widest text-gray-400 mb-2">Available Variations</div>
-                            <div class="space-y-2 text-sm text-gray-300">
-                                @foreach($activeVariations as $variation)
+                        <div class="mb-4">
+                            <h6 class="fw-bold mb-3">Select Weight Variant</h6>
+                            <div class="weight-selector">
+                                @foreach($activeVariations as $idx => $variation)
                                     @php
-                                        $attrs = collect($variation->attributes ?? [])->map(fn ($val, $key) => ucfirst($key) . ': ' . $val)->implode(' | ');
+                                        $attrs = collect($variation->attributes ?? [])->map(fn($val, $key) => $val)->implode(' / ');
+                                        $label = $attrs ?: ('Variation #' . $variation->id);
                                     @endphp
-                                    <div class="flex justify-between gap-3 border border-dark-700 bg-dark-900 px-3 py-2">
-                                        <span>{{ $attrs !== '' ? $attrs : ('Variation #' . $variation->id) }}</span>
-                                        <span class="text-brand-500 font-heading">${{ number_format((float) $variation->price, 2) }}</span>
+                                    <div class="weight-option {{ $idx === 0 ? 'active' : '' }}"
+                                         data-variation-id="{{ $variation->id }}"
+                                         data-price="{{ (float) $variation->price }}"
+                                         onclick="selectVariation(this)">
+                                        {{ $label }}
                                     </div>
                                 @endforeach
                             </div>
                         </div>
                     @endif
+
+                    {{-- Session messages --}}
+                    @if(session('success'))
+                        <div class="alert alert-success py-2">{{ session('success') }}</div>
+                    @endif
+                    @if(session('error'))
+                        <div class="alert alert-danger py-2">{{ session('error') }}</div>
+                    @endif
+
+                    {{-- Add to Cart Form --}}
+                    <form action="{{ route('cart.add') }}" method="POST" id="product-cart-form">
+                        @csrf
+                        <input type="hidden" name="product_id" value="{{ $product->id }}">
+                        @if($isVariableProduct)
+                            <input type="hidden" name="product_variation_id" id="product_variation_id" value="{{ $activeVariations->first()->id }}">
+                        @endif
+
+                        <div class="d-flex align-items-center gap-3 mb-4">
+                            <div class="qty-control">
+                                <button type="button" onclick="document.getElementById('pdQty').stepDown()">−</button>
+                                <input type="number" value="1" min="1" max="99" id="pdQty" name="quantity">
+                                <button type="button" onclick="document.getElementById('pdQty').stepUp()">+</button>
+                            </div>
+                            <button type="submit" class="btn-xrt btn-teal-xrt">
+                                <i class="bi bi-cart-plus"></i> Add to Cart
+                            </button>
+                            <a href="{{ route('checkout.index') }}" class="btn-xrt btn-dark-teal-xrt">
+                                <i class="bi bi-lightning"></i> Buy Now
+                            </a>
+                        </div>
+                    </form>
+
+                    @auth
+                        <form action="{{ route('wishlist.toggle') }}" method="POST" class="mb-4">
+                            @csrf
+                            <input type="hidden" name="product_id" value="{{ $product->id }}">
+                            @if($isVariableProduct)
+                                <input type="hidden" name="product_variation_id" id="wishlist_variation_id" value="{{ $activeVariations->first()->id }}">
+                            @endif
+                            <button type="submit" class="btn btn-outline-secondary w-100">
+                                <i class="bi bi-heart me-2"></i>Add to Wishlist
+                            </button>
+                        </form>
+                    @endauth
+
+                    {{-- Trust Badges --}}
+                    <div class="d-flex gap-4 pt-3 border-top flex-wrap">
+                        <div class="text-center">
+                            <i class="bi bi-truck fs-4 d-block text-primary mb-1"></i>
+                            <small class="text-muted">Free Shipping</small>
+                        </div>
+                        <div class="text-center">
+                            <i class="bi bi-shield-check fs-4 d-block text-success mb-1"></i>
+                            <small class="text-muted">5-Year Warranty</small>
+                        </div>
+                        <div class="text-center">
+                            <i class="bi bi-arrow-counterclockwise fs-4 d-block text-warning mb-1"></i>
+                            <small class="text-muted">30-Day Returns</small>
+                        </div>
+                        <div class="text-center">
+                            <i class="bi bi-patch-check fs-4 d-block text-info mb-1"></i>
+                            <small class="text-muted">Genuine</small>
+                        </div>
+                    </div>
+
+                    {{-- Meta --}}
+                    <div class="mt-4 text-muted" style="font-size:0.85rem;">
+                        <div><strong>SKU:</strong> {{ $product->sku }}</div>
+                        @if($product->category)
+                            <div><strong>Category:</strong>
+                                <a href="{{ route('category.show', $product->category->id) }}" class="text-muted">{{ $product->category->name }}</a>
+                            </div>
+                        @endif
+                        <div class="mt-2 d-flex gap-3 align-items-center">
+                            <strong>Share:</strong>
+                            <a href="#" class="text-muted"><i class="bi bi-facebook fs-5"></i></a>
+                            <a href="#" class="text-muted"><i class="bi bi-twitter-x fs-5"></i></a>
+                            <a href="#" class="text-muted"><i class="bi bi-whatsapp fs-5"></i></a>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        {{-- DESCRIPTION / SPECS / REVIEWS TABS --}}
+        <div class="tabs-xrt mt-5 pt-4">
+            <ul class="nav nav-tabs" role="tablist">
+                <li class="nav-item">
+                    <a class="nav-link active" data-bs-toggle="tab" href="#tabDesc">Description</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" data-bs-toggle="tab" href="#tabSpecs">Specifications</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" data-bs-toggle="tab" href="#tabReviews">Reviews</a>
+                </li>
+            </ul>
+
+            <div class="tab-content pt-4">
+                {{-- Description Tab --}}
+                <div class="tab-pane fade show active" id="tabDesc">
+                    <div class="row g-4">
+                        <div class="col-md-8">
+                            @if($product->description)
+                                <div>{!! $product->description !!}</div>
+                            @else
+                                <h5 class="fw-bold mb-3">Transform Your Workout</h5>
+                                <p class="text-muted">{{ $product->name }} is engineered for serious home fitness. High-quality materials and precision manufacturing ensure balanced, consistent performance every workout.</p>
+                                <h6 class="fw-bold mt-4 mb-2">What's in the Box:</h6>
+                                <ul class="text-muted">
+                                    <li>1x {{ $product->name }}</li>
+                                    <li>1x User Manual & Workout Guide</li>
+                                    <li>1x Warranty Card</li>
+                                </ul>
+                            @endif
+                        </div>
+                        <div class="col-md-4 text-center">
+                            @if($product->images->count() > 0)
+                                <img src="{{ Storage::url($product->images->first()->image_path) }}"
+                                     alt="{{ $product->name }}"
+                                     style="max-height:250px; object-fit:contain; filter:drop-shadow(0 10px 20px rgba(0,0,0,0.15));">
+                            @endif
+                        </div>
+                    </div>
                 </div>
 
-                <div class="flex flex-col gap-3 font-heading uppercase text-sm tracking-widest text-gray-400">
-                    <div class="flex"><span class="w-32 text-gray-500">SKU:</span> <span class="text-white">{{ $product->sku }}</span></div>
-                    <div class="flex"><span class="w-32 text-gray-500">Categories:</span> <span class="text-white">
-                        @if($product->category)
-                            <a href="{{ route('category.show', $product->category->id) }}" class="hover:text-brand-500">{{ $product->category->name }}</a>
+                {{-- Specs Tab --}}
+                <div class="tab-pane fade" id="tabSpecs">
+                    <table class="spec-table">
+                        @if($product->sku)
+                            <tr><td>SKU</td><td>{{ $product->sku }}</td></tr>
                         @endif
-                    </span></div>
-                    <div class="flex items-center gap-4 mt-4">
-                        <span class="text-gray-500 w-32">Share:</span>
-                        <a href="#" class="text-white hover:text-brand-500 transition-colors text-lg"><i class="bi bi-facebook"></i></a>
-                        <a href="#" class="text-white hover:text-brand-500 transition-colors text-lg"><i class="bi bi-twitter"></i></a>
-                        <a href="#" class="text-white hover:text-brand-500 transition-colors text-lg"><i class="bi bi-pinterest"></i></a>
+                        @if($product->category)
+                            <tr><td>Category</td><td>{{ $product->category->name }}</td></tr>
+                        @endif
+                        @if($product->brand)
+                            <tr><td>Brand</td><td>{{ $product->brand->name }}</td></tr>
+                        @endif
+                        @if($isVariableProduct)
+                            @foreach($activeVariations as $variation)
+                                @php $attrs = collect($variation->attributes ?? [])->map(fn($val, $key) => ucfirst($key) . ': ' . $val)->implode(' | '); @endphp
+                                <tr>
+                                    <td>{{ $attrs ?: 'Variation #' . $variation->id }}</td>
+                                    <td>₹{{ number_format((float) $variation->price, 0) }}</td>
+                                </tr>
+                            @endforeach
+                        @else
+                            <tr><td>Price</td>
+                                <td>₹{{ number_format($product->sale_price ?? $product->base_price, 0) }}</td>
+                            </tr>
+                        @endif
+                        <tr><td>Warranty</td><td>5 Years</td></tr>
+                        <tr><td>Return Policy</td><td>30 Days Easy Returns</td></tr>
+                        <tr><td>Shipping</td><td>Free on orders above ₹5,000</td></tr>
+                    </table>
+                </div>
+
+                {{-- Reviews Tab --}}
+                <div class="tab-pane fade" id="tabReviews">
+                    <div class="review-card">
+                        <div class="review-header">
+                            <span class="review-author">Aditya M.</span>
+                            <span class="review-date">March 15, 2026</span>
+                        </div>
+                        <div class="review-stars">
+                            <i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i>
+                        </div>
+                        <p class="review-text">Absolute beast of a product! The quality is outstanding and it works perfectly for my home gym setup. Highly recommended.</p>
+                    </div>
+                    <div class="review-card">
+                        <div class="review-header">
+                            <span class="review-author">Sneha R.</span>
+                            <span class="review-date">March 10, 2026</span>
+                        </div>
+                        <div class="review-stars">
+                            <i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-half"></i>
+                        </div>
+                        <p class="review-text">Great quality and super space-saving. Delivery was faster than expected. Very satisfied with the purchase.</p>
+                    </div>
+                    <div class="review-card">
+                        <div class="review-header">
+                            <span class="review-author">Vikram S.</span>
+                            <span class="review-date">February 28, 2026</span>
+                        </div>
+                        <div class="review-stars">
+                            <i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i>
+                        </div>
+                        <p class="review-text">As a certified trainer, I can confidently say this is one of the best products in this price range. My clients love it.</p>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Product Description Tabs -->
-        <div class="mt-20">
-            <div class="flex border-b border-dark-700 gap-8 mb-8 font-heading uppercase tracking-widest font-bold">
-                <button class="text-brand-500 pb-4 border-b-2 border-brand-500">Description</button>
-                <button class="text-gray-500 hover:text-white transition-colors pb-4">Additional Information</button>
-                <button class="text-gray-500 hover:text-white transition-colors pb-4">Reviews (0)</button>
-            </div>
-            
-            <div class="text-gray-300 leading-relaxed max-w-4xl">
-                {!! $product->description ?? 'No detailed description available for this product.' !!}
-            </div>
-        </div>
     </div>
-</div>
+</section>
+
 @endsection
 
-@if($isVariableProduct)
-    @push('scripts')
-        <script>
-            (function () {
-                const variationSelect = document.getElementById('product_variation_id');
-                const wishlistVariationInput = document.getElementById('wishlist_variation_id');
-                const priceNode = document.getElementById('product-price');
+@push('scripts')
+<script>
+    // Gallery thumbnail switcher
+    function switchImage(thumb, src) {
+        document.getElementById('mainProductImg').src = src;
+        document.querySelectorAll('.gallery-thumb').forEach(function(t) { t.classList.remove('active'); });
+        thumb.classList.add('active');
+    }
 
-                if (!variationSelect) {
-                    return;
-                }
+    // Variation selector
+    function selectVariation(el) {
+        document.querySelectorAll('.weight-option').forEach(function(opt) { opt.classList.remove('active'); });
+        el.classList.add('active');
 
-                const updateSelectedVariation = () => {
-                    const selectedOption = variationSelect.options[variationSelect.selectedIndex];
-                    const price = Number(selectedOption?.dataset?.price || 0);
+        const price = parseFloat(el.dataset.price || 0);
+        const varId = el.dataset.variationId;
 
-                    if (priceNode) {
-                        priceNode.textContent = '$' + price.toFixed(2);
-                    }
+        const priceEl = document.getElementById('product-price');
+        if (priceEl && price > 0) {
+            priceEl.textContent = '₹' + price.toLocaleString('en-IN');
+        }
 
-                    if (wishlistVariationInput) {
-                        wishlistVariationInput.value = variationSelect.value;
-                    }
-                };
+        const varInput = document.getElementById('product_variation_id');
+        if (varInput) varInput.value = varId;
 
-                variationSelect.addEventListener('change', updateSelectedVariation);
-                updateSelectedVariation();
-            })();
-        </script>
-    @endpush
-@endif
+        const wishlistVarInput = document.getElementById('wishlist_variation_id');
+        if (wishlistVarInput) wishlistVarInput.value = varId;
+    }
+</script>
+@endpush

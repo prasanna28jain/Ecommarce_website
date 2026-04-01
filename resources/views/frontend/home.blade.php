@@ -1,273 +1,1095 @@
 @extends('layouts.frontend')
 
+@section('title', 'XRT65 Fitness | Premium Gym & Home Equipment')
+
 @section('content')
-    <!-- Hero Section -->
-    @php
-        $heroSlides = ($sliders ?? collect())->values();
-    @endphp
-    <section class="relative overflow-hidden" style="min-height: 85vh;">
-        @if($heroSlides->isNotEmpty())
-            @foreach($heroSlides as $index => $slide)
-                <div class="home-hero-slide absolute inset-0 {{ $index === 0 ? 'opacity-100' : 'opacity-0 pointer-events-none' }} transition-opacity duration-700"
-                     data-slide-index="{{ $index }}"
-                     style="background-image: linear-gradient(rgba(15, 15, 15, 0.7), rgba(15, 15, 15, 0.9)), url('{{ $slide->image_path ? asset('storage/' . $slide->image_path) : '' }}'); background-size: cover; background-position: center;">
-                    <div class="container mx-auto px-4 py-20 h-full flex items-center">
-                        <div class="max-w-2xl">
-                            <span class="text-brand-500 font-heading font-bold tracking-[0.2em] uppercase text-sm mb-4 block">Featured</span>
-                            <h1 class="text-5xl md:text-7xl font-heading font-bold text-white uppercase leading-tight mb-6">{{ $slide->title }}</h1>
-                            @if($slide->subheading)
-                                <p class="text-gray-300 text-lg mb-8 max-w-lg">{{ $slide->subheading }}</p>
-                            @endif
-                            @if($slide->button_text && $slide->button_link)
-                                <a href="{{ $slide->button_link }}" class="btn-brand px-8 py-4 text-sm tracking-widest inline-flex items-center gap-2">
-                                    {{ $slide->button_text }} <i class="bi bi-arrow-right"></i>
-                                </a>
-                            @endif
-                        </div>
+
+   
+
+
+    {{-- ===== BANNER ===== --}}
+    <section class="banner">
+        <svg class="banner1" xmlns="http://www.w3.org/2000/svg" width="239" height="108" viewBox="0 0 239 108"
+            fill="none">
+            <path d="M216 108H108L0 0H108L216 108Z" fill="url(#paint0_ban1)" fill-opacity="0.3" />
+            <path d="M239 53H185.5L132 0H185.5L239 53Z" fill="url(#paint1_ban1)" fill-opacity="0.3" />
+            <defs>
+                <linearGradient id="paint0_ban1" x1="108" y1="0" x2="108" y2="108"
+                    gradientUnits="userSpaceOnUse">
+                    <stop stop-color="#4F9597" />
+                    <stop offset="1" stop-color="white" stop-opacity="0" />
+                </linearGradient>
+                <linearGradient id="paint1_ban1" x1="185.5" y1="0" x2="185.5" y2="53"
+                    gradientUnits="userSpaceOnUse">
+                    <stop stop-color="#4F9597" />
+                    <stop offset="1" stop-color="white" stop-opacity="0" />
+                </linearGradient>
+            </defs>
+        </svg>
+        <h1>KEEP GOING</h1>
+        <p>ELEVATE YOUR FITNESS GAME</p>
+        <svg class="banner2" xmlns="http://www.w3.org/2000/svg" width="239" height="108" viewBox="0 0 239 108"
+            fill="none">
+            <path d="M23 0H131L239 108H131L23 0Z" fill="url(#paint0_ban2)" fill-opacity="0.3" />
+            <path d="M0 55H53.5L107 108H53.5L0 55Z" fill="url(#paint1_ban2)" fill-opacity="0.3" />
+            <defs>
+                <linearGradient id="paint0_ban2" x1="131" y1="108" x2="131" y2="0"
+                    gradientUnits="userSpaceOnUse">
+                    <stop stop-color="#4F9597" />
+                    <stop offset="1" stop-color="white" stop-opacity="0" />
+                </linearGradient>
+                <linearGradient id="paint1_ban2" x1="53.5" y1="108" x2="53.5" y2="55"
+                    gradientUnits="userSpaceOnUse">
+                    <stop stop-color="#4F9597" />
+                    <stop offset="1" stop-color="white" stop-opacity="0" />
+                </linearGradient>
+            </defs>
+        </svg>
+    </section>
+
+    {{-- ===== EXPLORE BY CATEGORY ===== --}}
+    <section class="category-grid-section" id="categoryGrid">
+        <div class="container-fluid">
+            <div class="pm-section-header">
+                <span class="pm-section-sub">Discover Your Favorites</span>
+                <h2 class="pm-section-title">EXPLORE BY CATEGORY</h2>
+                <div class="pm-title-line"></div>
+            </div>
+            <div class="category-asymmetric-grid">
+                @forelse($categories as $index => $category)
+                    <a href="{{ route('category.show', $category->id) }}"
+                        class="cat-grid-item {{ $index === 0 ? 'cat-grid-large' : '' }}">
+                        @if ($category->image_path)
+                            <img src="{{ Storage::url($category->image_path) }}" alt="{{ $category->name }}">
+                        @else
+                            {{-- fallback XRT60 image based on index --}}
+                            @php
+                                $fallbacks = [
+                                    'dumbbell.png',
+                                    'power_bench.png',
+                                    'kettlebell.png',
+                                    'combo-set.png',
+                                    'bottel.png',
+                                ];
+                                $fb = $fallbacks[$index % count($fallbacks)];
+                            @endphp
+                            <img src="{{ asset('frontend/images/' . $fb) }}" alt="{{ $category->name }}">
+                        @endif
+                        <span
+                            class="cat-grid-label {{ $index === 0 ? 'cat-grid-label-primary' : '' }}">{{ strtoupper($category->name) }}</span>
+                    </a>
+                @empty
+                    <a href="{{ route('products.index') }}" class="cat-grid-item cat-grid-large">
+                        <img src="{{ asset('frontend/images/dumbbell.png') }}" alt="Dumbbells">
+                        <span class="cat-grid-label cat-grid-label-primary">DUMBBELLS</span>
+                    </a>
+                    <a href="{{ route('products.index') }}" class="cat-grid-item">
+                        <img src="{{ asset('frontend/images/power_bench.png') }}" alt="Benches">
+                        <span class="cat-grid-label">BENCHES</span>
+                    </a>
+                    <a href="{{ route('products.index') }}" class="cat-grid-item">
+                        <img src="{{ asset('frontend/images/kettlebell.png') }}" alt="Kettlebells">
+                        <span class="cat-grid-label">KETTLEBELLS</span>
+                    </a>
+                    <a href="{{ route('products.index') }}" class="cat-grid-item">
+                        <img src="{{ asset('frontend/images/combo-set.png') }}" alt="Combos">
+                        <span class="cat-grid-label">COMBO SETS</span>
+                    </a>
+                    <a href="{{ route('products.index') }}" class="cat-grid-item">
+                        <img src="{{ asset('frontend/images/abroller.png') }}" alt="Accessories">
+                        <span class="cat-grid-label">ACCESSORIES</span>
+                    </a>
+                @endforelse
+            </div>
+        </div>
+    </section>
+
+    {{-- ===== PRODUCT CATEGORY ===== --}}
+    <section class="pm-products-section" id="productCategorySection">
+        <div class="container-fluid">
+            <div class="pm-section-header-row">
+                <div>
+                    <span class="pm-section-sub">Discover The Latest Additions</span>
+                    <h2 class="pm-section-title">PRODUCT CATEGORY</h2>
+                    <div class="pm-title-line"></div>
+                </div>
+                <div class="pm-tab-nav" id="productCategoryTabs">
+                    <button class="pm-tab-btn active" data-tab="all">All Products</button>
+                    @foreach($tabCategories as $tabCat)
+                        <button class="pm-tab-btn" data-tab="cat-{{ $tabCat->id }}">{{ $tabCat->name }}</button>
+                    @endforeach
+                </div>
+            </div>
+
+            {{-- ALL PRODUCTS TAB --}}
+            <div class="pm-tab-panel" data-panel="all">
+                <div class="swiper product-category-swiper">
+                    <div class="swiper-wrapper">
+                        @foreach($featuredProducts as $product)
+                            <div class="swiper-slide">
+                                @include('frontend.partials.product-card', ['product' => $product])
+                            </div>
+                        @endforeach
                     </div>
+                    <div class="swiper-button-next pm-swiper-next"></div>
+                    <div class="swiper-button-prev pm-swiper-prev"></div>
+                </div>
+            </div>
+
+            {{-- PER-CATEGORY TAB PANELS --}}
+            @foreach($tabCategories as $tabCat)
+                <div class="pm-tab-panel" data-panel="cat-{{ $tabCat->id }}" style="display:none;">
+                    @php $catProducts = $featuredProducts->where('category_id', $tabCat->id); @endphp
+                    @if($catProducts->isEmpty())
+                        <p style="color:#6C757D; text-align:center; padding:40px 0;">No products in this category yet.</p>
+                    @else
+                        <div class="swiper product-category-swiper swiper-cat-{{ $tabCat->id }}">
+                            <div class="swiper-wrapper">
+                                @foreach($catProducts as $product)
+                                    <div class="swiper-slide">
+                                        @include('frontend.partials.product-card', ['product' => $product])
+                                    </div>
+                                @endforeach
+                            </div>
+                            <div class="swiper-button-next pm-swiper-next"></div>
+                            <div class="swiper-button-prev pm-swiper-prev"></div>
+                        </div>
+                    @endif
                 </div>
             @endforeach
 
-            @if($heroSlides->count() > 1)
-                <div class="absolute bottom-8 left-0 right-0 z-20">
-                    <div class="container mx-auto px-4 flex items-center gap-2">
-                        @foreach($heroSlides as $index => $slide)
-                            <button type="button" class="home-hero-dot w-3 h-3 rounded-full {{ $index === 0 ? 'bg-brand-500' : 'bg-white/40' }}" data-dot-index="{{ $index }}" aria-label="Slide {{ $index + 1 }}"></button>
-                        @endforeach
+        </div>
+    </section>
+
+    {{-- ===== QUICK VIEW MODAL ===== --}}
+    <div class="modal fade" id="quickViewModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content" style="border-radius:14px; overflow:hidden;">
+                <div class="modal-header" style="border-bottom:1px solid #f0f0f0; padding:16px 24px;">
+                    <h5 class="modal-title fw-bold" id="quickViewTitle">Quick View</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body" id="quickViewBody" style="padding:28px;">
+                    <div class="text-center py-4">
+                        <div class="spinner-border" style="color:#017075;" role="status"></div>
                     </div>
                 </div>
-            @endif
-        @else
-            <div class="hero-banner h-full flex items-center" style="min-height: 85vh;">
-                <div class="container mx-auto px-4 py-20">
-                    <div class="max-w-2xl">
-                        <span class="text-brand-500 font-heading font-bold tracking-[0.2em] uppercase text-sm mb-4 block">Build Your Dream Body</span>
-                        <h1 class="text-5xl md:text-7xl font-heading font-bold text-white uppercase leading-tight mb-6">
-                            Heavy Duty <br> <span class="text-transparent" style="-webkit-text-stroke: 1px #E63946;">Equipment</span>
-                        </h1>
-                        <p class="text-gray-300 text-lg mb-8 max-w-lg">
-                            Discover professional-grade gym equipment designed for uncompromised performance and maximum durability.
+            </div>
+        </div>
+    </div>
+
+
+    <!-- ==== About Section  ====== -->
+    <section class="about-section">
+        <div class="container-fluid">
+
+            <div class="about-wrapper">
+
+                <!-- LEFT CONTENT -->
+                <div class="about-left">
+                    <p class="about-tag">ABOUT <span>XRT65</span></p>
+                    <svg class="about-svg" xmlns="http://www.w3.org/2000/svg" width="71" height="36"
+                        viewBox="0 0 91 36" fill="none">
+                        <path
+                            d="M85.5 25.2559C88.1453 25.3861 90.25 27.5724 90.25 30.25C90.25 33.0114 88.0114 35.25 85.25 35.25C82.4886 35.25 80.25 33.0114 80.25 30.25C80.25 27.5724 82.3547 25.3861 85 25.2559V0.5H0.25C0.111929 0.5 0 0.388071 0 0.25C0 0.111929 0.111929 0 0.25 0H85.5V25.2559Z"
+                            fill="white" />
+                    </svg>
+                    <h2>
+                        Engineered for Strength. Designed for You. <br>
+                        Built for Your Space.
+                    </h2>
+
+                    <h3>Shaped to Fit Your Life.</h3>
+
+                    <div class="about-image">
+                        <img src="frontend/images/gymVector.png" class="img-shape" alt="Vector Background">
+                        <img src="frontend/images/about1.png" alt="Gym Photo" class="main-img">
+                        <svg class="about1-glow" xmlns="http://www.w3.org/2000/svg" width="522" height="522"
+                            viewBox="0 0 522 522" fill="none">
+                            <g filter="url(#filter0_f_about1_glow)">
+                                <circle cx="260.922" cy="260.922" r="110.922" fill="#17948E" />
+                            </g>
+                            <defs>
+                                <filter id="filter0_f_about1_glow" x="0" y="0" width="521.844" height="521.844"
+                                    filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+                                    <feFlood flood-opacity="0" result="BackgroundImageFix" />
+                                    <feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix"
+                                        result="shape" />
+                                    <feGaussianBlur stdDeviation="75" result="effect1_foregroundBlur_6311_2685" />
+                                </filter>
+                            </defs>
+                        </svg>
+                        <img src="frontend/images/gymVector.png" class="img-shape1" alt="Vector Background">
+                        <svg class="about2-glow" xmlns="http://www.w3.org/2000/svg" width="522" height="522"
+                            viewBox="0 0 522 522" fill="none">
+                            <g filter="url(#filter0_f_about1_glow)">
+                                <circle cx="260.922" cy="260.922" r="110.922" fill="#17948E" />
+                            </g>
+                            <defs>
+                                <filter id="filter0_f_about1_glow" x="0" y="0" width="521.844" height="521.844"
+                                    filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+                                    <feFlood flood-opacity="0" result="BackgroundImageFix" />
+                                    <feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix"
+                                        result="shape" />
+                                    <feGaussianBlur stdDeviation="75" result="effect1_foregroundBlur_6311_2685" />
+                                </filter>
+                            </defs>
+                        </svg>
+                    </div>
+                </div>
+
+                <!-- RIGHT CONTENT -->
+                <div class="about-right">
+
+                    <!-- Small Images -->
+                    <div class="about-gallery">
+                        <img src="frontend/images/about2.png" alt="Workout Photo">
+                        <img src="frontend/images/about3.png" alt="Workout Photo">
+                        <img src="frontend/images/about4.png" alt="Workout Photo">
+                        <img src="frontend/images/about5.png" alt="Workout Photo">
+                        <img src="frontend/images/about6.png" alt="Workout Photo">
+                    </div>
+
+                    <p class="about-desc">
+                        XRT65 brings complete fitness into your everyday space with thoughtfully designed equipment and
+                        accessories. Built for
+                        performance without bulk, our range helps you train efficiently and make the most of your space.
+                        Whether you’re starting out or staying consistent, XRT65 keeps your fitness simple, flexible,
+                        and within reach.
+                    </p>
+
+                    <!-- Stats -->
+                    <div class="about-stats" id="whyChooseUs">
+
+                        <div class="stat">
+                            <img src="frontend/images/customer-service 1.png" alt="Customers" class="stat-icon">
+
+                            <h4 class="stat-number">
+                                <img src="frontend/images/starvectore1.png" class="icon-shape" alt="">
+                                <svg class="stats-glow" xmlns="http://www.w3.org/2000/svg" width="522" height="522"
+                                    viewBox="0 0 522 522" fill="none">
+                                    <g filter="url(#filter0_f_about1_glow)">
+                                        <circle cx="260.922" cy="260.922" r="110.922" fill="#17948E" />
+                                    </g>
+                                    <defs>
+                                        <filter id="filter0_f_about1_glow" x="0" y="0" width="521.844" height="521.844"
+                                            filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+                                            <feFlood flood-opacity="0" result="BackgroundImageFix" />
+                                            <feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix"
+                                                result="shape" />
+                                            <feGaussianBlur stdDeviation="75" result="effect1_foregroundBlur_6311_2685" />
+                                        </filter>
+                                    </defs>
+                                </svg>
+                                <span class="pm-trust-number" data-count="50000">0</span>
+                            </h4>
+
+                            <p>Happy Customers</p>
+                        </div>
+
+                        <div class="stat">
+                            <img src="frontend/images/product 1.png" alt="Products" class="stat-icon">
+                            <h4 class="stat-number">
+                                <img src="frontend/images/starvectore1.png" class="icon-shape" alt="">
+                                <svg class="stats-glow" xmlns="http://www.w3.org/2000/svg" width="522" height="522"
+                                    viewBox="0 0 522 522" fill="none">
+                                    <g filter="url(#filter0_f_about1_glow)">
+                                        <circle cx="260.922" cy="260.922" r="110.922" fill="#17948E" />
+                                    </g>
+                                    <defs>
+                                        <filter id="filter0_f_about1_glow" x="0" y="0" width="521.844" height="521.844"
+                                            filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+                                            <feFlood flood-opacity="0" result="BackgroundImageFix" />
+                                            <feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix"
+                                                result="shape" />
+                                            <feGaussianBlur stdDeviation="75" result="effect1_foregroundBlur_6311_2685" />
+                                        </filter>
+                                    </defs>
+                                </svg>
+                                <span class="pm-trust-number" data-count="200">0</span>
+                            </h4>
+                            <p>Products Delivered</p>
+                        </div>
+
+
+
+                        <div class="stat">
+                            <img src="frontend/images/king 1.png" alt="Warranty" class="stat-icon">
+
+                            <h4 class="stat-number">
+                                <img src="frontend/images/starvectore1.png" class="icon-shape" alt="">
+                                <svg class="stats-glow" xmlns="http://www.w3.org/2000/svg" width="522" height="522"
+                                    viewBox="0 0 522 522" fill="none">
+                                    <g filter="url(#filter0_f_about1_glow)">
+                                        <circle cx="260.922" cy="260.922" r="110.922" fill="#17948E" />
+                                    </g>
+                                    <defs>
+                                        <filter id="filter0_f_about1_glow" x="0" y="0" width="521.844" height="521.844"
+                                            filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+                                            <feFlood flood-opacity="0" result="BackgroundImageFix" />
+                                            <feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix"
+                                                result="shape" />
+                                            <feGaussianBlur stdDeviation="75" result="effect1_foregroundBlur_6311_2685" />
+                                        </filter>
+                                    </defs>
+                                </svg>
+                                <span class="pm-trust-number" data-count="5" data-suffix=" year">0</span>
+                            </h4>
+
+                            <p>Happy Customers</p>
+                        </div>
+
+                        <div class="stat">
+                            <img src="frontend/images/costumer.png" alt="Rating" class="stat-icon">
+                            <h4 class="stat-number">
+                                <img src="frontend/images/starvectore1.png" class="icon-shape" alt="">
+                                <svg class="stats-glow" xmlns="http://www.w3.org/2000/svg" width="522" height="522"
+                                    viewBox="0 0 522 522" fill="none">
+                                    <g filter="url(#filter0_f_about1_glow)">
+                                        <circle cx="260.922" cy="260.922" r="110.922" fill="#17948E" />
+                                    </g>
+                                    <defs>
+                                        <filter id="filter0_f_about1_glow" x="0" y="0" width="521.844" height="521.844"
+                                            filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+                                            <feFlood flood-opacity="0" result="BackgroundImageFix" />
+                                            <feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix"
+                                                result="shape" />
+                                            <feGaussianBlur stdDeviation="75" result="effect1_foregroundBlur_6311_2685" />
+                                        </filter>
+                                    </defs>
+                                </svg>
+                                <span class="pm-trust-number" data-count="4.8" data-is-decimal="true"
+                                    data-suffix=" star">0.0</span>
+                            </h4>
+                            <p>Average Rating</p>
+                        </div>
+
+                    </div>
+
+                    <!-- CTA -->
+                    <div class="about-cta">
+
+                        <!-- LEFT: VIDEO THUMBNAILS -->
+                        <div class="video-list">
+                            <div class="video-circle" data-video="https://www.youtube.com/embed/VIDEO_ID_1">
+                                <img src="frontend/images/video1.png" alt="">
+                            </div>
+                            <div class="video-circle" data-video="https://www.youtube.com/embed/VIDEO_ID_2">
+                                <img src="frontend/images/video2.png" alt="">
+                            </div>
+                            <div class="video-circle" data-video="https://www.youtube.com/embed/VIDEO_ID_3">
+                                <img src="frontend/images/video3.png" alt="">
+                            </div>
+                        </div>
+
+                        <!-- RIGHT: CTA -->
+                        <div class="watch-video" data-video="https://www.youtube.com/embed/VIDEO_ID_1">
+                            <button class="play-btn">▶</button>
+                            <span>WATCH VIDEO</span>
+                        </div>
+
+                    </div>
+
+                    <!-- VIDEO MODAL -->
+                    <div class="video-modal" id="videoModal">
+                        <div class="video-content">
+                            <span class="close-btn">&times;</span>
+                            <iframe id="videoFrame" src="" frameborder="0" allowfullscreen></iframe>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+    </section>
+
+    <!-- ===== Story Section ===== -->
+    <div style="border: 1px solid #F8FFFF; background: linear-gradient(180deg, #F8FFFF 0%, #FFF 100%);">
+        <section class="story-section">
+            <div class="container-fluid">
+
+                <div class="story-wrapper">
+
+
+                    <!-- LEFT SIDE -->
+                    <div class="story-left">
+                        <img src="frontend/images/fSectionvector.png" class="fimg-shape" alt="Vector Background">
+                        <h1 class="story-title">Leo Singh Arora</h1>
+
+                        <p class="story-sub">(Founder XRT65 FITNESS)</p>
+
+                        <p class="story-tagline">
+                            From Pandemic Struggles to <br>
+                            Your Home Gym Solution:
                         </p>
-                        <div class="flex gap-4">
-                            <a href="{{ route('products.index') }}" class="btn-brand px-8 py-4 text-sm tracking-widest inline-flex items-center gap-2">
-                                Shop Now <i class="bi bi-arrow-right"></i>
-                            </a>
-                            <a href="{{ route('categories.index') }}" class="px-8 py-4 text-sm font-heading font-semibold tracking-widest uppercase border border-white text-white hover:bg-white hover:text-black transition-colors inline-block">
-                                View Categories
-                            </a>
+
+                        <h2 class="story-heading">XRT65's Story</h2>
+
+                        <div class="story-line"></div>
+
+                        <div class="story-image">
+                            <img src="frontend/images/founder copy.png" alt="Founder">
                         </div>
-                    </div>
-                </div>
-            </div>
-        @endif
-    </section>
 
-    <!-- Services / Features Bar -->
-    <section class="bg-brand-500 py-6">
-        <div class="container mx-auto px-4">
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-center divide-y md:divide-y-0 md:divide-x divide-red-700">
-                <div class="flex items-center justify-center gap-4 py-2">
-                    <i class="bi bi-shield-check text-3xl"></i>
-                    <div class="text-left font-heading">
-                        <h4 class="font-bold text-lg uppercase tracking-wider leading-none mb-1">Lifetime Warranty</h4>
-                        <span class="text-xs text-red-100 uppercase tracking-widest">On all metal frames</span>
                     </div>
+
+                    <!-- RIGHT SIDE -->
+                    <div class="story-right">
+                        <p>
+                            The pandemic hit us all hard. It forced us to re-evaluate our lives, our habits, and our
+                            health.
+                            For me, it revealed a truth I couldn’t ignore any longer: I was battling addiction.
+                        </p>
+
+                        <p>
+                            But within the struggle, I found my escape. Fitness became my lifeline. It pushed back the
+                            anxiety,
+                            the depression, and the addiction, replacing them with a newfound strength and purpose.
+                        </p>
+
+                        <p>
+                            I knew I wasn’t alone. Millions were grappling with similar challenges, even after the
+                            pandemic
+                            eased.
+                            That’s when I realized fitness wasn’t a luxury — it was a necessity.
+                        </p>
+
+                        <p>
+                            XRT65 was born to break those barriers. No more excuses, just effective workouts — right at
+                            home.
+                        </p>
+
+                        <p>
+                            XRT65 is more than a brand; it's a movement – Keep India Fit and Keep Going.
+                        </p>
+                    </div>
+                    <img src="frontend/images/fSectionvector2.png" class="fimg-shape2" alt="Vector Background">
+
+
                 </div>
-                <div class="flex items-center justify-center gap-4 py-2">
-                    <i class="bi bi-lightning-charge text-3xl"></i>
-                    <div class="text-left font-heading">
-                        <h4 class="font-bold text-lg uppercase tracking-wider leading-none mb-1">Fast Delivery</h4>
-                        <span class="text-xs text-red-100 uppercase tracking-widest">Global shipping available</span>
-                    </div>
-                </div>
-                <div class="flex items-center justify-center gap-4 py-2">
-                    <i class="bi bi-arrow-return-left text-3xl"></i>
-                    <div class="text-left font-heading">
-                        <h4 class="font-bold text-lg uppercase tracking-wider leading-none mb-1">30-Day Returns</h4>
-                        <span class="text-xs text-red-100 uppercase tracking-widest">Money back guarantee</span>
-                    </div>
+
+            </div>
+        </section>
+    </div>
+
+
+    <!-- ===== MindSet Section ======= -->
+    <section class="mindset-section">
+
+        <div class="mindset-wrapper">
+            <div class="cursor-circle"></div>
+
+            <!-- LEFT CONTENT -->
+            <div class="mindset-left">
+                <h2 class="title">The XRT65 Mindset</h2>
+
+                <div class="text-wrapper">
+                    <!-- DULL TEXT -->
+                    <p class="text dull">
+                        Strength is not just about what you can do, but about how you conquer what you cannot do.
+                    </p>
+
+                    <!-- BOLD TEXT -->
+                    <p class="text highlight">
+                        Strength is not just about what you can do, but about how you conquer what you cannot do.
+                    </p>
                 </div>
             </div>
+
+            <!-- RIGHT CONTENT -->
+            <div class="mindset-right">
+                <div class="mindset-line"></div>
+                <div class="mindset-dot"></div>
+
+                <img src="frontend/images/nopainnogain.png" class="mindset-logo" alt="">
+            </div>
+
         </div>
+
+        <!-- SPOTLIGHT -->
+        <div class="spotlight"></div>
+
     </section>
 
-    <!-- Featured Categories -->
-    <section class="py-20 bg-dark-900">
-        <div class="container mx-auto px-4">
-            <div class="flex justify-between items-end mb-12">
-                <div>
-                    <h2 class="font-heading text-3xl font-bold uppercase tracking-wide text-white"><span class="text-brand-500">Shop</span> By Category</h2>
-                    <p class="text-gray-400 mt-2">Find exactly what you need for your specific workout routine.</p>
+
+    <!-- =========  Philosophy Section ===========  -->
+    <section class="philosophy-section">
+        <div class="container-fluid philosophy-container">
+
+            <!-- TOP HEADER -->
+            <div class="philosophy-header-row d-flex align-items-center mb-4">
+                <h2 class="philosophy-title mb-0">The XRT65 Philosophy</h2>
+
+                <!-- Line from Title to Foundation -->
+                <img src="frontend/images/line1.png" class="branch-line flex-grow-1" style="min-width: 50px;" alt="">
+
+                <div class="branch-node d-flex align-items-center flex-shrink-0">
+                    <div class="node-dot"></div>
+                    <span class="node-text ms-3 text-nowrap">Our Foundation</span>
                 </div>
-                <a href="{{ route('categories.index') }}" class="text-brand-500 uppercase font-heading font-semibold text-sm hover:text-white transition-colors tracking-widest">View All</a>
+
+                <!-- Stepped Line from Foundation to Purpose -->
+                <div class="flex-grow-1 position-relative"
+                    style="height: 19px; margin: 0 6px; border-top: 1.5px solid #a4cece; border-right: 1.5px solid #a4cece; align-self: center; margin-top: 19px; right: -0.6%;">
+                </div>
+
+                <div class="branch-node d-flex align-items-center position-relative flex-shrink-0"
+                    style="height: 24px; align-self: flex-end; margin-bottom: -15px;">
+                    <div class="node-dot"></div>
+                    <span class="node-text position-absolute text-nowrap" style="top: 88%; right: -22px; ">Built on
+                        Purpose</span>
+                </div>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                @foreach($categories as $index => $category)
-                    <a href="{{ route('category.show', $category->id) }}" class="group relative h-80 overflow-hidden bg-dark-800 {{ $index === 0 ? 'md:col-span-2 lg:col-span-2' : '' }}">
-                        <div class="absolute inset-0 bg-black/50 group-hover:bg-black/20 transition-all z-10"></div>
-                        @if($category->image_path)
-                            <img src="{{ Storage::url($category->image_path) }}" alt="{{ $category->name }}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700">
-                        @else
-                            <!-- Dummy gradient if no image -->
-                            <div class="w-full h-full bg-gradient-to-tr from-dark-800 to-dark-700"></div>
-                        @endif
-                        <div class="absolute bottom-6 left-6 z-20">
-                            <h3 class="font-heading text-2xl font-bold uppercase tracking-wide text-white mb-1 group-hover:text-brand-500 transition-colors">{{ $category->name }}</h3>
-                            <span class="text-xs text-gray-300 uppercase tracking-widest inline-flex items-center gap-1 group-hover:text-white">Shop Now <i class="bi bi-chevron-right text-[10px]"></i></span>
+            <!-- CARDS & TREE L-SHAPE CONTAINER -->
+            <div class="philosophy-cards-container position-relative">
+
+                <!-- The L-shape starting line and horizontal connector -->
+                <div class="tree-horizontal-bar"></div>
+
+                <div class="philosophy-cards">
+
+                    <!-- CARD 1 -->
+                    <div class="philosophy-card">
+
+                        <div class="tree-branch-down"></div>
+                        <img src="frontend/images/phyvector.png" class="phy-shape" alt="Vector Background">
+
+                        <div class="card-top">
+                            <img src="frontend/images/philosophyvector.png" class="shape-bg" alt="">
+                            <img src="frontend/images/philosophycircle.png" class="circle-img" alt="Philosophy Icon">
+                            <h4>OUR VALUES</h4>
                         </div>
-                    </a>
-                @endforeach
-            </div>
-        </div>
-    </section>
-
-    <!-- New Arrivals -->
-    <section class="py-20 bg-[#141414]">
-        <div class="container mx-auto px-4">
-            <div class="text-center mb-12">
-                <h2 class="font-heading text-4xl font-bold uppercase tracking-wide text-white mb-3">New <span class="text-brand-500">Arrivals</span></h2>
-                <div class="w-16 h-1 bg-brand-500 mx-auto"></div>
-            </div>
-
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-                @foreach($newProducts as $product)
-                    <div class="product-card bg-dark-800 relative group">
-                        @if($product->created_at->diffInDays(now()) < 30)
-                            <span class="badge-hot z-20">NEW</span>
-                        @endif
-                        
-                        <a href="{{ route('product.show', $product->slug) }}" class="block relative h-64 overflow-hidden bg-white p-4">
-                            @if($product->images->count() > 0)
-                                <img src="{{ Storage::url($product->images->first()->image_path) }}" alt="{{ $product->name }}" class="w-full h-full object-contain mix-blend-multiply group-hover:scale-105 transition-transform duration-500">
-                            @else
-                                <div class="w-full h-full flex items-center justify-center text-gray-400">No Image</div>
-                            @endif
-                            
-                            <!-- Quick actions overlay -->
-                            <div class="absolute bottom-4 left-0 right-0 flex justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity z-20 translate-y-4 group-hover:translate-y-0 duration-300">
-                                <button type="button" onclick="event.preventDefault(); event.stopPropagation(); document.getElementById('quick-cart-{{ $product->id }}').submit()" class="w-10 h-10 bg-black text-white hover:bg-brand-500 flex items-center justify-center rounded-full" title="Add to Cart"><i class="bi bi-cart-plus"></i></button>
-                                @auth
-                                    <button type="button" onclick="event.preventDefault(); event.stopPropagation(); document.getElementById('quick-wishlist-{{ $product->id }}').submit()" class="w-10 h-10 bg-black text-white hover:bg-brand-500 flex items-center justify-center rounded-full" title="Wishlist"><i class="bi bi-heart"></i></button>
-                                @endauth
-                                <a href="{{ route('product.show', $product->slug) }}" class="w-10 h-10 bg-black text-white hover:bg-brand-500 flex items-center justify-center rounded-full" title="View Product"><i class="bi bi-eye"></i></a>
+                        <div class="card-body-text">
+                            <p>
+                                Make fitness a necessity, not a luxury, for a happy and healthy life in every Indian
+                                household.
+                            </p>
+                            <div class="card-bracket">
+                                <img src="frontend/images/philosophycircle.png" class="bracket-end-icon" alt="">
+                                <div class="bracket-shadow"></div>
                             </div>
-                        </a>
-                        <form id="quick-cart-{{ $product->id }}" action="{{ route('cart.add') }}" method="POST" class="hidden">
-                            @csrf
-                            <input type="hidden" name="product_id" value="{{ $product->id }}">
-                            <input type="hidden" name="quantity" value="1">
-                        </form>
-                        @auth
-                            <form id="quick-wishlist-{{ $product->id }}" action="{{ route('wishlist.toggle') }}" method="POST" class="hidden">
-                                @csrf
-                                <input type="hidden" name="product_id" value="{{ $product->id }}">
-                            </form>
-                        @endauth
-                        
-                        <div class="p-5 text-center">
-                            @if($product->category)
-                                <div class="text-brand-500 text-xs font-heading tracking-widest uppercase mb-2">{{ $product->category->name }}</div>
-                            @endif
-                            <a href="{{ route('product.show', $product->slug) }}" class="block font-heading font-medium text-lg text-white hover:text-brand-500 transition-colors uppercase truncate tracking-wide mb-2">
-                                {{ $product->name }}
-                            </a>
-                            <div class="flex justify-center items-center gap-3 font-heading text-lg">
-                                @if($product->sale_price)
-                                    <span class="text-brand-500 font-bold">${{ number_format($product->sale_price, 2) }}</span>
-                                    <span class="text-gray-500 line-through text-sm">${{ number_format($product->base_price, 2) }}</span>
-                                @else
-                                    <span class="text-white font-bold">${{ number_format($product->base_price, 2) }}</span>
-                                @endif
+                        </div>
+                    </div>
+
+                    <!-- CARD 2 -->
+                    <div class="philosophy-card">
+                        <div class="tree-branch-down"></div>
+                        <img src="frontend/images/phyvector.png" class="phy-shape" alt="Vector Background">
+                        <div class="card-top">
+                            <img src="frontend/images/philosophyvector.png" class="shape-bg" alt="">
+                            <img src="frontend/images/philosophycircle.png" class="circle-img" alt="Philosophy Icon">
+                            <h4>OUR VISION</h4>
+                        </div>
+                        <div class="card-body-text">
+                            <p>
+                                Accessibility, quality, innovation and community around fitness.
+                            </p>
+                            <div class="card-bracket">
+                                <img src="frontend/images/philosophycircle.png" class="bracket-end-icon" alt="">
+                                <div class="bracket-shadow"></div>
                             </div>
                         </div>
                     </div>
-                @endforeach
+
+                    <!-- CARD 3 -->
+                    <div class="philosophy-card">
+                        <div class="tree-branch-down"></div>
+                        <img src="frontend/images/phyvector.png" class="phy-shape" alt="Vector Background">
+                        <div class="card-top">
+                            <img src="frontend/images/philosophyvector.png" class="shape-bg" alt="">
+                            <img src="frontend/images/philosophycircle.png" class="circle-img" alt="Philosophy Icon">
+                            <h4>OUR MISSION</h4>
+                        </div>
+                        <div class="card-body-text">
+                            <p>
+                                Break down barriers to fitness by providing high-quality, space-saving equipment for
+                                effective home
+                                workouts.
+                            </p>
+                            <div class="card-bracket">
+                                <img src="frontend/images/philosophycircle.png" class="bracket-end-icon" alt="">
+                                <div class="bracket-shadow"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
             </div>
-            
-            <div class="text-center mt-12">
-                <a href="{{ route('products.index') }}" class="inline-block border-2 border-dark-700 text-white font-heading px-8 py-3 uppercase tracking-widest hover:border-brand-500 hover:text-brand-500 transition-colors font-semibold">
-                    Load More Products
-                </a>
+
+        </div>
+    </section>
+
+
+    <!-- =========== FAQ =================== -->
+    <section class="faq-section">
+        <div class="faq-container">
+
+            <!-- LEFT SIDE -->
+            <div class="faq-left">
+                <div class="faq-label"><span>FAQ</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="71" height="36" viewBox="0 0 91 36"
+                        fill="none">
+                        <path
+                            d="M85.5 25.2559C88.1453 25.3861 90.25 27.5724 90.25 30.25C90.25 33.0114 88.0114 35.25 85.25 35.25C82.4886 35.25 80.25 33.0114 80.25 30.25C80.25 27.5724 82.3547 25.3861 85 25.2559V0.5H0.25C0.111929 0.5 0 0.388071 0 0.25C0 0.111929 0.111929 0 0.25 0H85.5V25.2559Z"
+                            fill="white" />
+                    </svg>
+                </div>
+
+                <h2>Popular<br>Questions</h2>
+
+                <p>
+                    Got questions? We've got answers to the stuff people ask us about the most right here!
+                </p>
+
+                <div class="faq-cta">
+                    <button class="faq-btn">Contact Us</button>
+                    <img src="frontend/images/fSectionvector2.png" class="faq-btn-vector" alt="">
+                </div>
+                <svg class="contact-line" xmlns="http://www.w3.org/2000/svg" width="333" height="36"
+                    viewBox="0 0 433 36" fill="none">
+                    <path
+                        d="M0 0H0.5V30.75H422.25V31.25H0V0ZM427.25 36C424.489 36 422.25 33.7614 422.25 31C422.25 28.2386 424.489 26 427.25 26C430.011 26 432.25 28.2386 432.25 31C432.25 33.7614 430.011 36 427.25 36Z"
+                        fill="white" />
+                </svg>
+            </div>
+
+            <!-- RIGHT SIDE -->
+            <div class="faq-right">
+
+                <div class="faq-item active">
+                    <div class="faq-question">
+                        What Shipping method do we use ?
+                        <span class="faq-icon" aria-hidden="true"></span>
+                    </div>
+                    <div class="faq-answer">
+                        XRT65 products are shipped using premium logistics partners. Items above 10kgs are shipped by
+                        road.
+                        Items below 10kgs are shipped through Air Cargo.
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question">
+                        How long will it take to receive my order?
+                        <span class="faq-icon" aria-hidden="true"></span>
+                    </div>
+                    <div class="faq-answer"></div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question">
+                        What payment options are accepted ?
+                        <span class="faq-icon" aria-hidden="true"></span>
+                    </div>
+                    <div class="faq-answer"></div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question">
+                        What do I do if I receive a damaged parcel or product?
+                        <span class="faq-icon" aria-hidden="true"></span>
+                    </div>
+                    <div class="faq-answer"></div>
+                </div>
+
+            </div>
+
+        </div>
+    </section>
+
+
+    <!-- ============  Community Vector ============= -->
+    <section class="community-section">
+        <div class="container-fluid">
+
+            <!-- HEADER -->
+            <div class="community-header">
+                <h2>XRT65 Community </h2>
+
+
+                <div class="subtitle">
+                    <span class="line"></span>
+                    <p>Insights from Real Journeys</p>
+                    <span class="dot"></span>
+                </div>
+            </div>
+
+            <!-- CARDS -->
+            <div class="community-grid">
+
+                <!-- CARD -->
+                <div class="community-card">
+
+
+                    <div class="card-inner">
+
+                        <!-- BACKGROUND VECTOR -->
+                        <img src="frontend/images/communityback.png" class="bg-vector" alt="">
+
+                        <!-- CONTENT -->
+                        <img src="frontend/images/comm1.png" class="card-img" alt="">
+                        <p>Tips to crush your fitness at home</p>
+
+                        <!-- ARROW -->
+                        <svg class="arrow-overlay-svg" xmlns="http://www.w3.org/2000/svg" width="132" height="114"
+                            viewBox="0 0 182 174" fill="none">
+                            <g>
+                                <path
+                                    d="M52.952 110.816L41.2328 90.5176L100.283 56.4252L60.9882 45.8963L66.4476 25.5214L140.67 45.4094L121.562 116.721L101.187 111.262L110.546 76.3336L52.952 110.816Z"
+                                    fill="#FF813E" />
+                                <path
+                                    d="M52.952 110.816L41.2328 90.5176L100.283 56.4252L60.9882 45.8963L66.4476 25.5214L140.67 45.4094L121.562 116.721L101.187 111.262L110.546 76.3336L52.952 110.816Z" />
+                            </g>
+                        </svg>
+                    </div>
+                </div>
+
+                <!-- COPY SAME STRUCTURE FOR ALL -->
+                <div class="community-card">
+
+
+                    <div class="card-inner">
+                        <img src="frontend/images/communityback.png" class="bg-vector" alt="">
+                        <img src="frontend/images/comm2.png" class="card-img" alt="">
+                        <p>Effective Home Workout for Every Goal</p>
+                        <!-- ORANGE ACCENT SVG -->
+                        <svg class="arrow-overlay-svg" xmlns="http://www.w3.org/2000/svg" width="132" height="114"
+                            viewBox="0 0 182 174" fill="none">
+                            <g>
+                                <path
+                                    d="M52.952 110.816L41.2328 90.5176L100.283 56.4252L60.9882 45.8963L66.4476 25.5214L140.67 45.4094L121.562 116.721L101.187 111.262L110.546 76.3336L52.952 110.816Z"
+                                    fill="#FF813E" />
+                                <path
+                                    d="M52.952 110.816L41.2328 90.5176L100.283 56.4252L60.9882 45.8963L66.4476 25.5214L140.67 45.4094L121.562 116.721L101.187 111.262L110.546 76.3336L52.952 110.816Z" />
+                            </g>
+                        </svg>
+                    </div>
+
+                </div>
+
+                <div class="community-card">
+
+
+                    <div class="card-inner">
+                        <img src="frontend/images/communityback.png" class="bg-vector" alt="">
+                        <img src="frontend/images/comm3.png" class="card-img" alt="">
+                        <p>Fitting Fitness into your Busy Schedule</p>
+                        <svg class="arrow-overlay-svg" xmlns="http://www.w3.org/2000/svg" width="132" height="114"
+                            viewBox="0 0 182 174" fill="none">
+                            <g>
+                                <path
+                                    d="M52.952 110.816L41.2328 90.5176L100.283 56.4252L60.9882 45.8963L66.4476 25.5214L140.67 45.4094L121.562 116.721L101.187 111.262L110.546 76.3336L52.952 110.816Z"
+                                    fill="#FF813E" />
+                                <path
+                                    d="M52.952 110.816L41.2328 90.5176L100.283 56.4252L60.9882 45.8963L66.4476 25.5214L140.67 45.4094L121.562 116.721L101.187 111.262L110.546 76.3336L52.952 110.816Z" />
+                            </g>
+                        </svg>
+                    </div>
+                </div>
+
+                <div class="community-card">
+
+                    <div class="card-inner">
+                        <img src="frontend/images/communityback.png" class="bg-vector" alt="">
+                        <img src="frontend/images/comm4.png" class="card-img" alt="">
+
+                        <p>Fitting Fitness into your Busy Schedule</p>
+                        <svg class="arrow-overlay-svg" xmlns="http://www.w3.org/2000/svg" width="132" height="114"
+                            viewBox="0 0 182 174" fill="none">
+                            <g>
+                                <path
+                                    d="M52.952 110.816L41.2328 90.5176L100.283 56.4252L60.9882 45.8963L66.4476 25.5214L140.67 45.4094L121.562 116.721L101.187 111.262L110.546 76.3336L52.952 110.816Z"
+                                    fill="#FF813E" />
+                                <path
+                                    d="M52.952 110.816L41.2328 90.5176L100.283 56.4252L60.9882 45.8963L66.4476 25.5214L140.67 45.4094L121.562 116.721L101.187 111.262L110.546 76.3336L52.952 110.816Z" />
+                            </g>
+                        </svg>
+                    </div>
+                </div>
+
             </div>
         </div>
     </section>
 
-    <!-- CTA Section -->
-    <section class="py-24 relative overflow-hidden">
-        <div class="absolute inset-0 bg-brand-500 z-0 opacity-90"></div>
-        <div class="absolute inset-0 z-0 mix-blend-overlay" style="background-image: url('https://images.unsplash.com/photo-1540497077202-7c8a3999166f?q=80&w=2940&auto=format&fit=crop'); background-size: cover; background-position: center; filter: grayscale(100%); opacity: 0.3;"></div>
-        
-        <div class="container mx-auto px-4 relative z-10 text-center">
-            <h2 class="text-4xl md:text-6xl font-heading font-bold uppercase text-white tracking-widest leading-tight mb-6">
-                Upgrade Your <br> Home Gym Today
-            </h2>
-            <p class="text-white text-lg max-w-2xl mx-auto mb-8 font-medium">Get flat 20% off on all strength equipment. Offer valid till month end. Terms and conditions apply.</p>
-            <a href="{{ route('products.index') }}" class="px-10 py-4 bg-black text-white font-heading tracking-widest uppercase font-bold hover:bg-white hover:text-black transition-colors text-lg inline-block">
-                Claim Discount
-            </a>
+    <!-- ===== TESTIMONIALS ===== -->
+    <section class="pm-testimonials-section" id="testimonials">
+        <div class="container-fluid">
+            <div class="pm-section-header">
+                <span class="pm-section-sub">Hear It From Our</span>
+                <h2 class="pm-section-title">CUSTOMERS THEMSELVES</h2>
+                <div class="pm-title-line"></div>
+            </div>
+            <div class="pm-testimonial-slider">
+                <div class="row g-4 pm-testimonial-track">
+                    <div class="col-lg-4 col-md-6">
+                        <div class="pm-testimonial-card">
+                            <div class="pm-testimonial-stars"><i class="bi bi-star-fill"></i><i
+                                    class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i
+                                    class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i></div>
+                            <p class="pm-testimonial-text">"The 24kg adjustable dumbbells are a game-changer! Replaced
+                                my
+                                entire rack
+                                and the build quality is outstanding. Best fitness purchase I've ever made."</p>
+                            <div class="pm-testimonial-author">
+                                <div class="pm-testimonial-avatar">RK</div>
+                                <div>
+                                    <h6>Rahul Kumar</h6>
+                                    <span>Fitness Enthusiast, Delhi</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4 col-md-6">
+                        <div class="pm-testimonial-card">
+                            <div class="pm-testimonial-stars"><i class="bi bi-star-fill"></i><i
+                                    class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i
+                                    class="bi bi-star-fill"></i><i class="bi bi-star-half"></i></div>
+                            <p class="pm-testimonial-text">"The combo kit with bench was unbelievable value. Setup took
+                                20
+                                minutes. My
+                                home gym is now complete and I save 2 hours daily not going to the gym!"</p>
+                            <div class="pm-testimonial-author">
+                                <div class="pm-testimonial-avatar">PS</div>
+                                <div>
+                                    <h6>Priya Sharma</h6>
+                                    <span>Home Gym Owner, Mumbai</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4 col-md-6">
+                        <div class="pm-testimonial-card">
+                            <div class="pm-testimonial-stars"><i class="bi bi-star-fill"></i><i
+                                    class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i
+                                    class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i></div>
+                            <p class="pm-testimonial-text">"I'm a personal trainer and I recommend XRT65 to all my
+                                clients.
+                                The dial
+                                system is smooth, weights are precise, and the warranty is top-notch."</p>
+                            <div class="pm-testimonial-author">
+                                <div class="pm-testimonial-avatar">AV</div>
+                                <div>
+                                    <h6>Arjun Verma</h6>
+                                    <span>Certified Trainer, Bangalore</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4 col-md-6">
+                        <div class="pm-testimonial-card">
+                            <div class="pm-testimonial-stars"><i class="bi bi-star-fill"></i><i
+                                    class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i
+                                    class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i></div>
+                            <p class="pm-testimonial-text">"Delivery was super smooth and the packaging was very secure.
+                                I assembled everything in under 30 minutes and started training the same day."</p>
+                            <div class="pm-testimonial-author">
+                                <div class="pm-testimonial-avatar">NM</div>
+                                <div>
+                                    <h6>Nisha Mehta</h6>
+                                    <span>Working Professional, Pune</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4 col-md-6">
+                        <div class="pm-testimonial-card">
+                            <div class="pm-testimonial-stars"><i class="bi bi-star-fill"></i><i
+                                    class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i
+                                    class="bi bi-star-fill"></i><i class="bi bi-star-half"></i></div>
+                            <p class="pm-testimonial-text">"The adjustable bench quality surprised me for this price
+                                range.
+                                It feels sturdy, stable, and compact enough for my apartment workout corner."</p>
+                            <div class="pm-testimonial-author">
+                                <div class="pm-testimonial-avatar">RT</div>
+                                <div>
+                                    <h6>Rohan Tiwari</h6>
+                                    <span>Software Engineer, Hyderabad</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4 col-md-6">
+                        <div class="pm-testimonial-card">
+                            <div class="pm-testimonial-stars"><i class="bi bi-star-fill"></i><i
+                                    class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i
+                                    class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i></div>
+                            <p class="pm-testimonial-text">"Customer support was excellent when I needed setup guidance.
+                                Quick response, clear instructions, and now my home workouts are more consistent than
+                                ever."</p>
+                            <div class="pm-testimonial-author">
+                                <div class="pm-testimonial-avatar">SK</div>
+                                <div>
+                                    <h6>Sneha Kulkarni</h6>
+                                    <span>Physiotherapist, Chennai</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </section>
 
-    <!-- Brands Carousel (Grid representation) -->
-    <section class="py-16 bg-dark-900 border-t border-dark-800">
-        <div class="container mx-auto px-4">
-            <h3 class="text-center font-heading text-xl text-gray-500 uppercase tracking-widest mb-10">Trusted by Global Brands</h3>
-            <div class="flex flex-wrap justify-center items-center gap-8 md:gap-16 opacity-50 grayscale hover:grayscale-0 transition-all duration-500">
-                @foreach($brands as $brand)
-                    <a href="{{ route('brand.show', $brand->id) }}" class="block w-32 filter hover:opacity-100 transition-opacity">
-                        @if($brand->logo_path)
-                            <img src="{{ Storage::url($brand->logo_path) }}" alt="{{ $brand->name }}" class="max-w-full h-auto object-contain">
-                        @else
-                            <span class="font-heading font-bold text-2xl uppercase tracking-widest">{{ $brand->name }}</span>
-                        @endif
-                    </a>
-                @endforeach
+    <!-- ===== FEATURED ON (Press Logos) ===== -->
+    <section class="pm-featured-on-section" id="featuredOn">
+        <div class="container-fluid text-center">
+            <span class="pm-section-sub">Making Waves Across Platforms</span>
+            <h2 class="pm-section-title">OUR BRAND PROUDLY FEATURED ON</h2>
+            <div class="pm-title-line mx-auto"></div>
+            <div class="pm-press-logos">
+                <div class="pm-press-logo">
+                    <span class="press-brand press-brand-et">The Economic Times</span>
+                </div>
+                <div class="pm-press-logo">
+                    <span class="press-brand press-brand-ht">Hindustan Times</span>
+                </div>
+                <div class="pm-press-logo">
+                    <span class="press-brand press-brand-midday">mid•day</span>
+                </div>
+                <div class="pm-press-logo">
+                    <span class="press-brand press-brand-outlook">Outlook</span>
+                </div>
+                <div class="pm-press-logo">
+                    <span class="press-brand press-brand-bc">Business Connect</span>
+                </div>
             </div>
+        </div>
+    </section>
+
+
+    <!-- ===== NEWSLETTER ===== -->
+    <section class="pm-newsletter-section" id="newsletterSection">
+        <div class="container-fluid text-center">
+            <span class="pm-section-sub">Stay Updated</span>
+            <h2 class="pm-section-title">SUBSCRIBE TO OUR NEWSLETTER</h2>
+            <div class="pm-title-line mx-auto"></div>
+            <p class="pm-newsletter-desc">Get early access to sales, new launches, and fitness tips delivered to your
+                inbox.
+            </p>
+            <form id="newsletterForm" class="pm-newsletter-form">
+                <input type="email" placeholder="Email Address" required>
+                <button type="submit"><i class="bi bi-arrow-right"></i></button>
+            </form>
         </div>
     </section>
 
 @endsection
 
-@if(($sliders ?? collect())->count() > 1)
-    @push('scripts')
-        <script>
-            (function () {
-                const slides = Array.from(document.querySelectorAll('.home-hero-slide'));
-                const dots = Array.from(document.querySelectorAll('.home-hero-dot'));
+@push('scripts')
+    <script>
+    // ===== PRODUCT CATEGORY TABS =====
+    (function () {
+        const tabs = document.querySelectorAll('#productCategoryTabs .pm-tab-btn');
+        const panels = document.querySelectorAll('.pm-tab-panel');
+        const swiperInstances = {};
 
-                if (!slides.length || slides.length < 2) {
-                    return;
+        function initSwiper(panel) {
+            const swiperEl = panel.querySelector('.swiper');
+            if (!swiperEl || swiperEl._swiperInit) return;
+            swiperEl._swiperInit = true;
+            new Swiper(swiperEl, {
+                slidesPerView: 1.2,
+                spaceBetween: 16,
+                navigation: {
+                    nextEl: swiperEl.querySelector('.swiper-button-next'),
+                    prevEl: swiperEl.querySelector('.swiper-button-prev'),
+                },
+                breakpoints: {
+                    480:  { slidesPerView: 2,   spaceBetween: 16 },
+                    768:  { slidesPerView: 3,   spaceBetween: 20 },
+                    1200: { slidesPerView: 4,   spaceBetween: 24 },
                 }
+            });
+        }
 
-                let activeIndex = 0;
+        // Init the default visible panel's swiper
+        const defaultPanel = document.querySelector('.pm-tab-panel[data-panel="all"]');
+        if (defaultPanel) initSwiper(defaultPanel);
 
-                const setActiveSlide = (index) => {
-                    activeIndex = index;
+        tabs.forEach(function (tab) {
+            tab.addEventListener('click', function () {
+                tabs.forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
 
-                    slides.forEach((slide, i) => {
-                        const isActive = i === activeIndex;
-                        slide.classList.toggle('opacity-100', isActive);
-                        slide.classList.toggle('opacity-0', !isActive);
-                        slide.classList.toggle('pointer-events-none', !isActive);
-                    });
-
-                    dots.forEach((dot, i) => {
-                        const isActive = i === activeIndex;
-                        dot.classList.toggle('bg-brand-500', isActive);
-                        dot.classList.toggle('bg-white/40', !isActive);
-                    });
-                };
-
-                dots.forEach((dot, index) => {
-                    dot.addEventListener('click', () => setActiveSlide(index));
+                const target = tab.dataset.tab;
+                panels.forEach(function (panel) {
+                    if (panel.dataset.panel === target) {
+                        panel.style.display = 'block';
+                        initSwiper(panel);
+                    } else {
+                        panel.style.display = 'none';
+                    }
                 });
+            });
+        });
+    })();
 
-                setInterval(() => {
-                    const next = (activeIndex + 1) % slides.length;
-                    setActiveSlide(next);
-                }, 5000);
-            })();
-        </script>
-    @endpush
-@endif
+    // ===== CART CLICK HANDLER =====
+    // If product has variations, redirect to product page instead of submitting cart
+    function handleCartClick(event, productId, slug, hasVariations) {
+        if (hasVariations) {
+            event.preventDefault();
+            event.stopPropagation();
+            window.location.href = '/product/' + slug;
+        }
+        // Otherwise let the form submit naturally
+    }
+
+    // ===== QUICK VIEW =====
+    function openQuickView(productId, productName) {
+        const modal = document.getElementById('quickViewModal');
+        const title = document.getElementById('quickViewTitle');
+        const body  = document.getElementById('quickViewBody');
+
+        if (!modal) return;
+
+        title.textContent = productName;
+        body.innerHTML = '<div class="text-center py-4"><div class="spinner-border" style="color:#017075;" role="status"></div><p class="mt-3 text-muted" style="font-size:0.9rem;">Loading...</p></div>';
+
+        var bsModal = bootstrap.Modal.getOrCreateInstance(modal);
+        bsModal.show();
+
+        fetch('/product/' + productId + '/quick-view', {
+            headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'text/html' }
+        })
+        .then(function(res) {
+            if (!res.ok) throw new Error('Failed');
+            return res.text();
+        })
+        .then(function(html) {
+            body.innerHTML = html;
+        })
+        .catch(function() {
+            body.innerHTML = '<div class="text-center py-4"><p class="text-muted">Could not load product. <a href="/product/' + productId + '" style="color:#017075;">View full page →</a></p></div>';
+        });
+    }
+
+    // Counter animation for stats
+        (function() {
+            const counters = document.querySelectorAll('.pm-trust-number[data-count]');
+            const observer = new IntersectionObserver(function(entries) {
+                entries.forEach(function(entry) {
+                    if (!entry.isIntersecting) return;
+                    const el = entry.target;
+                    const target = parseInt(el.dataset.count, 10);
+                    let current = 0;
+                    const step = Math.ceil(target / 60);
+                    const timer = setInterval(function() {
+                        current = Math.min(current + step, target);
+                        el.textContent = current.toLocaleString('en-IN') + '+';
+                        if (current >= target) clearInterval(timer);
+                    }, 30);
+                    observer.unobserve(el);
+                });
+            }, {
+                threshold: 0.5
+            });
+            counters.forEach(function(el) {
+                observer.observe(el);
+            });
+        })();
+    </script>
+@endpush

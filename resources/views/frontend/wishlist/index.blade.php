@@ -1,77 +1,111 @@
 @extends('layouts.frontend')
 
+@section('title', 'My Wishlist | Boxima Fitness')
+
 @section('content')
-<div class="bg-dark-900 py-10 border-b border-dark-800">
-    <div class="container mx-auto px-4">
-        <h1 class="text-3xl md:text-4xl font-heading font-bold uppercase tracking-wide text-white">My Wishlist</h1>
-        <p class="text-gray-400 mt-2">Your saved products for later.</p>
+
+{{-- Page Header --}}
+<div class="page-header-teal">
+    <div class="container">
+        <h1 class="page-header-title">My Wishlist</h1>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb-xrt">
+                <li><a href="{{ route('home') }}">Home</a></li>
+                <li>Wishlist</li>
+            </ol>
+        </nav>
     </div>
 </div>
 
-<div class="bg-dark-900 py-12 min-h-[50vh]">
-    <div class="container mx-auto px-4">
+<section style="background:#f5f5f5; padding: 50px 0; min-height: 55vh;">
+    <div class="container">
+
         @if(session('success'))
-            <div class="bg-green-700/60 border border-green-500 text-white px-4 py-3 mb-6 text-sm uppercase tracking-wider">{{ session('success') }}</div>
+            <div class="alert alert-success py-2 mb-4" style="font-size:0.875rem; border-radius:8px;">
+                <i class="bi bi-check-circle me-2"></i>{{ session('success') }}
+            </div>
         @endif
 
         @if($items->isEmpty())
-            <div class="bg-dark-800 border border-dark-700 p-10 text-center">
-                <h2 class="text-white font-heading text-xl uppercase tracking-widest">Wishlist is empty</h2>
-                <p class="text-gray-400 mt-2">Save products you like and find them quickly here.</p>
-                <a href="{{ route('products.index') }}" class="inline-block mt-6 px-6 py-3 border border-brand-500 text-brand-500 hover:bg-brand-500 hover:text-white transition uppercase text-xs tracking-widest">Browse Products</a>
+            <div style="background:#fff; border-radius:12px; padding:70px 40px; text-align:center; box-shadow:0 4px 20px rgba(0,0,0,0.06);">
+                <div style="width:80px; height:80px; border-radius:50%; background:rgba(1,112,117,0.08); display:flex; align-items:center; justify-content:center; margin:0 auto 20px;">
+                    <i class="bi bi-heart" style="font-size:2.5rem; color:#017075;"></i>
+                </div>
+                <h2 style="font-size:1.4rem; font-weight:800; color:#0D0D0D; margin-bottom:8px;">Your wishlist is empty</h2>
+                <p style="color:#6C757D; font-size:0.95rem; margin-bottom:28px;">Save products you love and find them here later.</p>
+                <a href="{{ route('products.index') }}" class="btn-xrt btn-teal-xrt">
+                    <i class="bi bi-grid me-2"></i> Browse Products
+                </a>
             </div>
         @else
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div class="row g-4">
                 @foreach($items as $item)
-                    <div class="bg-dark-800 border border-dark-700 p-4">
-                        <a href="{{ route('product.show', $item->product->slug) }}" class="block h-56 bg-white p-4 mb-4">
-                            @if($item->product->images->count() > 0)
-                                <img src="{{ Storage::url($item->product->images->first()->image_path) }}" alt="{{ $item->product->name }}" class="w-full h-full object-contain mix-blend-multiply">
-                            @else
-                                <div class="w-full h-full flex items-center justify-center text-gray-400">No Image</div>
-                            @endif
-                        </a>
-
-                        <a href="{{ route('product.show', $item->product->slug) }}" class="block text-white font-heading uppercase tracking-wide hover:text-brand-500 transition truncate" title="{{ $item->product->name }}">{{ $item->product->name }}</a>
-
-                        @if($item->variation)
-                            @php
-                                $attrs = collect($item->variation->attributes ?? [])->map(fn ($val, $key) => ucfirst($key) . ': ' . $val)->implode(' | ');
-                            @endphp
-                            <div class="mt-1 text-xs uppercase tracking-wider text-gray-400">
-                                {{ $attrs !== '' ? $attrs : ('Variation #' . $item->variation->id) }}
+                    <div class="col-sm-6 col-lg-3">
+                        <div class="product-card">
+                            <div class="product-img-wrap">
+                                <a href="{{ route('product.show', $item->product->slug) }}">
+                                    @if($item->product->images->count() > 0)
+                                        <img src="{{ Storage::url($item->product->images->first()->image_path) }}"
+                                             alt="{{ $item->product->name }}" class="product-img">
+                                    @else
+                                        <div style="width:100%; height:100%; display:flex; align-items:center; justify-content:center; color:#aaa; font-size:0.85rem;">No Image</div>
+                                    @endif
+                                </a>
+                                <div class="product-actions-overlay">
+                                    <form action="{{ route('cart.add') }}" method="POST">
+                                        @csrf
+                                        <input type="hidden" name="product_id" value="{{ $item->product->id }}">
+                                        @if($item->variation)
+                                            <input type="hidden" name="product_variation_id" value="{{ $item->variation->id }}">
+                                        @endif
+                                        <input type="hidden" name="quantity" value="1">
+                                        <button type="submit" class="btn-cart-xrt" title="Add to Cart">
+                                            <i class="bi bi-cart-plus"></i>
+                                        </button>
+                                    </form>
+                                    <form action="{{ route('wishlist.toggle') }}" method="POST">
+                                        @csrf
+                                        <input type="hidden" name="product_id" value="{{ $item->product->id }}">
+                                        @if($item->variation)
+                                            <input type="hidden" name="product_variation_id" value="{{ $item->variation->id }}">
+                                        @endif
+                                        <button type="submit" class="btn-cart-xrt" title="Remove from Wishlist"
+                                                style="background:rgba(220,53,69,0.85);">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </form>
+                                    <a href="{{ route('product.show', $item->product->slug) }}" class="btn-cart-xrt" title="View Product">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
+                                </div>
                             </div>
-                        @endif
-
-                        <div class="text-brand-500 font-heading mt-2">${{ number_format($item->product->sale_price ?? $item->product->base_price, 2) }}</div>
-
-                        <div class="mt-4 flex gap-2">
-                            <form action="{{ route('cart.add') }}" method="POST" class="flex-1">
-                                @csrf
-                                <input type="hidden" name="product_id" value="{{ $item->product->id }}">
+                            <div class="product-info">
+                                <div class="product-brand">{{ optional($item->product->brand)->name ?? 'Boxima' }}</div>
+                                <a href="{{ route('product.show', $item->product->slug) }}" class="product-name">{{ $item->product->name }}</a>
                                 @if($item->variation)
-                                    <input type="hidden" name="product_variation_id" value="{{ $item->variation->id }}">
+                                    @php
+                                        $attrs = collect($item->variation->attributes ?? [])->map(fn($v,$k) => ucfirst($k).': '.$v)->implode(' | ');
+                                    @endphp
+                                    <div style="font-size:0.78rem; color:#6C757D; margin-bottom:4px;">{{ $attrs ?: ('Variation #'.$item->variation->id) }}</div>
                                 @endif
-                                <input type="hidden" name="quantity" value="1">
-                                <button type="submit" class="w-full px-3 py-2 border border-brand-500 text-brand-500 hover:bg-brand-500 hover:text-white transition text-xs uppercase tracking-wider">Add to Cart</button>
-                            </form>
-                            <form action="{{ route('wishlist.toggle') }}" method="POST">
-                                @csrf
-                                <input type="hidden" name="product_id" value="{{ $item->product->id }}">
-                                @if($item->variation)
-                                    <input type="hidden" name="product_variation_id" value="{{ $item->variation->id }}">
-                                @endif
-                                <button type="submit" class="px-3 py-2 border border-red-500 text-red-400 hover:bg-red-500 hover:text-white transition text-xs uppercase tracking-wider">Remove</button>
-                            </form>
+                                <div class="product-price">
+                                    @if($item->product->sale_price)
+                                        <span class="price-sale">Rs {{ number_format($item->product->sale_price, 2) }}</span>
+                                        <span class="price-original">Rs {{ number_format($item->product->base_price, 2) }}</span>
+                                    @else
+                                        <span class="price-sale">Rs {{ number_format($item->product->base_price, 2) }}</span>
+                                    @endif
+                                </div>
+                            </div>
                         </div>
                     </div>
                 @endforeach
             </div>
 
-            <div class="mt-8">
-                {{ $items->links() }}
-            </div>
+            <div class="mt-4">{{ $items->links() }}</div>
         @endif
+
     </div>
-</div>
+</section>
+
 @endsection

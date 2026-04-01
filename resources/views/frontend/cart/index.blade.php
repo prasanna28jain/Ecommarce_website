@@ -1,112 +1,219 @@
 @extends('layouts.frontend')
 
+@section('title', 'Shopping Cart | XRT65 Fitness')
+
 @section('content')
-<div class="bg-dark-900 py-10 border-b border-dark-800">
-    <div class="container mx-auto px-4">
-        <h1 class="text-3xl md:text-4xl font-heading font-bold uppercase tracking-wide text-white">Your Cart</h1>
-        <p class="text-gray-400 mt-2">Update quantity, remove products, and review totals before checkout.</p>
-    </div>
+
+{{-- PAGE HEADER --}}
+<div class="hero-dark-wrapper" style="padding-bottom: 0;">
+    <section class="page-header page-header-teal" style="padding-bottom:30px;">
+        <div class="container position-relative" style="z-index:2">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb breadcrumb-xrt">
+                    <li class="breadcrumb-item"><a href="{{ route('home') }}">Home</a></li>
+                    <li class="breadcrumb-item"><a href="{{ route('products.index') }}">Shop</a></li>
+                    <li class="breadcrumb-item active">Shopping Cart</li>
+                </ol>
+            </nav>
+            <h1 class="text-white fw-bold" style="font-size:2.5rem;">
+                Shopping <span style="color:#00e5ff;">Cart</span>
+            </h1>
+        </div>
+    </section>
 </div>
 
-<div class="bg-dark-900 py-12">
-    <div class="container mx-auto px-4 grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <div class="lg:col-span-2 space-y-4">
-            @if(session('success'))
-                <div class="bg-green-700/60 border border-green-500 text-white p-4 text-sm font-heading uppercase tracking-wide">{{ session('success') }}</div>
-            @endif
+{{-- CART CONTENT --}}
+<section class="py-5" id="cartPageWrap">
+    <div class="container">
 
-            @if(session('error'))
-                <div class="bg-red-600 text-white p-4 text-sm font-heading uppercase tracking-wide">{{ session('error') }}</div>
-            @endif
+        @if(session('success'))
+            <div class="alert alert-success alert-dismissible fade show mb-4" role="alert">
+                <i class="bi bi-check-circle me-2"></i>{{ session('success') }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        @endif
+        @if(session('error'))
+            <div class="alert alert-danger alert-dismissible fade show mb-4" role="alert">
+                {{ session('error') }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        @endif
 
-            @foreach($cartItems as $item)
-                <div class="bg-dark-800 border border-dark-700 p-4 md:p-6 flex flex-col md:flex-row gap-4 md:gap-6">
-                    <a href="{{ route('product.show', $item->product->slug) }}" class="block w-full md:w-40 h-36 bg-white p-3 shrink-0">
-                        @if($item->product->images->count() > 0)
-                            <img src="{{ Storage::url($item->product->images->first()->image_path) }}" alt="{{ $item->product->name }}" class="w-full h-full object-contain mix-blend-multiply">
-                        @else
-                            <div class="w-full h-full flex items-center justify-center text-gray-400">No Image</div>
-                        @endif
-                    </a>
+        @if($cartItems->isEmpty())
+            {{-- Empty Cart --}}
+            <div class="text-center py-5">
+                <i class="bi bi-bag-x" style="font-size:5rem; color:#ccc;"></i>
+                <h3 class="mt-4 fw-bold">Your Cart is Empty</h3>
+                <p class="text-muted mb-4">Looks like you haven't added any equipment yet. Start building your home gym!</p>
+                <a href="{{ route('products.index') }}" class="btn-xrt btn-teal-xrt">
+                    <i class="bi bi-bag-plus"></i> Start Shopping
+                </a>
+            </div>
+        @else
+            <div class="row g-5">
 
-                    <div class="flex-1">
-                        <a href="{{ route('product.show', $item->product->slug) }}" class="text-white font-heading text-lg uppercase tracking-wide hover:text-brand-500 transition">{{ $item->product->name }}</a>
+                {{-- Cart Items --}}
+                <div class="col-lg-8">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h5 class="fw-bold mb-0">Cart Items ({{ $cartItems->count() }})</h5>
+                        <a href="{{ route('products.index') }}" class="text-decoration-none" style="color:var(--primary); font-weight:600;">
+                            <i class="bi bi-arrow-left me-1"></i> Continue Shopping
+                        </a>
+                    </div>
 
-                        @if($item->variation)
-                            @php
-                                $attrs = collect($item->variation->attributes ?? [])->map(fn ($val, $key) => ucfirst($key) . ': ' . $val)->implode(' | ');
-                            @endphp
-                            <div class="mt-1 text-xs uppercase tracking-wider text-gray-400">
-                                {{ $attrs !== '' ? $attrs : ('Variation #' . $item->variation->id) }}
+                    <div class="table-responsive">
+                        <table class="cart-table">
+                            <thead>
+                                <tr>
+                                    <th>Product</th>
+                                    <th>Name</th>
+                                    <th>Price</th>
+                                    <th>Quantity</th>
+                                    <th>Total</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach($cartItems as $item)
+                                    <tr>
+                                        {{-- Product Image --}}
+                                        <td>
+                                            <a href="{{ route('product.show', $item->product->slug) }}">
+                                                @if($item->product->images->count() > 0)
+                                                    <img src="{{ Storage::url($item->product->images->first()->image_path) }}"
+                                                         alt="{{ $item->product->name }}" class="cart-item-img">
+                                                @else
+                                                    <img src="{{ asset('frontend/images/dumbbell.png') }}"
+                                                         alt="{{ $item->product->name }}" class="cart-item-img" style="opacity:0.5;">
+                                                @endif
+                                            </a>
+                                        </td>
+
+                                        {{-- Name + Variant --}}
+                                        <td>
+                                            <a href="{{ route('product.show', $item->product->slug) }}" class="cart-item-name d-block text-dark text-decoration-none">
+                                                {{ $item->product->name }}
+                                            </a>
+                                            @if($item->variation)
+                                                @php $attrs = collect($item->variation->attributes ?? [])->map(fn($val, $key) => ucfirst($key) . ': ' . $val)->implode(' | '); @endphp
+                                                <div class="cart-item-variant">{{ $attrs ?: ('Variation #' . $item->variation->id) }}</div>
+                                            @endif
+                                        </td>
+
+                                        {{-- Price --}}
+                                        <td>₹{{ number_format($item->price, 0) }}</td>
+
+                                        {{-- Quantity --}}
+                                        <td>
+                                            <form action="{{ route('cart.update', $item) }}" method="POST" class="d-inline-flex align-items-center gap-2">
+                                                @csrf
+                                                @method('PATCH')
+                                                <div class="qty-control" style="width:auto;">
+                                                    <button type="button" onclick="this.nextElementSibling.stepDown(); this.closest('form').submit()">−</button>
+                                                    <input type="number" name="quantity" min="1" max="99" value="{{ $item->quantity }}"
+                                                           style="width:50px;" onchange="this.form.submit()">
+                                                    <button type="button" onclick="this.previousElementSibling.stepUp(); this.closest('form').submit()">+</button>
+                                                </div>
+                                            </form>
+                                        </td>
+
+                                        {{-- Line Total --}}
+                                        <td class="fw-bold">₹{{ number_format($item->quantity * $item->price, 0) }}</td>
+
+                                        {{-- Remove --}}
+                                        <td>
+                                            <form action="{{ route('cart.destroy', $item) }}" method="POST">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="cart-remove-btn" title="Remove">
+                                                    <i class="bi bi-trash3"></i>
+                                                </button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                {{-- Order Summary --}}
+                <div class="col-lg-4">
+                    <div class="cart-summary" style="position: sticky; top: 100px;">
+                        <h5>Order Summary</h5>
+
+                        {{-- Coupon --}}
+                        <form action="{{ route('checkout.coupon.apply') }}" method="POST" class="mb-4">
+                            @csrf
+                            <div class="d-flex gap-2">
+                                <input type="text" name="coupon_code"
+                                       value="{{ old('coupon_code', $appliedCoupon['code'] ?? '') }}"
+                                       placeholder="Coupon code"
+                                       class="form-control form-control-sm"
+                                       style="text-transform:uppercase;">
+                                <button type="submit" class="btn btn-sm btn-outline-secondary" style="white-space:nowrap;">Apply</button>
+                            </div>
+                            @if($appliedCoupon)
+                                <div class="mt-2 d-flex align-items-center justify-content-between">
+                                    <small class="text-success fw-bold"><i class="bi bi-check-circle me-1"></i>{{ $appliedCoupon['code'] }} applied</small>
+                                    <form action="{{ route('checkout.coupon.remove') }}" method="POST" class="d-inline">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="btn btn-link btn-sm text-danger p-0">Remove</button>
+                                    </form>
+                                </div>
+                            @endif
+                        </form>
+
+                        <div class="cart-summary-row">
+                            <span>Subtotal</span>
+                            <span>₹{{ number_format($subtotal, 0) }}</span>
+                        </div>
+                        @if($discount > 0)
+                            <div class="cart-summary-row" style="color:var(--success);">
+                                <span>Savings</span>
+                                <span>− ₹{{ number_format($discount, 0) }}</span>
                             </div>
                         @endif
+                        <div class="cart-summary-row">
+                            <span>Shipping</span>
+                            <span>{{ $subtotal >= 5000 ? 'FREE' : '₹' . number_format(199, 0) }}</span>
+                        </div>
+                        <div class="cart-summary-row total">
+                            <span>Total</span>
+                            <span>₹{{ number_format($grandTotal, 0) }}</span>
+                        </div>
 
-                        <div class="mt-2 text-gray-400 text-sm">Unit Price: Rs {{ number_format($item->price, 2) }}</div>
-                        <div class="mt-1 text-gray-300 text-sm">Line Total: Rs {{ number_format($item->quantity * $item->price, 2) }}</div>
+                        <a href="{{ route('checkout.index') }}" class="btn-xrt btn-teal-xrt w-100 mt-4 justify-content-center" style="border-radius:8px;">
+                            <i class="bi bi-lock me-2"></i> Proceed to Checkout
+                        </a>
 
-                        <div class="mt-4 flex flex-wrap items-center gap-3">
-                            <form action="{{ route('cart.update', $item) }}" method="POST" class="flex items-center gap-2">
-                                @csrf
-                                @method('PATCH')
-                                <label class="text-xs uppercase tracking-wider text-gray-400">Qty</label>
-                                <input type="number" name="quantity" min="1" max="99" value="{{ $item->quantity }}" class="w-20 bg-dark-900 border border-dark-700 text-white px-3 py-2 text-sm">
-                                <button type="submit" class="px-3 py-2 border border-brand-500 text-brand-500 hover:bg-brand-500 hover:text-white transition text-xs uppercase tracking-widest">Update</button>
-                            </form>
+                        <div class="text-center mt-3">
+                            <small class="text-muted"><i class="bi bi-shield-lock me-1"></i> Secure SSL Encrypted Checkout</small>
+                        </div>
 
-                            <form action="{{ route('cart.destroy', $item) }}" method="POST">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="px-3 py-2 border border-red-500 text-red-400 hover:bg-red-500 hover:text-white transition text-xs uppercase tracking-widest">Remove</button>
-                            </form>
+                        <hr>
+
+                        <div class="d-flex justify-content-around text-center">
+                            <div>
+                                <i class="bi bi-truck d-block fs-5 text-primary mb-1"></i>
+                                <small class="text-muted" style="font-size:0.75rem;">Free Shipping<br>Above ₹5,000</small>
+                            </div>
+                            <div>
+                                <i class="bi bi-arrow-counterclockwise d-block fs-5 text-warning mb-1"></i>
+                                <small class="text-muted" style="font-size:0.75rem;">30-Day<br>Returns</small>
+                            </div>
+                            <div>
+                                <i class="bi bi-shield-check d-block fs-5 text-success mb-1"></i>
+                                <small class="text-muted" style="font-size:0.75rem;">Genuine<br>Products</small>
+                            </div>
                         </div>
                     </div>
                 </div>
-            @endforeach
-        </div>
 
-        <div>
-            <div class="bg-dark-800 border border-dark-700 p-6 sticky top-24">
-                <h2 class="font-heading text-xl text-white uppercase tracking-wide mb-4">Cart Summary</h2>
-
-                <div class="mb-5 border-b border-dark-700 pb-4">
-                    <form action="{{ route('checkout.coupon.apply') }}" method="POST" class="flex gap-2">
-                        @csrf
-                        <input type="text" name="coupon_code" value="{{ old('coupon_code', $appliedCoupon['code'] ?? '') }}" placeholder="Coupon code" class="w-full bg-dark-900 border border-dark-700 text-white px-3 py-2 text-sm uppercase tracking-wider">
-                        <button type="submit" class="px-4 py-2 border border-brand-500 text-brand-500 text-xs font-heading uppercase tracking-widest hover:bg-brand-500 hover:text-white transition">Apply</button>
-                    </form>
-
-                    @if($appliedCoupon)
-                        <div class="mt-3 flex items-center justify-between text-xs text-green-400 uppercase tracking-wider">
-                            <span>{{ $appliedCoupon['code'] }} applied</span>
-                            <form action="{{ route('checkout.coupon.remove') }}" method="POST">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="text-red-400 hover:text-red-300">Remove</button>
-                            </form>
-                        </div>
-                    @endif
-                </div>
-
-                <div class="space-y-2 text-sm border-b border-dark-700 pb-4 mb-4">
-                    <div class="flex justify-between text-gray-300">
-                        <span>Subtotal</span>
-                        <span>Rs {{ number_format($subtotal, 2) }}</span>
-                    </div>
-                    <div class="flex justify-between text-gray-300">
-                        <span>Discount</span>
-                        <span>- Rs {{ number_format($discount, 2) }}</span>
-                    </div>
-                </div>
-
-                <div class="flex justify-between items-center text-lg font-heading uppercase tracking-wide mb-6">
-                    <span class="text-gray-300">Total</span>
-                    <span class="text-brand-500">Rs {{ number_format($grandTotal, 2) }}</span>
-                </div>
-
-                <a href="{{ route('checkout.index') }}" class="btn-brand w-full py-3 text-center block">Proceed to Checkout</a>
-                <a href="{{ route('products.index') }}" class="w-full mt-3 py-3 border border-dark-600 text-gray-300 hover:border-brand-500 hover:text-brand-500 transition text-center block uppercase tracking-widest text-sm">Continue Shopping</a>
             </div>
-        </div>
+        @endif
     </div>
-</div>
+</section>
+
 @endsection

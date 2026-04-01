@@ -59,8 +59,9 @@ Route::middleware(['auth', 'admin'])->group(function () {
 Route::get('/', [HomeController::class,'index'])->name('home');
 Route::get('/products', [FrontendProductController::class,'index'])->name('products.index');
 Route::get('/product/{slug}', [FrontendProductController::class,'show'])->name('product.show');
+Route::get('/product/{id}/quick-view', [FrontendProductController::class,'quickView'])->name('product.quick-view');
 Route::get('/categories', [FrontendCategoryController::class,'index'])->name('categories.index');
-Route::get('/category/{id}', [FrontendCategoryController::class,'show'])->name('category.show');
+Route::get('/category/{slug}', [FrontendCategoryController::class,'show'])->name('category.show');
 Route::get('/brands', [FrontendBrandController::class,'index'])->name('brands.index');
 Route::get('/brand/{id}', [FrontendBrandController::class,'show'])->name('brand.show');
 Route::post('/cart/add', [FrontendCartController::class, 'add'])->name('cart.add');

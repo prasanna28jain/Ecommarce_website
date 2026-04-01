@@ -41,7 +41,7 @@ class AppServiceProvider extends ServiceProvider
             Config::set('mail.from.name', $setting->smtp_from_name ?: config('mail.from.name'));
         }
 
-        View::composer('layouts.frontend', function ($view): void {
+        View::composer(['layouts.frontend', 'layouts.navbar'], function ($view): void {
             $cartCount = 0;
             $wishlistCount = 0;
 

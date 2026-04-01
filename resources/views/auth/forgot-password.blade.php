@@ -1,57 +1,108 @@
 @extends('layouts.frontend')
 
+@section('title', 'Forgot Password | XRT65 Fitness')
+
 @section('content')
-<div class="bg-dark-900 py-16">
-    <div class="container mx-auto px-4 max-w-5xl">
-        <div class="grid grid-cols-1 lg:grid-cols-2 bg-dark-800 border border-dark-700 overflow-hidden">
-            <div class="p-8 lg:p-10 border-b lg:border-b-0 lg:border-r border-dark-700">
-                <p class="text-brand-500 uppercase tracking-widest text-xs mb-3">Password Recovery</p>
-                <h1 class="font-heading text-4xl text-white uppercase leading-tight mb-4">Forgot Password?</h1>
-                <p class="text-gray-400 mb-6">Enter your account email and we will send you a secure reset link.</p>
+<section style="background: linear-gradient(100deg, #131313 1.15%, #022C2B 100%); min-height: 80vh; display: flex; align-items: center; padding: 60px 0;">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-9 col-xl-8">
+                <div class="row g-0 overflow-hidden" style="border-radius:16px; box-shadow: 0 24px 60px rgba(0,0,0,0.5);">
 
-                <ul class="space-y-3 text-sm text-gray-300">
-                    <li class="flex items-start gap-2"><i class="bi bi-shield-lock text-brand-500"></i><span>Secure one-time reset token via email.</span></li>
-                    <li class="flex items-start gap-2"><i class="bi bi-clock-history text-brand-500"></i><span>Quick access back to your account.</span></li>
-                    <li class="flex items-start gap-2"><i class="bi bi-person-check text-brand-500"></i><span>Your customer profile and orders stay safe.</span></li>
-                </ul>
-            </div>
+                    {{-- LEFT PANEL --}}
+                    <div class="col-lg-5 d-flex flex-column justify-content-between"
+                         style="background: linear-gradient(135deg, #022C2B 0%, #017075 100%); padding: 50px 40px; position:relative; overflow:hidden;">
+                        <div style="position:absolute; width:280px; height:280px; border-radius:50%; background:rgba(0,229,255,0.05); top:-70px; right:-70px; pointer-events:none;"></div>
+                        <div style="position:absolute; width:180px; height:180px; border-radius:50%; background:rgba(0,229,255,0.06); bottom:-50px; left:-50px; pointer-events:none;"></div>
 
-            <div class="p-8 lg:p-10">
-                @if(session('status'))
-                    <div class="mb-4 bg-green-600 text-white p-3 text-sm">
-                        {{ session('status') }}
+                        <div>
+                            <a href="{{ route('home') }}" class="d-inline-block mb-4">
+                                <img src="{{ asset('frontend/images/XRT65.png') }}" alt="XRT65" height="42"
+                                     onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                                <span style="display:none; font-size:1.6rem; font-weight:900; letter-spacing:2px; color:#fff;">BOX<span style="color:#00e5ff;">IMA</span></span>
+                            </a>
+
+                            <p style="color:#00e5ff; font-size:0.75rem; letter-spacing:3px; text-transform:uppercase; font-weight:600;" class="mb-2">Password Recovery</p>
+                            <h1 style="color:#fff; font-size:1.9rem; font-weight:900; line-height:1.2;" class="mb-3">Forgot Your<br>Password?</h1>
+                            <p style="color:rgba(255,255,255,0.6); font-size:0.9rem;" class="mb-4">
+                                Enter your email and we'll send you a secure reset link instantly.
+                            </p>
+
+                            <ul style="list-style:none; padding:0; margin:0;" class="d-flex flex-column gap-3">
+                                <li class="d-flex align-items-start gap-2" style="color:rgba(255,255,255,0.8); font-size:0.9rem;">
+                                    <i class="bi bi-shield-lock-fill" style="color:#00e5ff; margin-top:2px;"></i>
+                                    Secure one-time reset token via email.
+                                </li>
+                                <li class="d-flex align-items-start gap-2" style="color:rgba(255,255,255,0.8); font-size:0.9rem;">
+                                    <i class="bi bi-clock-history" style="color:#00e5ff; margin-top:2px;"></i>
+                                    Link expires in 60 minutes for your safety.
+                                </li>
+                                <li class="d-flex align-items-start gap-2" style="color:rgba(255,255,255,0.8); font-size:0.9rem;">
+                                    <i class="bi bi-person-check-fill" style="color:#00e5ff; margin-top:2px;"></i>
+                                    Your orders and data stay completely safe.
+                                </li>
+                            </ul>
+                        </div>
+
+                        <div class="text-center mt-4 d-none d-lg-block">
+                            <div style="width:80px; height:80px; border-radius:50%; background:rgba(255,255,255,0.08); display:flex; align-items:center; justify-content:center; margin:0 auto;">
+                                <i class="bi bi-envelope-open" style="font-size:2.5rem; color:#00e5ff;"></i>
+                            </div>
+                        </div>
                     </div>
-                @endif
 
-                @if($errors->any())
-                    <div class="mb-4 bg-red-600 text-white p-3 text-sm">
-                        <ul class="space-y-1">
-                            @foreach($errors->all() as $error)
-                                <li>{{ $error }}</li>
-                            @endforeach
-                        </ul>
+                    {{-- RIGHT PANEL (FORM) --}}
+                    <div class="col-lg-7" style="background:#fff; padding: 50px 45px; display:flex; flex-direction:column; justify-content:center;">
+
+                        <h2 style="font-size:1.5rem; font-weight:900; color:#0D0D0D; letter-spacing:1px;" class="mb-1">Reset Password</h2>
+                        <p style="color:#6C757D; font-size:0.9rem;" class="mb-4">
+                            Remember your password?
+                            <a href="{{ route('login') }}" style="color:#017075; font-weight:600;">Back to login</a>
+                        </p>
+
+                        @if(session('status'))
+                            <div class="alert alert-success py-2 mb-4" style="font-size:0.875rem; border-radius:8px;">
+                                <i class="bi bi-check-circle me-2"></i>{{ session('status') }}
+                            </div>
+                        @endif
+                        @if($errors->any())
+                            <div class="alert alert-danger py-2 mb-4" style="font-size:0.875rem; border-radius:8px;">
+                                @foreach($errors->all() as $error)
+                                    <div>{{ $error }}</div>
+                                @endforeach
+                            </div>
+                        @endif
+
+                        <form method="POST" action="{{ route('password.email') }}">
+                            @csrf
+
+                            <div class="mb-4">
+                                <label for="email" style="font-size:0.75rem; text-transform:uppercase; letter-spacing:1.5px; font-weight:700; color:#6C757D;" class="form-label">Email Address</label>
+                                <input id="email" type="email" name="email" value="{{ old('email') }}"
+                                       required autofocus
+                                       class="form-control"
+                                       style="border:1.5px solid #DEE2E6; border-radius:8px; padding:12px 16px; font-size:0.95rem; background:#f9f9f9; transition:border-color 0.3s;"
+                                       onfocus="this.style.borderColor='#017075'; this.style.background='#fff';"
+                                       onblur="this.style.borderColor='#DEE2E6'; this.style.background='#f9f9f9';"
+                                       placeholder="Enter your registered email">
+                            </div>
+
+                            <button type="submit" class="btn-xrt btn-teal-xrt w-100 justify-content-center" style="border-radius:8px;">
+                                <i class="bi bi-send me-2"></i> Send Reset Link
+                            </button>
+                        </form>
+
+                        <div style="margin-top:30px; padding-top:24px; border-top:1px solid #f0f0f0; text-align:center;">
+                            <p style="color:#6C757D; font-size:0.875rem; margin:0;">
+                                Don't have an account?
+                                <a href="{{ route('register') }}" style="color:#017075; font-weight:600;">Create one free →</a>
+                            </p>
+                        </div>
                     </div>
-                @endif
 
-                <form method="POST" action="{{ route('password.email') }}" class="space-y-4">
-                    @csrf
-
-                    <div>
-                        <label for="email" class="block text-xs text-gray-400 uppercase tracking-widest mb-2">Email</label>
-                        <input id="email" type="email" name="email" value="{{ old('email') }}" required autofocus
-                               class="w-full bg-dark-900 border border-dark-700 text-white p-3 focus:outline-none focus:border-brand-500"
-                               placeholder="you@example.com">
-                    </div>
-
-                    <button type="submit" class="btn-brand w-full py-3">Send Reset Link</button>
-                </form>
-
-                <p class="text-gray-400 text-sm mt-5">
-                    Remember your password?
-                    <a href="{{ route('login') }}" class="text-brand-500 hover:text-white">Back to login</a>
-                </p>
+                </div>
             </div>
         </div>
     </div>
-</div>
+</section>
 @endsection

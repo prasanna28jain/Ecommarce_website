@@ -1,89 +1,112 @@
 @extends('layouts.frontend')
 
-@section('content')
-<!-- Brand Banner -->
-<section class="py-16 bg-black border-b border-dark-800 flex items-center">
-    <div class="container mx-auto px-4 flex flex-col md:flex-row items-center gap-8">
-        <div class="bg-white p-6 w-48 h-48 flex items-center justify-center shrink-0 border-2 border-brand-500">
-            @if($brand->logo_path)
-                <img src="{{ Storage::url($brand->logo_path) }}" alt="{{ $brand->name }}" class="max-w-full max-h-full object-contain mix-blend-multiply">
-            @else
-                <span class="font-heading font-bold text-3xl uppercase tracking-widest text-black text-center">{{ $brand->name }}</span>
-            @endif
-        </div>
-        
-        <div>
-            <div class="text-brand-500 font-heading font-bold tracking-[0.2em] uppercase text-sm mb-2 block">Brand Store</div>
-            <h1 class="text-4xl md:text-5xl font-heading font-bold text-white uppercase leading-tight mb-4 tracking-wider">
-                {{ $brand->name }}
-            </h1>
-            <p class="text-gray-400 max-w-2xl text-lg">
-                Explore all premium equipment available from {{ $brand->name }}. Industry-leading performance trusted by professionals.
-            </p>
-        </div>
-    </div>
-</section>
+@section('title', '{{ $brand->name }} | XRT65 Fitness')
 
-<!-- Brand Products Grid -->
-<div class="bg-dark-900 py-16 min-h-[50vh]">
-    <div class="container mx-auto px-4">
-        <div class="flex justify-between items-center mb-8 pb-4 border-b border-dark-800">
-            <div class="text-gray-400 font-heading uppercase tracking-widest text-sm">Showing {{ $brand->products->count() }} results for {{ $brand->name }}</div>
+@section('content')
+
+{{-- Brand Banner --}}
+<div class="page-header-teal" style="min-height:180px;">
+    <div class="container">
+        <div style="display:flex; align-items:center; gap:24px; flex-wrap:wrap;">
+            <div style="width:80px; height:80px; border-radius:12px; background:rgba(255,255,255,0.12); display:flex; align-items:center; justify-content:center; flex-shrink:0; overflow:hidden; border:2px solid rgba(0,229,255,0.3);">
+                @if($brand->logo_path)
+                    <img src="{{ Storage::url($brand->logo_path) }}" alt="{{ $brand->name }}"
+                         style="max-width:100%; max-height:100%; object-fit:contain;">
+                @else
+                    <span style="font-size:1.1rem; font-weight:900; color:#fff; text-transform:uppercase; text-align:center; padding:8px;">{{ $brand->name }}</span>
+                @endif
+            </div>
             <div>
-                <a href="{{ route('brands.index') }}" class="text-brand-500 hover:text-white transition-colors uppercase font-heading text-sm tracking-widest font-bold">
-                    <i class="bi bi-arrow-left"></i> All Brands
-                </a>
+                <p style="color:#00e5ff; font-size:0.75rem; letter-spacing:3px; text-transform:uppercase; font-weight:600; margin-bottom:4px;">Brand Store</p>
+                <h1 class="page-header-title" style="margin-bottom:4px;">{{ $brand->name }}</h1>
+                <p style="color:rgba(255,255,255,0.65); font-size:0.9rem; margin:0;">Premium equipment from {{ $brand->name }}</p>
             </div>
         </div>
+        <nav aria-label="breadcrumb" class="mt-3">
+            <ol class="breadcrumb-xrt">
+                <li><a href="{{ route('home') }}">Home</a></li>
+                <li>{{ $brand->name }}</li>
+            </ol>
+        </nav>
+    </div>
+</div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            @forelse($brand->products as $product)
-                <div class="product-card bg-dark-800 relative group">
-                    <a href="{{ route('product.show', $product->slug) }}" class="block relative h-64 overflow-hidden bg-white p-4">
-                        @if($product->images->count() > 0)
-                            <img src="{{ Storage::url($product->images->first()->image_path) }}" alt="{{ $product->name }}" class="w-full h-full object-contain mix-blend-multiply group-hover:scale-105 transition-transform duration-500">
-                        @else
-                            <div class="w-full h-full flex flex-col items-center justify-center text-gray-400 bg-gray-100 mix-blend-multiply">
-                                <i class="bi bi-image text-3xl mb-2"></i>
-                                <span class="text-sm">No Image</span>
-                            </div>
-                        @endif
-                        
-                        <div class="absolute bottom-4 left-0 right-0 flex justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity z-20 translate-y-4 group-hover:translate-y-0 duration-300">
-                            <button type="button" onclick="event.preventDefault(); event.stopPropagation(); document.getElementById('quick-cart-{{ $product->id }}').submit()" class="w-10 h-10 bg-black text-white hover:bg-brand-500 flex items-center justify-center rounded-full" title="Add to Cart"><i class="bi bi-cart-plus"></i></button>
-                        </div>
-                    </a>
-                    <form id="quick-cart-{{ $product->id }}" action="{{ route('cart.add') }}" method="POST" class="hidden">
-                        @csrf
-                        <input type="hidden" name="product_id" value="{{ $product->id }}">
-                        <input type="hidden" name="quantity" value="1">
-                    </form>
-                    
-                    <div class="p-5 text-center border-t border-dark-700">
-                        @if($product->category)
-                            <div class="text-gray-500 text-xs font-heading tracking-widest uppercase mb-1">{{ $product->category->name }}</div>
-                        @endif
-                        <a href="{{ route('product.show', $product->slug) }}" class="block font-heading font-medium text-lg text-white hover:text-brand-500 transition-colors uppercase truncate tracking-wide mb-2">
-                            {{ $product->name }}
-                        </a>
-                        <div class="flex justify-center items-center gap-3 font-heading text-lg">
-                            @if($product->sale_price)
-                                <span class="text-brand-500 font-bold">${{ number_format($product->sale_price, 2) }}</span>
-                                <span class="text-gray-500 line-through text-sm">${{ number_format($product->base_price, 2) }}</span>
+<section style="background:#f5f5f5; padding: 50px 0; min-height: 55vh;">
+    <div class="container">
+
+        <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; margin-bottom:28px;">
+            <p style="color:#6C757D; font-size:0.9rem; margin:0;">Showing {{ $brand->products->count() }} product(s) from <strong style="color:#017075;">{{ $brand->name }}</strong></p>
+            <a href="{{ route('brands.index') }}"
+               style="color:#017075; font-size:0.85rem; font-weight:600; text-decoration:none; padding:7px 16px; border:1.5px solid #017075; border-radius:6px; transition:all 0.2s;"
+               onmouseover="this.style.background='#017075'; this.style.color='#fff';"
+               onmouseout="this.style.background='transparent'; this.style.color='#017075';">
+                <i class="bi bi-arrow-left me-1"></i> All Brands
+            </a>
+        </div>
+
+        @forelse($brand->products as $product)
+            @if($loop->first)
+                <div class="row g-4">
+            @endif
+            <div class="col-sm-6 col-lg-3">
+                <div class="product-card">
+                    <div class="product-img-wrap">
+                        <a href="{{ route('product.show', $product->slug) }}">
+                            @if($product->images->count() > 0)
+                                <img src="{{ Storage::url($product->images->first()->image_path) }}"
+                                     alt="{{ $product->name }}" class="product-img">
                             @else
-                                <span class="text-white font-bold">${{ number_format($product->base_price, 2) }}</span>
+                                <div style="width:100%; height:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; color:#aaa;">
+                                    <i class="bi bi-image" style="font-size:2rem; margin-bottom:6px;"></i>
+                                    <span style="font-size:0.8rem;">No Image</span>
+                                </div>
+                            @endif
+                        </a>
+                        <div class="product-actions-overlay">
+                            <form action="{{ route('cart.add') }}" method="POST" id="quick-cart-{{ $product->id }}">
+                                @csrf
+                                <input type="hidden" name="product_id" value="{{ $product->id }}">
+                                <input type="hidden" name="quantity" value="1">
+                            </form>
+                            <button type="button" onclick="document.getElementById('quick-cart-{{ $product->id }}').submit()" class="btn-cart-xrt" title="Add to Cart">
+                                <i class="bi bi-cart-plus"></i>
+                            </button>
+                            <a href="{{ route('product.show', $product->slug) }}" class="btn-cart-xrt" title="View Product">
+                                <i class="bi bi-eye"></i>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="product-info">
+                        @if($product->category)
+                            <div class="product-brand">{{ $product->category->name }}</div>
+                        @endif
+                        <a href="{{ route('product.show', $product->slug) }}" class="product-name">{{ $product->name }}</a>
+                        <div class="product-price">
+                            @if($product->sale_price)
+                                <span class="price-sale">Rs {{ number_format($product->sale_price, 2) }}</span>
+                                <span class="price-original">Rs {{ number_format($product->base_price, 2) }}</span>
+                            @else
+                                <span class="price-sale">Rs {{ number_format($product->base_price, 2) }}</span>
                             @endif
                         </div>
                     </div>
                 </div>
-            @empty
-                <div class="col-span-1 md:col-span-2 lg:col-span-4 text-center py-20 bg-dark-800 border border-dark-700">
-                    <i class="bi bi-tags text-5xl text-dark-600 block mb-4"></i>
-                    <h3 class="text-xl font-heading text-white uppercase tracking-widest">No products found</h3>
-                    <p class="text-gray-400 mt-2">There are currently no products available from this brand.</p>
+            </div>
+            @if($loop->last)
                 </div>
-            @endforelse
-        </div>
+            @endif
+        @empty
+            <div style="background:#fff; border-radius:12px; padding:70px 40px; text-align:center; box-shadow:0 4px 20px rgba(0,0,0,0.06);">
+                <i class="bi bi-tags" style="font-size:3rem; color:#dee2e6; display:block; margin-bottom:16px;"></i>
+                <h3 style="font-size:1.2rem; font-weight:800; color:#0D0D0D; margin-bottom:8px; text-transform:uppercase;">No Products Found</h3>
+                <p style="color:#6C757D; font-size:0.9rem; margin-bottom:24px;">There are currently no products available from this brand.</p>
+                <a href="{{ route('products.index') }}" class="btn-xrt btn-teal-xrt">
+                    <i class="bi bi-grid me-2"></i> Browse All Products
+                </a>
+            </div>
+        @endforelse
+
     </div>
-</div>
+</section>
+
 @endsection

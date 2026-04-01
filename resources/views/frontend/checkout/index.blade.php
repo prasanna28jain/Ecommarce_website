@@ -1,154 +1,275 @@
 @extends('layouts.frontend')
 
+@section('title', 'Checkout | XRT65 Fitness')
+
 @section('content')
-<div class="bg-dark-900 py-10 border-b border-dark-800">
-    <div class="container mx-auto px-4">
-        <h1 class="text-3xl md:text-4xl font-heading font-bold uppercase tracking-wide text-white">Checkout</h1>
-        <p class="text-gray-400 mt-2">Complete your order with secure payment options.</p>
+
+{{-- Page Header --}}
+<div class="page-header-teal">
+    <div class="container">
+        <h1 class="page-header-title">Checkout</h1>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb-xrt">
+                <li><a href="{{ route('home') }}">Home</a></li>
+                <li><a href="{{ route('cart.index') }}">Cart</a></li>
+                <li>Checkout</li>
+            </ol>
+        </nav>
     </div>
 </div>
 
-<div class="bg-dark-900 py-12">
-    <div class="container mx-auto px-4 grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <div class="lg:col-span-2">
-            @if(session('error'))
-                <div class="bg-red-600 text-white p-4 mb-6 text-sm font-heading uppercase tracking-wide">{{ session('error') }}</div>
-            @endif
+<section style="background:#f5f5f5; padding: 50px 0;">
+    <div class="container">
+        <div class="row g-4">
 
-            @if(session('success'))
-                <div class="bg-green-700/60 border border-green-500 text-white p-4 mb-6 text-sm font-heading uppercase tracking-wide">{{ session('success') }}</div>
-            @endif
+            {{-- Left: Forms --}}
+            <div class="col-lg-8">
 
-            @if($errors->any())
-                <div class="bg-red-700/60 border border-red-500 text-white p-4 mb-6">
-                    <ul class="list-disc pl-5 text-sm">
+                @if(session('error'))
+                    <div class="alert alert-danger py-2 mb-4" style="font-size:0.875rem; border-radius:8px;">
+                        <i class="bi bi-exclamation-circle me-2"></i>{{ session('error') }}
+                    </div>
+                @endif
+                @if(session('success'))
+                    <div class="alert alert-success py-2 mb-4" style="font-size:0.875rem; border-radius:8px;">
+                        <i class="bi bi-check-circle me-2"></i>{{ session('success') }}
+                    </div>
+                @endif
+                @if($errors->any())
+                    <div class="alert alert-danger py-2 mb-4" style="font-size:0.875rem; border-radius:8px;">
                         @foreach($errors->all() as $error)
-                            <li>{{ $error }}</li>
+                            <div><i class="bi bi-dot"></i> {{ $error }}</div>
                         @endforeach
-                    </ul>
-                </div>
-            @endif
-
-            @if(!$codProvider && !$razorpayProvider)
-                <div class="bg-yellow-700/50 border border-yellow-500 text-yellow-100 p-4">
-                    No payment method is active. Please contact admin.
-                </div>
-            @else
-                <form id="checkout-form" action="{{ route('checkout.place') }}" method="POST" class="space-y-8">
-                    @csrf
-
-                    <div class="bg-dark-800 border border-dark-700 p-6">
-                        <h2 class="font-heading text-xl text-white uppercase tracking-wide mb-4">Billing Address</h2>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <input type="text" name="billing_name" value="{{ old('billing_name', $user->name) }}" placeholder="Full Name" class="bg-dark-900 border border-dark-700 text-white px-4 py-3" required>
-                            <input type="email" name="billing_email" value="{{ old('billing_email', $user->email) }}" placeholder="Email" class="bg-dark-900 border border-dark-700 text-white px-4 py-3" required>
-                            <input type="text" name="billing_phone" value="{{ old('billing_phone') }}" placeholder="Phone" class="bg-dark-900 border border-dark-700 text-white px-4 py-3" required>
-                            <input type="text" name="billing_line1" value="{{ old('billing_line1') }}" placeholder="Address Line" class="bg-dark-900 border border-dark-700 text-white px-4 py-3" required>
-                            <input type="text" name="billing_city" value="{{ old('billing_city') }}" placeholder="City" class="bg-dark-900 border border-dark-700 text-white px-4 py-3" required>
-                            <input type="text" name="billing_state" value="{{ old('billing_state') }}" placeholder="State" class="bg-dark-900 border border-dark-700 text-white px-4 py-3" required>
-                            <input type="text" name="billing_zip" value="{{ old('billing_zip') }}" placeholder="ZIP Code" class="bg-dark-900 border border-dark-700 text-white px-4 py-3" required>
-                            <input type="text" name="billing_country" value="{{ old('billing_country', 'India') }}" placeholder="Country" class="bg-dark-900 border border-dark-700 text-white px-4 py-3" required>
-                        </div>
                     </div>
+                @endif
 
-                    <div class="bg-dark-800 border border-dark-700 p-6">
-                        <div class="flex items-center justify-between mb-4">
-                            <h2 class="font-heading text-xl text-white uppercase tracking-wide">Shipping Address</h2>
-                            <label class="inline-flex items-center gap-2 text-gray-300 text-sm">
-                                <input id="shipping_same_as_billing" type="checkbox" name="shipping_same_as_billing" value="1" checked>
-                                Same as billing
-                            </label>
-                        </div>
-
-                        <div id="shipping-fields" class="grid grid-cols-1 md:grid-cols-2 gap-4 hidden">
-                            <input type="text" name="shipping_name" value="{{ old('shipping_name') }}" placeholder="Full Name" class="bg-dark-900 border border-dark-700 text-white px-4 py-3">
-                            <input type="text" name="shipping_phone" value="{{ old('shipping_phone') }}" placeholder="Phone" class="bg-dark-900 border border-dark-700 text-white px-4 py-3">
-                            <input type="text" name="shipping_line1" value="{{ old('shipping_line1') }}" placeholder="Address Line" class="bg-dark-900 border border-dark-700 text-white px-4 py-3">
-                            <input type="text" name="shipping_city" value="{{ old('shipping_city') }}" placeholder="City" class="bg-dark-900 border border-dark-700 text-white px-4 py-3">
-                            <input type="text" name="shipping_state" value="{{ old('shipping_state') }}" placeholder="State" class="bg-dark-900 border border-dark-700 text-white px-4 py-3">
-                            <input type="text" name="shipping_zip" value="{{ old('shipping_zip') }}" placeholder="ZIP Code" class="bg-dark-900 border border-dark-700 text-white px-4 py-3">
-                            <input type="text" name="shipping_country" value="{{ old('shipping_country') }}" placeholder="Country" class="bg-dark-900 border border-dark-700 text-white px-4 py-3">
-                        </div>
+                @if(!$codProvider && !$razorpayProvider)
+                    <div class="alert alert-warning" style="border-radius:8px;">
+                        <i class="bi bi-exclamation-triangle me-2"></i>
+                        No payment method is active. Please contact admin.
                     </div>
-
-                    <div class="bg-dark-800 border border-dark-700 p-6">
-                        <h2 class="font-heading text-xl text-white uppercase tracking-wide mb-4">Payment Method</h2>
-                        <div class="space-y-3">
-                            @if($codProvider)
-                                <label class="flex items-center gap-3 bg-dark-900 border border-dark-700 p-4 cursor-pointer">
-                                    <input type="radio" name="payment_method" value="cod" {{ old('payment_method', $codProvider ? 'cod' : 'razorpay') === 'cod' ? 'checked' : '' }}>
-                                    <span class="text-white font-heading uppercase tracking-wide">Cash on Delivery</span>
-                                </label>
-                            @endif
-
-                            @if($razorpayProvider)
-                                <label class="flex items-center gap-3 bg-dark-900 border border-dark-700 p-4 cursor-pointer">
-                                    <input type="radio" name="payment_method" value="razorpay" {{ old('payment_method', $codProvider ? 'cod' : 'razorpay') === 'razorpay' ? 'checked' : '' }}>
-                                    <span class="text-white font-heading uppercase tracking-wide">Razorpay (UPI/Card/Netbanking)</span>
-                                </label>
-                            @endif
-                        </div>
-                    </div>
-
-                    <button id="place-order-btn" type="submit" class="btn-brand px-8 py-4 text-sm tracking-widest inline-flex items-center gap-2">
-                        Place Order <i class="bi bi-shield-check"></i>
-                    </button>
-                </form>
-            @endif
-        </div>
-
-        <div>
-            <div class="bg-dark-800 border border-dark-700 p-6 sticky top-24">
-                <h3 class="font-heading text-xl text-white uppercase tracking-wide mb-4">Order Summary</h3>
-                <div class="space-y-3 mb-5 border-b border-dark-700 pb-4">
-                    @foreach($cartItems as $item)
-                        <div class="flex justify-between gap-4 text-sm">
-                            <div class="text-gray-300">
-                                {{ optional($item->product)->name ?? 'Product' }}
-                                <span class="text-gray-500">x {{ $item->quantity }}</span>
-                            </div>
-                            <div class="text-white font-semibold">Rs {{ number_format($item->quantity * $item->price, 2) }}</div>
-                        </div>
-                    @endforeach
-                </div>
-                <div class="mb-5 border-b border-dark-700 pb-4">
-                    <form action="{{ route('checkout.coupon.apply') }}" method="POST" class="flex gap-2">
+                @else
+                    <form id="checkout-form" action="{{ route('checkout.place') }}" method="POST">
                         @csrf
-                        <input type="text" name="coupon_code" value="{{ old('coupon_code', $appliedCoupon['code'] ?? '') }}" placeholder="Coupon code" class="w-full bg-dark-900 border border-dark-700 text-white px-3 py-2 text-sm uppercase tracking-wider">
-                        <button type="submit" class="px-4 py-2 border border-brand-500 text-brand-500 text-xs font-heading uppercase tracking-widest hover:bg-brand-500 hover:text-white transition">Apply</button>
-                    </form>
 
-                    @if($appliedCoupon)
-                        <div class="mt-3 flex items-center justify-between text-xs text-green-400 uppercase tracking-wider">
-                            <span>{{ $appliedCoupon['code'] }} applied</span>
-                            <form action="{{ route('checkout.coupon.remove') }}" method="POST">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="text-red-400 hover:text-red-300">Remove</button>
-                            </form>
+                        {{-- Billing Address --}}
+                        <div style="background:#fff; border-radius:12px; box-shadow:0 4px 20px rgba(0,0,0,0.06); overflow:hidden; margin-bottom:20px;">
+                            <div style="padding:18px 28px; border-bottom:1px solid #f0f0f0; background:linear-gradient(135deg, #022C2B 0%, #017075 100%);">
+                                <h3 style="color:#fff; font-size:1rem; font-weight:800; text-transform:uppercase; letter-spacing:1px; margin:0;">
+                                    <i class="bi bi-geo-alt me-2" style="color:#00e5ff;"></i> Billing Address
+                                </h3>
+                            </div>
+                            <div style="padding:28px;">
+                                <div class="row g-3">
+                                    @php
+                                    $inputStyle = "border:1.5px solid #DEE2E6; border-radius:8px; padding:11px 16px; font-size:0.93rem; background:#f9f9f9; width:100%; outline:none; transition:border-color 0.3s;";
+                                    $focusAttr = "onfocus=\"this.style.borderColor='#017075'; this.style.background='#fff';\" onblur=\"this.style.borderColor='#DEE2E6'; this.style.background='#f9f9f9';\"";
+                                    @endphp
+                                    <div class="col-md-6">
+                                        <label style="font-size:0.73rem; text-transform:uppercase; letter-spacing:1.5px; font-weight:700; color:#6C757D;" class="form-label">Full Name</label>
+                                        <input type="text" name="billing_name" value="{{ old('billing_name', $user->name) }}" placeholder="Full Name" style="{{ $inputStyle }}" {!! $focusAttr !!} required>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label style="font-size:0.73rem; text-transform:uppercase; letter-spacing:1.5px; font-weight:700; color:#6C757D;" class="form-label">Email</label>
+                                        <input type="email" name="billing_email" value="{{ old('billing_email', $user->email) }}" placeholder="Email" style="{{ $inputStyle }}" {!! $focusAttr !!} required>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label style="font-size:0.73rem; text-transform:uppercase; letter-spacing:1.5px; font-weight:700; color:#6C757D;" class="form-label">Phone</label>
+                                        <input type="text" name="billing_phone" value="{{ old('billing_phone') }}" placeholder="Phone" style="{{ $inputStyle }}" {!! $focusAttr !!} required>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label style="font-size:0.73rem; text-transform:uppercase; letter-spacing:1.5px; font-weight:700; color:#6C757D;" class="form-label">Address Line</label>
+                                        <input type="text" name="billing_line1" value="{{ old('billing_line1') }}" placeholder="Address Line" style="{{ $inputStyle }}" {!! $focusAttr !!} required>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label style="font-size:0.73rem; text-transform:uppercase; letter-spacing:1.5px; font-weight:700; color:#6C757D;" class="form-label">City</label>
+                                        <input type="text" name="billing_city" value="{{ old('billing_city') }}" placeholder="City" style="{{ $inputStyle }}" {!! $focusAttr !!} required>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label style="font-size:0.73rem; text-transform:uppercase; letter-spacing:1.5px; font-weight:700; color:#6C757D;" class="form-label">State</label>
+                                        <input type="text" name="billing_state" value="{{ old('billing_state') }}" placeholder="State" style="{{ $inputStyle }}" {!! $focusAttr !!} required>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label style="font-size:0.73rem; text-transform:uppercase; letter-spacing:1.5px; font-weight:700; color:#6C757D;" class="form-label">ZIP Code</label>
+                                        <input type="text" name="billing_zip" value="{{ old('billing_zip') }}" placeholder="ZIP Code" style="{{ $inputStyle }}" {!! $focusAttr !!} required>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label style="font-size:0.73rem; text-transform:uppercase; letter-spacing:1.5px; font-weight:700; color:#6C757D;" class="form-label">Country</label>
+                                        <input type="text" name="billing_country" value="{{ old('billing_country', 'India') }}" placeholder="Country" style="{{ $inputStyle }}" {!! $focusAttr !!} required>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-                    @endif
-                </div>
 
-                <div class="space-y-2 text-sm border-b border-dark-700 pb-4 mb-4">
-                    <div class="flex justify-between text-gray-300">
-                        <span>Subtotal</span>
-                        <span>Rs {{ number_format($subtotal, 2) }}</span>
-                    </div>
-                    <div class="flex justify-between text-gray-300">
-                        <span>Discount</span>
-                        <span>- Rs {{ number_format($discount, 2) }}</span>
-                    </div>
-                </div>
+                        {{-- Shipping Address --}}
+                        <div style="background:#fff; border-radius:12px; box-shadow:0 4px 20px rgba(0,0,0,0.06); overflow:hidden; margin-bottom:20px;">
+                            <div style="padding:18px 28px; border-bottom:1px solid #f0f0f0; background:linear-gradient(135deg, #022C2B 0%, #017075 100%); display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px;">
+                                <h3 style="color:#fff; font-size:1rem; font-weight:800; text-transform:uppercase; letter-spacing:1px; margin:0;">
+                                    <i class="bi bi-truck me-2" style="color:#00e5ff;"></i> Shipping Address
+                                </h3>
+                                <label style="display:flex; align-items:center; gap:8px; color:rgba(255,255,255,0.85); font-size:0.85rem; cursor:pointer; margin:0;">
+                                    <input id="shipping_same_as_billing" type="checkbox" name="shipping_same_as_billing" value="1" checked
+                                           style="accent-color:#00e5ff; width:15px; height:15px;">
+                                    Same as billing
+                                </label>
+                            </div>
+                            <div id="shipping-fields" style="padding:28px; display:none;">
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <label style="font-size:0.73rem; text-transform:uppercase; letter-spacing:1.5px; font-weight:700; color:#6C757D;" class="form-label">Full Name</label>
+                                        <input type="text" name="shipping_name" value="{{ old('shipping_name') }}" placeholder="Full Name" style="{{ $inputStyle }}" {!! $focusAttr !!}>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label style="font-size:0.73rem; text-transform:uppercase; letter-spacing:1.5px; font-weight:700; color:#6C757D;" class="form-label">Phone</label>
+                                        <input type="text" name="shipping_phone" value="{{ old('shipping_phone') }}" placeholder="Phone" style="{{ $inputStyle }}" {!! $focusAttr !!}>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label style="font-size:0.73rem; text-transform:uppercase; letter-spacing:1.5px; font-weight:700; color:#6C757D;" class="form-label">Address Line</label>
+                                        <input type="text" name="shipping_line1" value="{{ old('shipping_line1') }}" placeholder="Address Line" style="{{ $inputStyle }}" {!! $focusAttr !!}>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label style="font-size:0.73rem; text-transform:uppercase; letter-spacing:1.5px; font-weight:700; color:#6C757D;" class="form-label">City</label>
+                                        <input type="text" name="shipping_city" value="{{ old('shipping_city') }}" placeholder="City" style="{{ $inputStyle }}" {!! $focusAttr !!}>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label style="font-size:0.73rem; text-transform:uppercase; letter-spacing:1.5px; font-weight:700; color:#6C757D;" class="form-label">State</label>
+                                        <input type="text" name="shipping_state" value="{{ old('shipping_state') }}" placeholder="State" style="{{ $inputStyle }}" {!! $focusAttr !!}>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label style="font-size:0.73rem; text-transform:uppercase; letter-spacing:1.5px; font-weight:700; color:#6C757D;" class="form-label">ZIP Code</label>
+                                        <input type="text" name="shipping_zip" value="{{ old('shipping_zip') }}" placeholder="ZIP Code" style="{{ $inputStyle }}" {!! $focusAttr !!}>
+                                    </div>
+                                    <div class="col-md-12">
+                                        <label style="font-size:0.73rem; text-transform:uppercase; letter-spacing:1.5px; font-weight:700; color:#6C757D;" class="form-label">Country</label>
+                                        <input type="text" name="shipping_country" value="{{ old('shipping_country') }}" placeholder="Country" style="{{ $inputStyle }}" {!! $focusAttr !!}>
+                                    </div>
+                                </div>
+                            </div>
+                            <div id="shipping-same-notice" style="padding:18px 28px; color:#6C757D; font-size:0.9rem;">
+                                <i class="bi bi-check-circle-fill text-success me-2"></i> Same as billing address
+                            </div>
+                        </div>
 
-                <div class="flex justify-between items-center text-lg font-heading uppercase tracking-wide">
-                    <span class="text-gray-300">Total</span>
-                    <span class="text-brand-500">Rs {{ number_format($grandTotal, 2) }}</span>
+                        {{-- Payment Method --}}
+                        <div style="background:#fff; border-radius:12px; box-shadow:0 4px 20px rgba(0,0,0,0.06); overflow:hidden; margin-bottom:20px;">
+                            <div style="padding:18px 28px; border-bottom:1px solid #f0f0f0; background:linear-gradient(135deg, #022C2B 0%, #017075 100%);">
+                                <h3 style="color:#fff; font-size:1rem; font-weight:800; text-transform:uppercase; letter-spacing:1px; margin:0;">
+                                    <i class="bi bi-credit-card me-2" style="color:#00e5ff;"></i> Payment Method
+                                </h3>
+                            </div>
+                            <div style="padding:24px 28px; display:flex; flex-direction:column; gap:12px;">
+                                @if($codProvider)
+                                    <label style="display:flex; align-items:center; gap:14px; padding:16px 20px; border-radius:8px; border:1.5px solid #DEE2E6; cursor:pointer; transition:all 0.2s;"
+                                           onmouseover="this.style.borderColor='#017075';" onmouseout="if(!this.querySelector('input').checked)this.style.borderColor='#DEE2E6';">
+                                        <input type="radio" name="payment_method" value="cod"
+                                               {{ old('payment_method', $codProvider ? 'cod' : 'razorpay') === 'cod' ? 'checked' : '' }}
+                                               style="accent-color:#017075; width:18px; height:18px;">
+                                        <div>
+                                            <div style="font-weight:700; color:#0D0D0D; font-size:0.95rem;">Cash on Delivery</div>
+                                            <div style="color:#6C757D; font-size:0.8rem;">Pay when your order arrives.</div>
+                                        </div>
+                                        <i class="bi bi-cash-coin ms-auto" style="font-size:1.4rem; color:#017075;"></i>
+                                    </label>
+                                @endif
+
+                                @if($razorpayProvider)
+                                    <label style="display:flex; align-items:center; gap:14px; padding:16px 20px; border-radius:8px; border:1.5px solid #DEE2E6; cursor:pointer; transition:all 0.2s;"
+                                           onmouseover="this.style.borderColor='#017075';" onmouseout="if(!this.querySelector('input').checked)this.style.borderColor='#DEE2E6';">
+                                        <input type="radio" name="payment_method" value="razorpay"
+                                               {{ old('payment_method', $codProvider ? 'cod' : 'razorpay') === 'razorpay' ? 'checked' : '' }}
+                                               style="accent-color:#017075; width:18px; height:18px;">
+                                        <div>
+                                            <div style="font-weight:700; color:#0D0D0D; font-size:0.95rem;">Razorpay</div>
+                                            <div style="color:#6C757D; font-size:0.8rem;">UPI / Card / Netbanking — secure & instant.</div>
+                                        </div>
+                                        <i class="bi bi-lightning-charge ms-auto" style="font-size:1.4rem; color:#017075;"></i>
+                                    </label>
+                                @endif
+                            </div>
+                        </div>
+
+                        <button id="place-order-btn" type="submit" class="btn-xrt btn-teal-xrt" style="border-radius:8px; font-size:1rem; padding:14px 36px;">
+                            <i class="bi bi-shield-check me-2"></i> Place Order
+                        </button>
+                    </form>
+                @endif
+            </div>
+
+            {{-- Right: Order Summary --}}
+            <div class="col-lg-4">
+                <div style="background:#fff; border-radius:12px; box-shadow:0 4px 20px rgba(0,0,0,0.06); overflow:hidden; position:sticky; top:100px;">
+                    <div style="padding:18px 28px; border-bottom:1px solid #f0f0f0; background:linear-gradient(135deg, #022C2B 0%, #017075 100%);">
+                        <h3 style="color:#fff; font-size:1rem; font-weight:800; text-transform:uppercase; letter-spacing:1px; margin:0;">
+                            <i class="bi bi-receipt me-2" style="color:#00e5ff;"></i> Order Summary
+                        </h3>
+                    </div>
+                    <div style="padding:24px 28px;">
+
+                        {{-- Cart Items --}}
+                        <div style="margin-bottom:16px; padding-bottom:16px; border-bottom:1px solid #f0f0f0;">
+                            @foreach($cartItems as $item)
+                                <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:12px; margin-bottom:10px;">
+                                    <div style="color:#495057; font-size:0.88rem; flex:1;">
+                                        {{ optional($item->product)->name ?? 'Product' }}
+                                        <span style="color:#aaa; font-size:0.82rem;"> × {{ $item->quantity }}</span>
+                                    </div>
+                                    <div style="font-weight:700; color:#0D0D0D; font-size:0.9rem; white-space:nowrap;">Rs {{ number_format($item->quantity * $item->price, 2) }}</div>
+                                </div>
+                            @endforeach
+                        </div>
+
+                        {{-- Coupon --}}
+                        <div style="margin-bottom:16px; padding-bottom:16px; border-bottom:1px solid #f0f0f0;">
+                            <form action="{{ route('checkout.coupon.apply') }}" method="POST" style="display:flex; gap:8px;">
+                                @csrf
+                                <input type="text" name="coupon_code" value="{{ old('coupon_code', $appliedCoupon['code'] ?? '') }}"
+                                       placeholder="Coupon code"
+                                       style="flex:1; border:1.5px solid #DEE2E6; border-radius:8px; padding:9px 14px; font-size:0.88rem; background:#f9f9f9; outline:none; text-transform:uppercase;"
+                                       onfocus="this.style.borderColor='#017075'; this.style.background='#fff';"
+                                       onblur="this.style.borderColor='#DEE2E6'; this.style.background='#f9f9f9';">
+                                <button type="submit"
+                                        style="padding:9px 16px; border-radius:8px; border:1.5px solid #017075; background:#fff; color:#017075; font-size:0.82rem; font-weight:700; cursor:pointer; white-space:nowrap; transition:all 0.2s;"
+                                        onmouseover="this.style.background='#017075'; this.style.color='#fff';"
+                                        onmouseout="this.style.background='#fff'; this.style.color='#017075';">
+                                    Apply
+                                </button>
+                            </form>
+
+                            @if($appliedCoupon)
+                                <div style="margin-top:10px; display:flex; align-items:center; justify-content:space-between;">
+                                    <span style="color:#198754; font-size:0.82rem; font-weight:600; text-transform:uppercase;">
+                                        <i class="bi bi-tag-fill me-1"></i> {{ $appliedCoupon['code'] }} applied
+                                    </span>
+                                    <form action="{{ route('checkout.coupon.remove') }}" method="POST">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" style="background:none; border:none; color:#dc3545; font-size:0.82rem; font-weight:600; cursor:pointer; padding:0;">Remove</button>
+                                    </form>
+                                </div>
+                            @endif
+                        </div>
+
+                        {{-- Totals --}}
+                        <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
+                            <span style="color:#6C757D; font-size:0.9rem;">Subtotal</span>
+                            <span style="color:#495057; font-size:0.9rem; font-weight:600;">Rs {{ number_format($subtotal, 2) }}</span>
+                        </div>
+                        <div style="display:flex; justify-content:space-between; margin-bottom:16px; padding-bottom:16px; border-bottom:1px solid #f0f0f0;">
+                            <span style="color:#6C757D; font-size:0.9rem;">Discount</span>
+                            <span style="color:#198754; font-size:0.9rem; font-weight:600;">- Rs {{ number_format($discount, 2) }}</span>
+                        </div>
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <span style="color:#0D0D0D; font-weight:800; font-size:1rem; text-transform:uppercase; letter-spacing:1px;">Total</span>
+                            <span style="color:#017075; font-weight:900; font-size:1.3rem;">Rs {{ number_format($grandTotal, 2) }}</span>
+                        </div>
+                    </div>
                 </div>
             </div>
+
         </div>
     </div>
-</div>
+</section>
+
 @endsection
 
 @if($razorpayProvider)
@@ -161,16 +282,21 @@
 <script>
 (function () {
     const form = document.getElementById('checkout-form');
-    if (!form) {
-        return;
-    }
+    if (!form) return;
 
     const shippingCheckbox = document.getElementById('shipping_same_as_billing');
     const shippingFields = document.getElementById('shipping-fields');
+    const shippingNotice = document.getElementById('shipping-same-notice');
     const submitButton = document.getElementById('place-order-btn');
 
     const toggleShipping = () => {
-        shippingFields.classList.toggle('hidden', shippingCheckbox.checked);
+        if (shippingCheckbox.checked) {
+            shippingFields.style.display = 'none';
+            shippingNotice.style.display = 'block';
+        } else {
+            shippingFields.style.display = 'block';
+            shippingNotice.style.display = 'none';
+        }
     };
 
     shippingCheckbox.addEventListener('change', toggleShipping);
@@ -178,13 +304,11 @@
 
     form.addEventListener('submit', async function (event) {
         const paymentMethod = form.querySelector('input[name="payment_method"]:checked');
-        if (!paymentMethod || paymentMethod.value !== 'razorpay') {
-            return;
-        }
+        if (!paymentMethod || paymentMethod.value !== 'razorpay') return;
 
         event.preventDefault();
         submitButton.disabled = true;
-        submitButton.classList.add('opacity-60', 'cursor-not-allowed');
+        submitButton.style.opacity = '0.6';
 
         try {
             const response = await fetch(form.action, {
@@ -197,9 +321,7 @@
             });
 
             const data = await response.json();
-            if (!response.ok) {
-                throw new Error(data.message || 'Unable to initiate Razorpay payment.');
-            }
+            if (!response.ok) throw new Error(data.message || 'Unable to initiate Razorpay payment.');
 
             const options = {
                 key: data.razorpay.key,
@@ -223,12 +345,8 @@
                             razorpay_signature: paymentResponse.razorpay_signature
                         })
                     });
-
                     const verifyData = await verify.json();
-                    if (!verify.ok) {
-                        throw new Error(verifyData.message || 'Payment verification failed.');
-                    }
-
+                    if (!verify.ok) throw new Error(verifyData.message || 'Payment verification failed.');
                     window.location.href = verifyData.redirect_url;
                 },
                 prefill: {
@@ -236,13 +354,11 @@
                     email: document.querySelector('input[name="billing_email"]').value,
                     contact: document.querySelector('input[name="billing_phone"]').value
                 },
-                theme: {
-                    color: '#E63946'
-                },
+                theme: { color: '#017075' },
                 modal: {
                     ondismiss: function () {
                         submitButton.disabled = false;
-                        submitButton.classList.remove('opacity-60', 'cursor-not-allowed');
+                        submitButton.style.opacity = '1';
                     }
                 }
             };
@@ -251,13 +367,13 @@
             rzp.on('payment.failed', function () {
                 alert('Payment failed. Please try again.');
                 submitButton.disabled = false;
-                submitButton.classList.remove('opacity-60', 'cursor-not-allowed');
+                submitButton.style.opacity = '1';
             });
             rzp.open();
         } catch (error) {
             alert(error.message || 'Something went wrong.');
             submitButton.disabled = false;
-            submitButton.classList.remove('opacity-60', 'cursor-not-allowed');
+            submitButton.style.opacity = '1';
         }
     });
 })();

@@ -1,122 +1,403 @@
 @extends('layouts.frontend')
 
+@section('title', 'Shop All Products | Boxima Fitness')
+
 @section('content')
-<div class="bg-dark-900 py-16">
-    <div class="container mx-auto px-4">
-        <!-- Page Title -->
-        <div class="text-center mb-16">
-            <h1 class="font-heading text-5xl font-bold uppercase tracking-widest text-white mb-4">All <span class="text-brand-500">Equipment</span></h1>
-            <div class="w-16 h-1 bg-brand-500 mx-auto"></div>
-            <p class="text-gray-400 mt-6 max-w-2xl mx-auto">Browse our complete collection of professional gym equipment. Built to last and designed to maximize your strength training and cardio routines.</p>
+
+    {{-- PAGE HEADER --}}
+    <section style="background:linear-gradient(135deg,#013a3c 0%,#017075 60%,#02AAB1 100%); padding:48px 0 40px;">
+        <div class="container">
+            <nav aria-label="breadcrumb" class="mb-3">
+                <ol class="breadcrumb mb-0" style="background:none; padding:0;">
+                    <li class="breadcrumb-item"><a href="{{ route('home') }}" style="color:rgba(255,255,255,0.7); text-decoration:none;">Home</a></li>
+                    <li class="breadcrumb-item active" style="color:#fff;">Shop</li>
+                </ol>
+            </nav>
+            <h1 style="color:#fff; font-size:2.2rem; font-weight:800; margin:0 0 6px;">
+                Shop All <span style="color:#00e5ff;">Products</span>
+            </h1>
+            <p style="color:rgba(255,255,255,0.75); margin:0; font-size:0.95rem;">
+                {{ $products->total() }} products found
+            </p>
         </div>
+    </section>
 
-        <div class="flex flex-col lg:flex-row gap-8">
-            <!-- Sidebar Filters (Visual only for now, can be wired later) -->
-            <div class="w-full lg:w-1/4">
-                <div class="bg-dark-800 p-6 sticky top-24">
-                    <h3 class="font-heading text-xl font-bold text-white uppercase tracking-wider mb-6 pb-4 border-b border-dark-700">Filter By</h3>
-                    
-                    <div class="mb-8">
-                        <h4 class="font-heading font-medium text-gray-300 uppercase tracking-wider mb-4">Categories</h4>
-                        <ul class="space-y-3">
-                            <li><a href="{{ route('categories.index') }}" class="text-gray-400 hover:text-brand-500 transition-colors flex justify-between"><span>All Categories</span></a></li>
-                            <!-- Dynamic categories would go here -->
-                        </ul>
-                    </div>
+    {{-- PRODUCT LISTING --}}
+    <section style="padding:40px 0 60px; background:#f8f9fa;">
+        <div class="container">
+            <div class="row g-4">
 
-                    <div class="mb-8">
-                        <h4 class="font-heading font-medium text-gray-300 uppercase tracking-wider mb-4">Price Range</h4>
-                        <input type="range" min="0" max="5000" class="w-full accent-brand-500">
-                        <div class="flex justify-between text-gray-400 text-sm mt-2">
-                            <span>$0</span>
-                            <span>$5000+</span>
-                        </div>
-                    </div>
-                    
-                    <button class="w-full p-3 font-heading uppercase text-sm font-bold tracking-widest border border-brand-500 text-brand-500 hover:bg-brand-500 hover:text-white transition-all">
-                        Apply Filters
-                    </button>
-                </div>
-            </div>
+                {{-- ===== FILTER SIDEBAR ===== --}}
+                <div class="col-lg-3">
+                    <div style="background:#fff; border-radius:12px; padding:24px; border:1px solid #e9ecef; position:sticky; top:20px;">
+                        <h6 style="font-weight:800; font-size:0.85rem; text-transform:uppercase; letter-spacing:1.5px; color:#017075; margin:0 0 20px; padding-bottom:12px; border-bottom:2px solid #f0f0f0;">
+                            <i class="bi bi-funnel me-2"></i>Filters
+                        </h6>
 
-            <!-- Product Grid -->
-            <div class="w-full lg:w-3/4">
-                <div class="flex justify-between items-center mb-6 pb-4 border-b border-dark-800">
-                    <div class="text-gray-400">Showing all {{ $products->total() }} results</div>
-                    <div>
-                        <select class="bg-dark-800 border border-dark-700 text-gray-300 py-2 px-4 focus:outline-none focus:border-brand-500">
-                            <option>Default Sorting</option>
-                            <option>Sort by Popularity</option>
-                            <option>Sort by Newness</option>
-                            <option>Sort by Price: Low to High</option>
-                            <option>Sort by Price: High to Low</option>
-                        </select>
-                    </div>
-                </div>
+                        <form method="GET" action="{{ route('products.index') }}" id="filterForm">
 
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    @forelse($products as $product)
-                        <div class="product-card bg-dark-800 relative group">
-                            @if($product->is_featured)
-                                <span class="badge-hot z-20" style="background-color: #f59e0b;">HOT</span>
-                            @endif
-                            <a href="{{ route('product.show', $product->slug) }}" class="block relative h-64 overflow-hidden bg-white p-4">
-                                @if($product->images->count() > 0)
-                                    <img src="{{ Storage::url($product->images->first()->image_path) }}" alt="{{ $product->name }}" class="w-full h-full object-contain mix-blend-multiply group-hover:scale-105 transition-transform duration-500">
-                                @else
-                                    <div class="w-full h-full flex flex-col items-center justify-center text-gray-400 bg-gray-100 mix-blend-multiply">
-                                        <i class="bi bi-image text-3xl mb-2"></i>
-                                        <span class="text-sm">No Image</span>
-                                    </div>
-                                @endif
-                                
-                                <div class="absolute bottom-4 left-0 right-0 flex justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity z-20 translate-y-4 group-hover:translate-y-0 duration-300">
-                                    <button type="button" onclick="event.preventDefault(); event.stopPropagation(); document.getElementById('quick-cart-{{ $product->id }}').submit()" class="w-10 h-10 bg-black text-white hover:bg-brand-500 flex items-center justify-center rounded-full" title="Add to Cart"><i class="bi bi-cart-plus"></i></button>
+                            {{-- Category --}}
+                            <div style="margin-bottom:24px;">
+                                <p style="font-size:0.78rem; font-weight:700; text-transform:uppercase; letter-spacing:1px; color:#6C757D; margin:0 0 12px;">Category</p>
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input" type="radio" name="category" value="" id="catAll"
+                                           {{ !request('category') ? 'checked' : '' }}
+                                           onchange="this.form.submit()"
+                                           style="accent-color:#017075;">
+                                    <label class="form-check-label" for="catAll" style="font-size:0.88rem; cursor:pointer;">All Categories</label>
                                 </div>
-                            </a>
-                            <form id="quick-cart-{{ $product->id }}" action="{{ route('cart.add') }}" method="POST" class="hidden">
-                                @csrf
-                                <input type="hidden" name="product_id" value="{{ $product->id }}">
-                                <input type="hidden" name="quantity" value="1">
-                            </form>
-                            
-                            <div class="p-5 text-center">
-                                @if($product->category)
-                                    <div class="text-brand-500 text-xs font-heading tracking-widest uppercase mb-2">{{ $product->category->name }}</div>
-                                @endif
-                                <a href="{{ route('product.show', $product->slug) }}" class="block font-heading font-medium text-lg text-white hover:text-brand-500 transition-colors uppercase truncate tracking-wide mb-2" title="{{ $product->name }}">
-                                    {{ $product->name }}
-                                </a>
-                                <div class="flex justify-center items-center gap-3 font-heading text-lg">
-                                    @if($product->sale_price)
-                                        <span class="text-brand-500 font-bold">${{ number_format($product->sale_price, 2) }}</span>
-                                        <span class="text-gray-500 line-through text-sm">${{ number_format($product->base_price, 2) }}</span>
-                                    @else
-                                        <span class="text-white font-bold">${{ number_format($product->base_price, 2) }}</span>
-                                    @endif
+                                @foreach($filterCategories ?? [] as $cat)
+                                    <div class="form-check mb-2">
+                                        <input class="form-check-input" type="radio" name="category"
+                                               value="{{ $cat->id }}" id="cat{{ $cat->id }}"
+                                               {{ request('category') == $cat->id ? 'checked' : '' }}
+                                               onchange="this.form.submit()"
+                                               style="accent-color:#017075;">
+                                        <label class="form-check-label" for="cat{{ $cat->id }}" style="font-size:0.88rem; cursor:pointer;">{{ $cat->name }}</label>
+                                    </div>
+                                @endforeach
+                            </div>
+
+                            {{-- Price Range --}}
+                            <div style="margin-bottom:24px;">
+                                <p style="font-size:0.78rem; font-weight:700; text-transform:uppercase; letter-spacing:1px; color:#6C757D; margin:0 0 12px;">Max Price</p>
+                                <input type="range" name="max_price"
+                                       min="0" max="100000"
+                                       value="{{ request('max_price', 100000) }}"
+                                       step="1000"
+                                       style="width:100%; accent-color:#017075;"
+                                       oninput="document.getElementById('priceValue').textContent = '₹' + parseInt(this.value).toLocaleString('en-IN')">
+                                <div class="d-flex justify-content-between mt-1">
+                                    <small style="color:#aaa;">₹0</small>
+                                    <small style="font-weight:700; color:#017075;" id="priceValue">₹{{ number_format(request('max_price', 100000), 0, '.', ',') }}</small>
                                 </div>
                             </div>
-                        </div>
-                    @empty
-                        <div class="col-span-1 md:col-span-2 lg:col-span-3 text-center py-20 bg-dark-800">
-                            <i class="bi bi-emoji-frown text-5xl text-dark-600 block mb-4"></i>
-                            <h3 class="text-xl font-heading text-white uppercase tracking-widest">No products found</h3>
-                            <p class="text-gray-400 mt-2">Check back later or browse other categories.</p>
-                        </div>
-                    @endforelse
+
+                            <button type="submit"
+                                    style="width:100%; padding:11px; border-radius:8px; border:none; background:linear-gradient(95deg,#017075,#02AAB1); color:#fff; font-size:0.88rem; font-weight:700; cursor:pointer;">
+                                <i class="bi bi-funnel me-1"></i> Apply Filters
+                            </button>
+
+                            @if(request()->hasAny(['category','max_price','sort','search']))
+                                <a href="{{ route('products.index') }}"
+                                   style="display:block; margin-top:10px; padding:10px; text-align:center; border-radius:8px; border:1.5px solid #dee2e6; color:#6C757D; font-size:0.85rem; font-weight:600; text-decoration:none;">
+                                    <i class="bi bi-x-circle me-1"></i> Clear Filters
+                                </a>
+                            @endif
+                        </form>
+                    </div>
                 </div>
 
-                <!-- Pagination -->
-                @if($products->hasPages())
-                    <div class="mt-12 flex justify-center">
-                        <div class="bg-dark-800 inline-flex p-2 gap-2">
-                            <!-- Tailwind pagination overrides for black/red theme can be styled here. For now, Laravel's default might be messy in tailwind if not configured. Providing a simple custom link array or letting default render. -->
-                            {{ $products->links() }}
-                        </div>
+                {{-- ===== PRODUCTS GRID ===== --}}
+                <div class="col-lg-9">
+
+                    {{-- Top bar: results count + sort --}}
+                    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+                        <p style="margin:0; color:#6C757D; font-size:0.9rem;">
+                            Showing <strong style="color:#0D0D0D;">{{ $products->firstItem() ?? 0 }}–{{ $products->lastItem() ?? 0 }}</strong>
+                            of <strong style="color:#0D0D0D;">{{ $products->total() }}</strong> results
+                        </p>
+                        <form method="GET" action="{{ route('products.index') }}" class="d-flex align-items-center gap-2">
+                            @foreach(request()->except('sort') as $key => $val)
+                                <input type="hidden" name="{{ $key }}" value="{{ $val }}">
+                            @endforeach
+                            <select name="sort" onchange="this.form.submit()"
+                                    style="padding:8px 14px; border-radius:8px; border:1.5px solid #dee2e6; font-size:0.85rem; font-weight:600; color:#495057; background:#fff; cursor:pointer; outline:none;">
+                                <option value="default"    {{ request('sort','default') == 'default'    ? 'selected' : '' }}>Sort: Default</option>
+                                <option value="price-low"  {{ request('sort') == 'price-low'  ? 'selected' : '' }}>Price: Low → High</option>
+                                <option value="price-high" {{ request('sort') == 'price-high' ? 'selected' : '' }}>Price: High → Low</option>
+                                <option value="newest"     {{ request('sort') == 'newest'     ? 'selected' : '' }}>Newest First</option>
+                                <option value="popularity" {{ request('sort') == 'popularity' ? 'selected' : '' }}>Most Popular</option>
+                            </select>
+                        </form>
                     </div>
-                @endif
+
+                    {{-- Alerts --}}
+                    @if(session('success'))
+                        <div class="alert alert-success alert-dismissible fade show" role="alert">
+                            {{ session('success') }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    @endif
+                    @if(session('error'))
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                            {{ session('error') }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    @endif
+
+                    {{-- Product grid (first page SSR, subsequent pages via infinite scroll) --}}
+                    <div class="row g-3" id="shopGrid">
+                        @if($products->isEmpty())
+                            <div class="col-12 text-center py-5">
+                                <i class="bi bi-search" style="font-size:4rem; color:#ccc;"></i>
+                                <h4 class="mt-3" style="color:#6C757D;">No products found</h4>
+                                <p style="color:#aaa;">Try adjusting your filters or
+                                    <a href="{{ route('products.index') }}" style="color:#017075;">view all products</a>.
+                                </p>
+                            </div>
+                        @else
+                            @include('frontend.partials.product-cards', ['products' => $products])
+                        @endif
+                    </div>
+
+                    {{-- Infinite scroll sentinel --}}
+                    <div id="scrollSentinel" style="height:60px; display:flex; align-items:center; justify-content:center; margin-top:24px;">
+                        <div id="scrollSpinner" style="display:none;">
+                            <div class="spinner-border spinner-border-sm me-2" style="color:#017075;" role="status"></div>
+                            <span style="color:#6C757D; font-size:0.9rem;">Loading more products…</span>
+                        </div>
+                        <p id="scrollEnd" style="display:none; color:#aaa; font-size:0.85rem; margin:0;">
+                            <i class="bi bi-check-circle me-1" style="color:#017075;"></i> All products loaded
+                        </p>
+                    </div>
+
+                </div>
             </div>
         </div>
-    </div>
-</div>
+    </section>
+
 @endsection
+
+@push('styles')
+<style>
+    /* ===== SHOP PAGE PRODUCT CARDS ===== */
+    .shop-card {
+        background: #fff;
+        border-radius: 12px;
+        border: 1px solid #e9ecef;
+        overflow: hidden;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        transition: box-shadow 0.25s, transform 0.25s;
+    }
+    .shop-card:hover {
+        box-shadow: 0 8px 32px rgba(1,112,117,0.15);
+        transform: translateY(-4px);
+    }
+    .shop-card-img-wrap {
+        display: block;
+        background: #f8f9fa;
+        position: relative;
+        aspect-ratio: 1 / 1;
+        overflow: hidden;
+        text-decoration: none;
+    }
+    .shop-card-img-wrap img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        padding: 16px;
+        transition: transform 0.3s;
+    }
+    .shop-card:hover .shop-card-img-wrap img {
+        transform: scale(1.05);
+    }
+    .shop-card-no-img {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        color: #ccc;
+        font-size: 0.78rem;
+        gap: 6px;
+    }
+    .shop-card-no-img i { font-size: 2.5rem; }
+    .shop-badge {
+        position: absolute;
+        top: 10px;
+        font-size: 0.65rem;
+        font-weight: 700;
+        padding: 3px 9px;
+        border-radius: 4px;
+        letter-spacing: 0.5px;
+        color: #fff;
+    }
+    .shop-badge-new  { left: 10px;  background: #017075; }
+    .shop-badge-sale { right: 10px; background: #dc3545; }
+
+    .shop-card-body {
+        padding: 14px 16px;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+    }
+    .shop-card-brand {
+        color: #017075;
+        font-size: 0.68rem;
+        text-transform: uppercase;
+        letter-spacing: 1.2px;
+        font-weight: 700;
+        margin: 0 0 4px;
+    }
+    .shop-card-title {
+        font-size: 0.88rem;
+        font-weight: 700;
+        color: #0D0D0D;
+        text-decoration: none;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        line-height: 1.4;
+        margin-bottom: 10px;
+        flex: 1;
+    }
+    .shop-card-title:hover { color: #017075; }
+    .shop-card-price-row {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 14px;
+    }
+    .shop-card-price {
+        font-size: 1rem;
+        font-weight: 800;
+        color: #017075;
+    }
+    .shop-card-price-old {
+        font-size: 0.8rem;
+        color: #aaa;
+        text-decoration: line-through;
+    }
+    .shop-card-actions {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+    }
+    .shop-btn-cart {
+        height: 40px;
+        border: none;
+        border-radius: 8px;
+        background: linear-gradient(95deg, #017075, #02AAB1);
+        color: #fff;
+        font-size: 0.8rem;
+        font-weight: 700;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        transition: all 0.2s;
+        padding: 0 12px;
+    }
+    .shop-btn-cart:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 14px rgba(1,112,117,0.4);
+        color: #fff;
+    }
+    .shop-btn-icon {
+        width: 40px;
+        height: 40px;
+        flex-shrink: 0;
+        border-radius: 8px;
+        border: 1.5px solid #dee2e6;
+        background: #fff;
+        color: #6C757D;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1rem;
+        transition: all 0.2s;
+    }
+    .shop-btn-icon:hover {
+        border-color: #017075;
+        color: #017075;
+        background: rgba(1,112,117,0.06);
+    }
+</style>
+@endpush
+
+@push('scripts')
+<script>
+    // ===== INFINITE SCROLL =====
+    (function () {
+        const grid     = document.getElementById('shopGrid');
+        const sentinel = document.getElementById('scrollSentinel');
+        const spinner  = document.getElementById('scrollSpinner');
+        const endMsg   = document.getElementById('scrollEnd');
+
+        // Build base URL from current filters (everything except page)
+        const baseParams = new URLSearchParams(window.location.search);
+        baseParams.delete('page');
+
+        let nextPage  = {{ $products->currentPage() < $products->lastPage() ? $products->currentPage() + 1 : 'null' }};
+        let loading   = false;
+
+        function loadMore() {
+            if (!nextPage || loading) return;
+            loading = true;
+            spinner.style.display = 'flex';
+
+            const params = new URLSearchParams(baseParams);
+            params.set('page', nextPage);
+
+            fetch('{{ route('products.index') }}?' + params.toString(), {
+                headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' }
+            })
+            .then(function (res) { return res.json(); })
+            .then(function (data) {
+                // Append new cards
+                const tmp = document.createElement('div');
+                tmp.innerHTML = data.html;
+                while (tmp.firstChild) grid.appendChild(tmp.firstChild);
+
+                nextPage = (data.current_page < data.last_page) ? data.current_page + 1 : null;
+                loading  = false;
+                spinner.style.display = 'none';
+
+                if (!nextPage) {
+                    endMsg.style.display = 'block';
+                    observer.disconnect();
+                }
+            })
+            .catch(function () {
+                loading = false;
+                spinner.style.display = 'none';
+            });
+        }
+
+        // Only observe if there are more pages
+        @if($products->lastPage() > 1)
+        const observer = new IntersectionObserver(function (entries) {
+            if (entries[0].isIntersecting) loadMore();
+        }, { rootMargin: '200px' });
+
+        observer.observe(sentinel);
+        @else
+        if ({{ $products->total() }} > 0) {
+            endMsg.style.display = 'block';
+        }
+        @endif
+    })();
+
+    // ===== QUICK VIEW =====
+    function openQuickView(productId, productName) {
+        const modal = document.getElementById('quickViewModal');
+        const title = document.getElementById('quickViewTitle');
+        const body  = document.getElementById('quickViewBody');
+        if (!modal) return;
+
+        title.textContent = productName;
+        body.innerHTML = '<div class="text-center py-5"><div class="spinner-border" style="color:#017075;" role="status"></div><p class="mt-3 text-muted">Loading...</p></div>';
+
+        bootstrap.Modal.getOrCreateInstance(modal).show();
+
+        fetch('/product/' + productId + '/quick-view', {
+            headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'text/html' }
+        })
+        .then(function (res) {
+            if (!res.ok) throw new Error('Failed');
+            return res.text();
+        })
+        .then(function (html) { body.innerHTML = html; })
+        .catch(function () {
+            body.innerHTML = '<div class="text-center py-4"><p class="text-muted">Could not load. <a href="/product/' + productId + '" style="color:#017075;">View full page →</a></p></div>';
+        });
+    }
+</script>
+@endpush

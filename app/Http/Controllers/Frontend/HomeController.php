@@ -21,20 +21,29 @@ class HomeController extends Controller
         $categories = Category::take(6)->get();
 
         $featuredProducts = Product::where('is_active', true)
-            
-            ->with('images', 'category')
+            ->with('images', 'category', 'brand', 'variations')
+            ->latest()
+            ->take(12)
+            ->get();
+
+        $newProducts = Product::where('is_active', true)
+            ->with('images', 'category', 'brand', 'variations')
             ->latest()
             ->take(8)
             ->get();
 
-        $newProducts = Product::where('is_active', true)
-            ->with('images', 'category')
-            ->latest()
-            ->take(8)
+        // Tab categories: top 4 by product count + all products
+        $tabCategories = Category::withCount(['products' => fn ($q) => $q->where('is_active', true)])
+            ->having('products_count', '>', 0)
+            ->orderByDesc('products_count')
+            ->take(4)
             ->get();
 
         $brands = Brand::get();
 
-        return view('frontend.home', compact('sliders', 'categories', 'featuredProducts', 'newProducts', 'brands'));
+        return view('frontend.home', compact(
+            'sliders', 'categories', 'featuredProducts',
+            'newProducts', 'tabCategories', 'brands'
+        ));
     }
 }
