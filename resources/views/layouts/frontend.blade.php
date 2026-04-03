@@ -4,9 +4,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@yield('title', 'Boxima Fitness | Premium Home Gym Equipment')</title>
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <title>@yield('title', ($appSetting->site_name ?? 'Boxima Fitness') . ' | Premium Home Gym Equipment')</title>
     <meta name="description"
-        content="Transform your workout with XRT65 adjustable dumbbells. Premium home gym equipment from 2kg to 40kg. Shop dumbbells, benches, and combo kits with free shipping.">
+        content="{{ $appSetting->description ?? 'Transform your workout with premium home gym equipment. Quality gear for every workout goal.' }}">
+    <link rel="icon" type="image/x-icon" href="{{ optional($appSetting)->favicon_path ? asset('storage/' . $appSetting->favicon_path) : asset('frontend/images/fav.png') }}">
     <!-- Bootstrap 5 -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Bootstrap Icons -->
@@ -87,6 +89,24 @@
         </div>
     </div>
 
+    <!-- ===== WISHLIST OFFCANVAS ===== -->
+    @include('frontend.wishlist.index')
+
+    <!-- ===== CONFIRM POPUP ===== -->
+    <div class="confirm-popup-overlay" id="confirmPopup">
+        <div class="confirm-popup-box">
+            <div class="confirm-popup-icon">
+                <i class="bi bi-exclamation-triangle-fill"></i>
+            </div>
+            <h5 class="confirm-popup-title" id="confirmPopupTitle">Are you sure?</h5>
+            <p class="confirm-popup-msg" id="confirmPopupMsg"></p>
+            <div class="confirm-popup-actions">
+                <button class="confirm-popup-btn confirm-popup-cancel" id="confirmPopupCancel">Cancel</button>
+                <button class="confirm-popup-btn confirm-popup-yes" id="confirmPopupYes">Yes, Remove</button>
+            </div>
+        </div>
+    </div>
+
     <!-- ===== BACK TO TOP ===== -->
     <button class="back-to-top" id="backToTop"><i class="bi bi-chevron-up"></i></button>
 
@@ -105,10 +125,17 @@
             if (!imgMain || !imgSmall || !imgSmall2) return;
 
             const images = [
-                "{{ asset('frontend/images/combo-set 1.png') }}",
-                "{{ asset('frontend/images/dumbbell.png') }}",
-                "{{ asset('frontend/images/home-gym-kit 1.png') }}"
+                @if(isset($heroProducts) && $heroProducts->count() > 0)
+                    @foreach($heroProducts as $hp)
+                        "{{ $hp->images->isNotEmpty() ? asset('storage/' . $hp->images->first()->path) : asset('frontend/images/dumbbell.png') }}",
+                    @endforeach
+                @else
+                    "{{ asset('frontend/images/combo-set 1.png') }}",
+                    "{{ asset('frontend/images/dumbbell.png') }}",
+                    "{{ asset('frontend/images/home-gym-kit 1.png') }}"
+                @endif
             ];
+            if (images.length < 3) return;
             function rotateImages() {
                 images.push(images.shift());
                 imgSmall2.src = images[0];
@@ -275,6 +302,216 @@
         })();
     </script>
 
+    <script>
+        function toggleAjaxWishlist(productId, btnElement) {
+            let icon = btnElement.querySelector('i');
+            let isAdded = icon.classList.contains('bi-heart');
+            
+            // Optimistic UI update
+            if(isAdded) {
+                // If it was empty heart, now it's filled red
+                icon.classList.remove('bi-heart');
+                icon.classList.add('bi-heart-fill');
+                icon.style.color = 'red';
+            } else {
+                icon.classList.remove('bi-heart-fill');
+                icon.classList.add('bi-heart');
+                icon.style.color = '';
+            }
+
+            // AJAX request to backend
+            fetch('{{ route('wishlist.toggle') }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                    'Accept': 'application/json, text/javascript, */*; q=0.01',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: JSON.stringify({ product_id: productId })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if(data.success) {
+                    // Update Wishlist Offcanvas HTML silently by fetching /wishlist
+                    fetch('{{ route('wishlist.index') }}', {
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest'
+                        }
+                    })
+                    .then(res => res.text())
+                    .then(html => {
+                        let parser = new DOMParser();
+                        let doc = parser.parseFromString(html, 'text/html');
+                        let newBody = doc.querySelector('.offcanvas-body');
+                        if (newBody && document.querySelector('#wishlistSidebar .offcanvas-body')) {
+                            document.querySelector('#wishlistSidebar .offcanvas-body').innerHTML = newBody.innerHTML;
+                        }
+
+                        // Update all header counts
+                        document.querySelectorAll('.nav-wishlist-count').forEach(countElem => {
+                            countElem.innerText = data.total_count;
+                            if (data.total_count > 0) {
+                                countElem.classList.remove('d-none');
+                            } else {
+                                countElem.classList.add('d-none');
+                            }
+                        });
+
+                        // Show toast notification instead of opening sidebar
+                        showToast(data.message);
+                    });
+                } else if (data.redirect) {
+                    // Not logged in case (if we handle that in JSON)
+                    window.location.href = data.redirect;
+                }
+            })
+            .catch(err => {
+                console.error("Wishlist Error:", err);
+                // Revert UI on failure
+                if(isAdded) {
+                    icon.classList.remove('bi-heart-fill');
+                    icon.classList.add('bi-heart');
+                    icon.style.color = '';
+                } else {
+                    icon.classList.remove('bi-heart');
+                    icon.classList.add('bi-heart-fill');
+                    icon.style.color = 'red';
+                }
+                alert('Please log in first to use the wishlist.');
+            });
+        }
+
+    function moveCheckedToCart() {
+        const checkboxes = document.querySelectorAll('#wishlistSidebar .wishlist-item-checkbox:checked');
+        
+        if (checkboxes.length === 0) {
+            showToast('Please select at least one item to move to cart.');
+            return;
+        }
+
+        const productIds = Array.from(checkboxes).map(cb => parseInt(cb.value));
+
+        fetch('{{ route("wishlist.move-to-cart") }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                'Accept': 'application/json',
+            },
+            body: JSON.stringify({ product_ids: productIds }),
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.redirect) {
+                window.location.href = data.redirect;
+                return;
+            }
+            if (data.success) {
+                showToast(data.message);
+
+                // Update wishlist count badges
+                document.querySelectorAll('.nav-wishlist-count').forEach(el => {
+                    el.textContent = data.wishlist_count;
+                });
+
+                // Update cart count badges
+                document.querySelectorAll('.nav-cart-count, .cart-count').forEach(el => {
+                    el.textContent = data.cart_count;
+                });
+
+                // Reload the wishlist sidebar content
+                fetch('{{ route("wishlist.index") }}', {
+                    headers: { 'Accept': 'text/html' }
+                })
+                .then(r => r.text())
+                .then(html => {
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(html, 'text/html');
+                    const newBody = doc.querySelector('#wishlistSidebar .offcanvas-body');
+                    const currentBody = document.querySelector('#wishlistSidebar .offcanvas-body');
+                    if (newBody && currentBody) {
+                        currentBody.innerHTML = newBody.innerHTML;
+                    }
+                });
+            }
+        })
+        .catch(() => showToast('Something went wrong. Please try again.'));
+    }
+
+    function clearWishlistItems() {
+        const checkboxes = document.querySelectorAll('#wishlistSidebar .wishlist-item-checkbox:checked');
+        const checkedIds = Array.from(checkboxes).map(cb => parseInt(cb.value));
+
+        const popup = document.getElementById('confirmPopup');
+        const msgEl = document.getElementById('confirmPopupMsg');
+        const yesBtn = document.getElementById('confirmPopupYes');
+        const cancelBtn = document.getElementById('confirmPopupCancel');
+
+        if (checkedIds.length > 0) {
+            msgEl.textContent = 'Remove ' + checkedIds.length + ' selected item(s) from your wishlist?';
+        } else {
+            msgEl.textContent = 'This will remove ALL items from your wishlist.';
+        }
+
+        popup.classList.add('show');
+
+        // Clone buttons to remove old event listeners
+        const newYes = yesBtn.cloneNode(true);
+        const newCancel = cancelBtn.cloneNode(true);
+        yesBtn.parentNode.replaceChild(newYes, yesBtn);
+        cancelBtn.parentNode.replaceChild(newCancel, cancelBtn);
+
+        newCancel.addEventListener('click', () => {
+            popup.classList.remove('show');
+        });
+
+        newYes.addEventListener('click', () => {
+            popup.classList.remove('show');
+
+            const body = checkedIds.length > 0 ? { product_ids: checkedIds } : {};
+
+            fetch('{{ route("wishlist.clear") }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                    'Accept': 'application/json',
+                },
+                body: JSON.stringify(body),
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.redirect) {
+                    window.location.href = data.redirect;
+                    return;
+                }
+                if (data.success) {
+                    showToast(data.message);
+
+                    document.querySelectorAll('.nav-wishlist-count').forEach(el => {
+                        el.textContent = data.wishlist_count;
+                    });
+
+                    fetch('{{ route("wishlist.index") }}', {
+                        headers: { 'Accept': 'text/html' }
+                    })
+                    .then(r => r.text())
+                    .then(html => {
+                        const parser = new DOMParser();
+                        const doc = parser.parseFromString(html, 'text/html');
+                        const newBody = doc.querySelector('#wishlistSidebar .offcanvas-body');
+                        const currentBody = document.querySelector('#wishlistSidebar .offcanvas-body');
+                        if (newBody && currentBody) {
+                            currentBody.innerHTML = newBody.innerHTML;
+                        }
+                    });
+                }
+            })
+            .catch(() => showToast('Something went wrong. Please try again.'));
+        });
+    }
+    </script>
     @stack('scripts')
 </body>
 

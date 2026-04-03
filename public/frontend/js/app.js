@@ -55,9 +55,10 @@ class Cart {
     return this.items.reduce((sum, item) => sum + item.qty, 0);
   }
   updateCartBadge() {
-    const badges = document.querySelectorAll('.cart-count');
-    const count = this.getCount();
-    badges.forEach(b => { b.textContent = count; b.style.display = count > 0 ? 'flex' : 'none'; });
+    // Legacy localStorage logic disabled to prevent conflict with Laravel backend counts
+    // const badges = document.querySelectorAll('.cart-count');
+    // const count = this.getCount();
+    // badges.forEach(b => { b.textContent = count; b.style.display = count > 0 ? 'flex' : 'none'; });
   }
   clear() { this.items = []; this.save(); }
 }
@@ -122,12 +123,13 @@ class Wishlist {
       if (this.has(id)) { icon.classList.remove('bi-heart'); icon.classList.add('bi-heart-fill'); btn.style.color = '#017075'; }
       else { icon.classList.remove('bi-heart-fill'); icon.classList.add('bi-heart'); btn.style.color = ''; }
     });
+    // Legacy localStorage logic disabled to prevent conflict with Laravel backend counts
     const badges = document.querySelectorAll('.wishlist-count');
-    const count = this.items.length;
-    badges.forEach(b => {
-      b.textContent = count;
-      b.style.display = count > 0 ? 'flex' : 'none';
-    });
+    // const count = this.items.length;
+    // badges.forEach(b => {
+    //   b.textContent = count;
+    //   b.style.display = count > 0 ? 'flex' : 'none';
+    // });
   }
   renderSidebar() {
     const sidebars = document.querySelectorAll('#wishlistSidebar .offcanvas-body');

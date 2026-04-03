@@ -4,7 +4,7 @@
 
 @section('content')
 
-   
+
 
 
     {{-- ===== BANNER ===== --}}
@@ -56,50 +56,19 @@
                 <div class="pm-title-line"></div>
             </div>
             <div class="category-asymmetric-grid">
-                @forelse($categories as $index => $category)
+                @foreach($categories as $index => $category)
                     <a href="{{ route('category.show', $category->id) }}"
                         class="cat-grid-item {{ $index === 0 ? 'cat-grid-large' : '' }}">
-                        @if ($category->image_path)
-                            <img src="{{ Storage::url($category->image_path) }}" alt="{{ $category->name }}">
+                        @if ($category->image)
+                            <img src="{{ asset('storage/' . $category->image) }}" alt="{{ $category->name }}">
                         @else
-                            {{-- fallback XRT60 image based on index --}}
-                            @php
-                                $fallbacks = [
-                                    'dumbbell.png',
-                                    'power_bench.png',
-                                    'kettlebell.png',
-                                    'combo-set.png',
-                                    'bottel.png',
-                                ];
-                                $fb = $fallbacks[$index % count($fallbacks)];
-                            @endphp
-                            <img src="{{ asset('frontend/images/' . $fb) }}" alt="{{ $category->name }}">
+                            {{-- Fallback to a default image if no image is uploaded in the backend --}}
+                            <img src="{{ asset('frontend/images/dumbbell.png') }}" alt="{{ $category->name }}">
                         @endif
                         <span
                             class="cat-grid-label {{ $index === 0 ? 'cat-grid-label-primary' : '' }}">{{ strtoupper($category->name) }}</span>
                     </a>
-                @empty
-                    <a href="{{ route('products.index') }}" class="cat-grid-item cat-grid-large">
-                        <img src="{{ asset('frontend/images/dumbbell.png') }}" alt="Dumbbells">
-                        <span class="cat-grid-label cat-grid-label-primary">DUMBBELLS</span>
-                    </a>
-                    <a href="{{ route('products.index') }}" class="cat-grid-item">
-                        <img src="{{ asset('frontend/images/power_bench.png') }}" alt="Benches">
-                        <span class="cat-grid-label">BENCHES</span>
-                    </a>
-                    <a href="{{ route('products.index') }}" class="cat-grid-item">
-                        <img src="{{ asset('frontend/images/kettlebell.png') }}" alt="Kettlebells">
-                        <span class="cat-grid-label">KETTLEBELLS</span>
-                    </a>
-                    <a href="{{ route('products.index') }}" class="cat-grid-item">
-                        <img src="{{ asset('frontend/images/combo-set.png') }}" alt="Combos">
-                        <span class="cat-grid-label">COMBO SETS</span>
-                    </a>
-                    <a href="{{ route('products.index') }}" class="cat-grid-item">
-                        <img src="{{ asset('frontend/images/abroller.png') }}" alt="Accessories">
-                        <span class="cat-grid-label">ACCESSORIES</span>
-                    </a>
-                @endforelse
+                @endforeach
             </div>
         </div>
     </section>
@@ -139,13 +108,12 @@
             {{-- PER-CATEGORY TAB PANELS --}}
             @foreach($tabCategories as $tabCat)
                 <div class="pm-tab-panel" data-panel="cat-{{ $tabCat->id }}" style="display:none;">
-                    @php $catProducts = $featuredProducts->where('category_id', $tabCat->id); @endphp
-                    @if($catProducts->isEmpty())
+                    @if($tabCat->products->isEmpty())
                         <p style="color:#6C757D; text-align:center; padding:40px 0;">No products in this category yet.</p>
                     @else
                         <div class="swiper product-category-swiper swiper-cat-{{ $tabCat->id }}">
                             <div class="swiper-wrapper">
-                                @foreach($catProducts as $product)
+                                @foreach($tabCat->products as $product)
                                     <div class="swiper-slide">
                                         @include('frontend.partials.product-card', ['product' => $product])
                                     </div>
@@ -658,42 +626,25 @@
 
             <!-- RIGHT SIDE -->
             <div class="faq-right">
-
-                <div class="faq-item active">
-                    <div class="faq-question">
-                        What Shipping method do we use ?
-                        <span class="faq-icon" aria-hidden="true"></span>
+                @forelse($faqs as $faq)
+                    <div class="faq-item {{ $loop->first ? 'active' : '' }}">
+                        <div class="faq-question">
+                            {{ $faq->question }}
+                            <span class="faq-icon" aria-hidden="true"></span>
+                        </div>
+                        <div class="faq-answer">{!! nl2br(e($faq->answer)) !!}</div>
                     </div>
-                    <div class="faq-answer">
-                        XRT65 products are shipped using premium logistics partners. Items above 10kgs are shipped by
-                        road.
-                        Items below 10kgs are shipped through Air Cargo.
+                @empty
+                    <div class="faq-item active">
+                        <div class="faq-question">
+                            FAQs will be available soon.
+                            <span class="faq-icon" aria-hidden="true"></span>
+                        </div>
+                        <div class="faq-answer">
+                            No FAQs are active right now. Please check back later.
+                        </div>
                     </div>
-                </div>
-
-                <div class="faq-item">
-                    <div class="faq-question">
-                        How long will it take to receive my order?
-                        <span class="faq-icon" aria-hidden="true"></span>
-                    </div>
-                    <div class="faq-answer"></div>
-                </div>
-
-                <div class="faq-item">
-                    <div class="faq-question">
-                        What payment options are accepted ?
-                        <span class="faq-icon" aria-hidden="true"></span>
-                    </div>
-                    <div class="faq-answer"></div>
-                </div>
-
-                <div class="faq-item">
-                    <div class="faq-question">
-                        What do I do if I receive a damaged parcel or product?
-                        <span class="faq-icon" aria-hidden="true"></span>
-                    </div>
-                    <div class="faq-answer"></div>
-                </div>
+                @endforelse
 
             </div>
 
@@ -824,110 +775,58 @@
             </div>
             <div class="pm-testimonial-slider">
                 <div class="row g-4 pm-testimonial-track">
-                    <div class="col-lg-4 col-md-6">
-                        <div class="pm-testimonial-card">
-                            <div class="pm-testimonial-stars"><i class="bi bi-star-fill"></i><i
-                                    class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i
-                                    class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i></div>
-                            <p class="pm-testimonial-text">"The 24kg adjustable dumbbells are a game-changer! Replaced
-                                my
-                                entire rack
-                                and the build quality is outstanding. Best fitness purchase I've ever made."</p>
-                            <div class="pm-testimonial-author">
-                                <div class="pm-testimonial-avatar">RK</div>
-                                <div>
-                                    <h6>Rahul Kumar</h6>
-                                    <span>Fitness Enthusiast, Delhi</span>
+                    @forelse($testimonials as $testimonial)
+                        @php
+                            $rating = max(0, min(5, (float) $testimonial->rating));
+                            $fullStars = (int) floor($rating);
+                            $hasHalfStar = ($rating - $fullStars) >= 0.5;
+                            $emptyStars = 5 - $fullStars - ($hasHalfStar ? 1 : 0);
+                            $avatarText = $testimonial->initials
+                                ? strtoupper($testimonial->initials)
+                                : collect(preg_split('/\s+/', trim($testimonial->name)))
+                                    ->filter()
+                                    ->take(2)
+                                    ->map(fn ($part) => strtoupper(substr($part, 0, 1)))
+                                    ->join('');
+                        @endphp
+                        <div class="col-lg-4 col-md-6">
+                            <div class="pm-testimonial-card">
+                                <div class="pm-testimonial-stars">
+                                    @for($i = 0; $i < $fullStars; $i++)
+                                        <i class="bi bi-star-fill"></i>
+                                    @endfor
+                                    @if($hasHalfStar)
+                                        <i class="bi bi-star-half"></i>
+                                    @endif
+                                    @for($i = 0; $i < $emptyStars; $i++)
+                                        <i class="bi bi-star"></i>
+                                    @endfor
+                                </div>
+                                <p class="pm-testimonial-text">"{{ $testimonial->content }}"</p>
+                                <div class="pm-testimonial-author">
+                                    <div class="pm-testimonial-avatar">{{ $avatarText ?: 'NA' }}</div>
+                                    <div>
+                                        <h6>{{ $testimonial->name }}</h6>
+                                        <span>{{ $testimonial->designation ?: 'Verified Customer' }}</span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="col-lg-4 col-md-6">
-                        <div class="pm-testimonial-card">
-                            <div class="pm-testimonial-stars"><i class="bi bi-star-fill"></i><i
-                                    class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i
-                                    class="bi bi-star-fill"></i><i class="bi bi-star-half"></i></div>
-                            <p class="pm-testimonial-text">"The combo kit with bench was unbelievable value. Setup took
-                                20
-                                minutes. My
-                                home gym is now complete and I save 2 hours daily not going to the gym!"</p>
-                            <div class="pm-testimonial-author">
-                                <div class="pm-testimonial-avatar">PS</div>
-                                <div>
-                                    <h6>Priya Sharma</h6>
-                                    <span>Home Gym Owner, Mumbai</span>
+                    @empty
+                        <div class="col-lg-4 col-md-6">
+                            <div class="pm-testimonial-card">
+                                <div class="pm-testimonial-stars"><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i></div>
+                                <p class="pm-testimonial-text">"Customer testimonials will be available soon."</p>
+                                <div class="pm-testimonial-author">
+                                    <div class="pm-testimonial-avatar">NA</div>
+                                    <div>
+                                        <h6>XRT65 Customer</h6>
+                                        <span>Stay tuned</span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="col-lg-4 col-md-6">
-                        <div class="pm-testimonial-card">
-                            <div class="pm-testimonial-stars"><i class="bi bi-star-fill"></i><i
-                                    class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i
-                                    class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i></div>
-                            <p class="pm-testimonial-text">"I'm a personal trainer and I recommend XRT65 to all my
-                                clients.
-                                The dial
-                                system is smooth, weights are precise, and the warranty is top-notch."</p>
-                            <div class="pm-testimonial-author">
-                                <div class="pm-testimonial-avatar">AV</div>
-                                <div>
-                                    <h6>Arjun Verma</h6>
-                                    <span>Certified Trainer, Bangalore</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-lg-4 col-md-6">
-                        <div class="pm-testimonial-card">
-                            <div class="pm-testimonial-stars"><i class="bi bi-star-fill"></i><i
-                                    class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i
-                                    class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i></div>
-                            <p class="pm-testimonial-text">"Delivery was super smooth and the packaging was very secure.
-                                I assembled everything in under 30 minutes and started training the same day."</p>
-                            <div class="pm-testimonial-author">
-                                <div class="pm-testimonial-avatar">NM</div>
-                                <div>
-                                    <h6>Nisha Mehta</h6>
-                                    <span>Working Professional, Pune</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-lg-4 col-md-6">
-                        <div class="pm-testimonial-card">
-                            <div class="pm-testimonial-stars"><i class="bi bi-star-fill"></i><i
-                                    class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i
-                                    class="bi bi-star-fill"></i><i class="bi bi-star-half"></i></div>
-                            <p class="pm-testimonial-text">"The adjustable bench quality surprised me for this price
-                                range.
-                                It feels sturdy, stable, and compact enough for my apartment workout corner."</p>
-                            <div class="pm-testimonial-author">
-                                <div class="pm-testimonial-avatar">RT</div>
-                                <div>
-                                    <h6>Rohan Tiwari</h6>
-                                    <span>Software Engineer, Hyderabad</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-lg-4 col-md-6">
-                        <div class="pm-testimonial-card">
-                            <div class="pm-testimonial-stars"><i class="bi bi-star-fill"></i><i
-                                    class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i
-                                    class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i></div>
-                            <p class="pm-testimonial-text">"Customer support was excellent when I needed setup guidance.
-                                Quick response, clear instructions, and now my home workouts are more consistent than
-                                ever."</p>
-                            <div class="pm-testimonial-author">
-                                <div class="pm-testimonial-avatar">SK</div>
-                                <div>
-                                    <h6>Sneha Kulkarni</h6>
-                                    <span>Physiotherapist, Chennai</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                    @endforelse
                 </div>
             </div>
         </div>

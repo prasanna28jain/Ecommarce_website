@@ -80,7 +80,11 @@
                                         <td>
                                             <a href="{{ route('product.show', $item->product->slug) }}">
                                                 @if($item->product->images->count() > 0)
-                                                    <img src="{{ Storage::url($item->product->images->first()->image_path) }}"
+                                                    @php
+                                                        $firstImage = $item->product->images->first();
+                                                        $imagePath = $firstImage->path ?? $firstImage->image_path ?? null;
+                                                    @endphp
+                                                    <img src="{{ $imagePath ? asset('storage/' . ltrim($imagePath, '/')) : asset('frontend/images/dumbbell.png') }}"
                                                          alt="{{ $item->product->name }}" class="cart-item-img">
                                                 @else
                                                     <img src="{{ asset('frontend/images/dumbbell.png') }}"
@@ -122,12 +126,22 @@
 
                                         {{-- Remove --}}
                                         <td>
-                                            <form action="{{ route('cart.destroy', $item) }}" method="POST">
+                                            <form id="cart-remove-form-{{ $item->id }}" action="{{ route('cart.destroy', $item) }}" method="POST">
                                                 @csrf
                                                 @method('DELETE')
-                                                <button type="submit" class="cart-remove-btn" title="Remove">
+                                                <button
+                                                    type="button"
+                                                    class="cart-remove-btn js-cart-remove-choice"
+                                                    data-remove-form="cart-remove-form-{{ $item->id }}"
+                                                    data-wishlist-form="cart-wishlist-form-{{ $item->id }}"
+                                                    data-product-name="{{ $item->product->name }}"
+                                                    title="Remove"
+                                                >
                                                     <i class="bi bi-trash3"></i>
                                                 </button>
+                                            </form>
+                                            <form id="cart-wishlist-form-{{ $item->id }}" action="{{ route('cart.move-to-wishlist', $item) }}" method="POST" class="d-none">
+                                                @csrf
                                             </form>
                                         </td>
                                     </tr>
@@ -216,4 +230,108 @@
     </div>
 </section>
 
+<div class="modal fade" id="cartActionModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content cart-action-modal">
+            <div class="modal-header border-0 pb-0">
+                <h5 class="modal-title fw-bold">
+                    <i class="bi bi-cart-x me-2 text-danger"></i>Choose Action
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body pt-2">
+                <p class="mb-2 text-muted">What would you like to do with:</p>
+                <div class="cart-action-product-name" id="cartActionProductName"></div>
+            </div>
+            <div class="modal-footer border-0 pt-0 d-flex gap-2">
+                <button type="button" class="btn btn-light flex-fill" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-outline-danger flex-fill" id="cartActionRemoveBtn">
+                    <i class="bi bi-trash3 me-1"></i>Remove
+                </button>
+                <button type="button" class="btn btn-primary-xrt flex-fill" id="cartActionWishlistBtn">
+                    <i class="bi bi-heart me-1"></i>Move to Wishlist
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
 @endsection
+
+@push('styles')
+<style>
+    .cart-action-modal {
+        border: 0;
+        border-radius: 16px;
+        box-shadow: 0 22px 60px rgba(0, 0, 0, 0.25);
+        overflow: hidden;
+    }
+
+    .cart-action-modal .modal-header {
+        background: linear-gradient(135deg, #f6f9fc 0%, #eef4ff 100%);
+        padding: 1rem 1.1rem 0.7rem;
+    }
+
+    .cart-action-modal .modal-body {
+        padding: 0.8rem 1.1rem 0.9rem;
+    }
+
+    .cart-action-modal .modal-footer {
+        padding: 0 1.1rem 1.1rem;
+    }
+
+    .cart-action-product-name {
+        background: #f8fafc;
+        border: 1px solid #e9eef5;
+        border-radius: 10px;
+        padding: 0.7rem 0.8rem;
+        font-weight: 600;
+        color: #212529;
+        word-break: break-word;
+    }
+</style>
+@endpush
+
+@push('scripts')
+<script>
+    const cartActionModalEl = document.getElementById('cartActionModal');
+    const cartActionProductName = document.getElementById('cartActionProductName');
+    const cartActionRemoveBtn = document.getElementById('cartActionRemoveBtn');
+    const cartActionWishlistBtn = document.getElementById('cartActionWishlistBtn');
+    const cartActionModal = cartActionModalEl ? new bootstrap.Modal(cartActionModalEl) : null;
+
+    let activeRemoveForm = null;
+    let activeWishlistForm = null;
+
+    document.addEventListener('click', function (event) {
+        const trigger = event.target.closest('.js-cart-remove-choice');
+        if (!trigger || !cartActionModal) return;
+
+        const removeFormId = trigger.getAttribute('data-remove-form');
+        const wishlistFormId = trigger.getAttribute('data-wishlist-form');
+        const productName = trigger.getAttribute('data-product-name') || 'this item';
+
+        activeRemoveForm = document.getElementById(removeFormId);
+        activeWishlistForm = document.getElementById(wishlistFormId);
+
+        if (!activeRemoveForm || !activeWishlistForm) return;
+
+        cartActionProductName.textContent = productName;
+        cartActionModal.show();
+    });
+
+    if (cartActionWishlistBtn) {
+        cartActionWishlistBtn.addEventListener('click', function () {
+            if (!activeWishlistForm) return;
+            activeWishlistForm.submit();
+        });
+    }
+
+    if (cartActionRemoveBtn) {
+        cartActionRemoveBtn.addEventListener('click', function () {
+            if (!activeRemoveForm) return;
+            activeRemoveForm.submit();
+        });
+    }
+</script>
+@endpush

@@ -7,6 +7,7 @@ use App\Models\Cart;
 use App\Models\Coupon;
 use App\Models\Product;
 use App\Models\ProductVariation;
+use App\Models\Wishlist;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -119,6 +120,31 @@ class FrontendCartController extends Controller
         return back()->with('success', 'Item removed from cart.');
     }
 
+    public function moveToWishlist(Cart $cart): RedirectResponse
+    {
+        abort_if($cart->user_id !== Auth::id(), 403);
+
+        $alreadyInWishlist = Wishlist::where('user_id', Auth::id())
+            ->where('product_id', $cart->product_id)
+            ->where('product_variation_id', $cart->product_variation_id)
+            ->exists();
+
+        if (! $alreadyInWishlist) {
+            Wishlist::create([
+                'user_id' => Auth::id(),
+                'product_id' => $cart->product_id,
+                'product_variation_id' => $cart->product_variation_id,
+            ]);
+        }
+
+        $cart->delete();
+
+        return back()->with(
+            'success',
+            $alreadyInWishlist ? 'Item removed from cart (already in wishlist).' : 'Item moved to wishlist.'
+        );
+    }
+
     private function getAppliedCouponSummary(float $subtotal): ?array
     {
         $stored = session('checkout_coupon');
@@ -128,7 +154,7 @@ class FrontendCartController extends Controller
             return null;
         }
 
-        $coupon = Coupon::whereRaw('UPPER(code) = ?', [$code])->first();
+        $coupon = Coupon::whereRaw('UPPER(TRIM(code)) = ?', [$code])->first();
         if (! $coupon || ! $this->isCouponApplicable($coupon, $subtotal)) {
             session()->forget('checkout_coupon');
             return null;

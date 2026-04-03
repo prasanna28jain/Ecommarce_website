@@ -5,14 +5,14 @@
 @section('content')
 
 {{-- Page Header --}}
-<div class="page-header-teal">
+<div class="page-header-teal" style="color: white">
     <div class="container">
         <h1 class="page-header-title">Checkout</h1>
         <nav aria-label="breadcrumb">
-            <ol class="breadcrumb-xrt">
-                <li><a href="{{ route('home') }}">Home</a></li>
-                <li><a href="{{ route('cart.index') }}">Cart</a></li>
-                <li>Checkout</li>
+            <ol class="breadcrumb breadcrumb-xrt">
+                <li class="breadcrumb-item"><a href="{{ route('home') }}">Home</a></li>
+                <li class="breadcrumb-item"><a href="{{ route('cart.index') }}">Cart</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Checkout</li>
             </ol>
         </nav>
     </div>
@@ -247,6 +247,64 @@
                                     </form>
                                 </div>
                             @endif
+
+                            @if(!empty($availableCoupons) && $availableCoupons->count())
+                                <div style="margin-top:12px;">
+                                    <button type="button" id="toggle-coupons-btn"
+                                            style="padding:8px 12px; border-radius:8px; border:1.5px solid #017075; background:#fff; color:#017075; font-size:0.8rem; font-weight:700; cursor:pointer; transition:all 0.2s;"
+                                            onmouseover="this.style.background='#017075'; this.style.color='#fff';"
+                                            onmouseout="this.style.background='#fff'; this.style.color='#017075';">
+                                        View Coupons
+                                    </button>
+
+                                    <div id="available-coupons-wrap" style="display:none; margin-top:10px;">
+                                        <div style="font-size:0.78rem; font-weight:700; letter-spacing:1px; color:#6C757D; text-transform:uppercase; margin-bottom:8px;">
+                                            Available Coupons
+                                        </div>
+                                        <div style="display:flex; flex-direction:column; gap:8px;">
+                                        @foreach($availableCoupons as $couponItem)
+                                            <div style="border:1px dashed #cfd8dc; border-radius:8px; padding:10px 12px; background:#fcfdfd;">
+                                                <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:8px;">
+                                                    <div>
+                                                        <div style="font-size:0.84rem; font-weight:800; color:#0D0D0D;">
+                                                            {{ strtoupper($couponItem['code']) }}
+                                                        </div>
+                                                        <div style="font-size:0.79rem; color:#495057;">
+                                                            @if($couponItem['type'] === 'percent')
+                                                                {{ rtrim(rtrim(number_format($couponItem['amount'], 2), '0'), '.') }}% OFF
+                                                            @else
+                                                                Rs {{ number_format($couponItem['amount'], 2) }} OFF
+                                                            @endif
+                                                            @if($couponItem['min_order_amount'] > 0)
+                                                                | Min order Rs {{ number_format($couponItem['min_order_amount'], 2) }}
+                                                            @endif
+                                                        </div>
+                                                        <div style="font-size:0.74rem; color:#6C757D; margin-top:2px;">
+                                                            {{ $couponItem['validity_text'] }}
+                                                        </div>
+                                                        @if(!$couponItem['is_applicable'] && !empty($couponItem['ineligible_reason']))
+                                                            <div style="font-size:0.74rem; color:#dc3545; margin-top:3px;">
+                                                                {{ $couponItem['ineligible_reason'] }}
+                                                            </div>
+                                                        @endif
+                                                    </div>
+
+                                                    <form action="{{ route('checkout.coupon.apply') }}" method="POST" style="margin:0;">
+                                                        @csrf
+                                                        <input type="hidden" name="coupon_code" value="{{ $couponItem['code'] }}">
+                                                        <button type="submit"
+                                                                {{ $couponItem['is_applicable'] ? '' : 'disabled' }}
+                                                                style="padding:6px 10px; border-radius:7px; border:1px solid #017075; background:{{ $couponItem['is_applicable'] ? '#fff' : '#f1f3f5' }}; color:{{ $couponItem['is_applicable'] ? '#017075' : '#adb5bd' }}; font-size:0.75rem; font-weight:700; cursor:{{ $couponItem['is_applicable'] ? 'pointer' : 'not-allowed' }}; white-space:nowrap;">
+                                                            Apply
+                                                        </button>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        @endforeach
+                                        </div>
+                                    </div>
+                                </div>
+                            @endif
                         </div>
 
                         {{-- Totals --}}
@@ -376,6 +434,16 @@
             submitButton.style.opacity = '1';
         }
     });
+
+    const toggleCouponsBtn = document.getElementById('toggle-coupons-btn');
+    const couponsWrap = document.getElementById('available-coupons-wrap');
+    if (toggleCouponsBtn && couponsWrap) {
+        toggleCouponsBtn.addEventListener('click', function () {
+            const isHidden = couponsWrap.style.display === 'none';
+            couponsWrap.style.display = isHidden ? 'block' : 'none';
+            toggleCouponsBtn.textContent = isHidden ? 'Hide Coupons' : 'View Coupons';
+        });
+    }
 })();
 </script>
 @endpush

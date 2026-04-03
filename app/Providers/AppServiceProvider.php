@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Models\Cart;
+use App\Models\Page;
 use App\Models\Setting;
 use App\Models\Wishlist;
 use Illuminate\Support\Facades\Auth;
@@ -52,6 +53,40 @@ class AppServiceProvider extends ServiceProvider
 
             $view->with('headerCartCount', $cartCount)
                 ->with('headerWishlistCount', $wishlistCount);
+        });
+
+        View::composer(['layouts.footer'], function ($view): void {
+            $aboutUsPage = null;
+
+            if (Schema::hasTable('pages')) {
+                $aboutUsPage = Page::query()
+                    ->where('is_active', true)
+                    ->where(function ($query): void {
+                        $query->whereIn('slug', ['about-us', 'aboutus', 'about_us', 'about'])
+                            ->orWhere('title', 'like', '%about%');
+                    })
+                    ->latest('id')
+                    ->first();
+            }
+
+            $view->with('aboutUsPage', $aboutUsPage);
+        });
+
+        View::composer(['layouts.topbar'], function ($view): void {
+            $contactPage = null;
+
+            if (Schema::hasTable('pages')) {
+                $contactPage = Page::query()
+                    ->where('is_active', true)
+                    ->where(function ($query): void {
+                        $query->whereIn('slug', ['contact', 'contact-us', 'contactus', 'contact_us'])
+                            ->orWhere('title', 'like', '%contact%');
+                    })
+                    ->latest('id')
+                    ->first();
+            }
+
+            $view->with('contactPage', $contactPage);
         });
     }
 }

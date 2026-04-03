@@ -23,6 +23,9 @@ use App\Http\Controllers\Backend\BackendShipmentController;
 use App\Http\Controllers\Backend\BackendDeliveryPartnerController;
 use App\Http\Controllers\Backend\BackendAttributeController;
 use App\Http\Controllers\Backend\BackendTagController;
+use App\Http\Controllers\Backend\BackendFaqController;
+use App\Http\Controllers\Backend\BackendTestimonialController;
+use App\Http\Controllers\Backend\BackendNewsletterSubscriberController;
 use App\Http\Controllers\Frontend\HomeController;
 use App\Http\Controllers\Frontend\FrontendProductController;
 use App\Http\Controllers\Frontend\FrontendCategoryController;
@@ -32,6 +35,8 @@ use App\Http\Controllers\Frontend\FrontendAccountController;
 use App\Http\Controllers\Frontend\FrontendOrderController;
 use App\Http\Controllers\Frontend\FrontendCheckoutController;
 use App\Http\Controllers\Frontend\FrontendWishlistController;
+use App\Http\Controllers\Frontend\FrontendNewsletterController;
+use App\Http\Controllers\Frontend\FrontendPageController;
 
 
 
@@ -64,8 +69,12 @@ Route::get('/categories', [FrontendCategoryController::class,'index'])->name('ca
 Route::get('/category/{slug}', [FrontendCategoryController::class,'show'])->name('category.show');
 Route::get('/brands', [FrontendBrandController::class,'index'])->name('brands.index');
 Route::get('/brand/{id}', [FrontendBrandController::class,'show'])->name('brand.show');
+Route::get('/pages/{slug}', [FrontendPageController::class, 'show'])->name('pages.show');
+Route::post('/newsletter/subscribe', [FrontendNewsletterController::class, 'subscribe'])->name('newsletter.subscribe');
 Route::post('/cart/add', [FrontendCartController::class, 'add'])->name('cart.add');
 Route::post('/wishlist/toggle', [FrontendWishlistController::class, 'toggle'])->name('wishlist.toggle');
+Route::post('/wishlist/move-to-cart', [FrontendWishlistController::class, 'moveToCart'])->name('wishlist.move-to-cart');
+Route::post('/wishlist/clear', [FrontendWishlistController::class, 'clear'])->name('wishlist.clear');
 Route::post('/webhooks/razorpay', [FrontendCheckoutController::class, 'razorpayWebhook'])
     ->name('webhooks.razorpay')
     ->withoutMiddleware([\Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class]);
@@ -87,6 +96,7 @@ Route::middleware(['auth'])->group(function(){
     Route::get('/cart', [FrontendCartController::class, 'index'])->name('cart.index');
     Route::patch('/cart/{cart}', [FrontendCartController::class, 'update'])->name('cart.update');
     Route::delete('/cart/{cart}', [FrontendCartController::class, 'destroy'])->name('cart.destroy');
+    Route::post('/cart/{cart}/move-to-wishlist', [FrontendCartController::class, 'moveToWishlist'])->name('cart.move-to-wishlist');
     Route::get('/checkout', [FrontendCheckoutController::class, 'index'])->name('checkout.index');
     Route::post('/checkout/coupon', [FrontendCheckoutController::class, 'applyCoupon'])->name('checkout.coupon.apply');
     Route::delete('/checkout/coupon', [FrontendCheckoutController::class, 'removeCoupon'])->name('checkout.coupon.remove');
@@ -120,6 +130,9 @@ Route::prefix('admin')->middleware(['auth','admin'])->name('admin.')->group(func
     Route::get('settings', [BackendSettingController::class, 'edit'])->name('settings.edit');
     Route::put('settings', [BackendSettingController::class, 'update'])->name('settings.update');
     Route::resource('pages', BackendPageController::class);
+    Route::resource('faqs', BackendFaqController::class);
+    Route::resource('testimonials', BackendTestimonialController::class);
+    Route::resource('newsletter-subscribers', BackendNewsletterSubscriberController::class)->only(['index', 'destroy']);
     Route::resource('sliders', BackendSliderController::class);
     Route::post('sliders/reorder', [BackendSliderController::class, 'reorder'])->name('sliders.reorder');
     Route::resource('delivery-partners', BackendDeliveryPartnerController::class);

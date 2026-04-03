@@ -309,6 +309,16 @@
         color: #017075;
         background: rgba(1,112,117,0.06);
     }
+    .shop-btn-icon.is-wishlisted {
+        border-color: #dc3545;
+        color: #dc3545;
+        background: rgba(220,53,69,0.10);
+    }
+    .shop-btn-icon.is-wishlisted:hover {
+        border-color: #c82333;
+        color: #c82333;
+        background: rgba(220,53,69,0.16);
+    }
 </style>
 @endpush
 

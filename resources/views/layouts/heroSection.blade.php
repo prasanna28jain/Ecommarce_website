@@ -59,7 +59,7 @@
                                 </defs>
                             </svg>
 
-                            <img src="frontend/images/dumbbell.png" class="img-main">
+                            <img src="{{ isset($heroProducts) && $heroProducts->count() > 0 && $heroProducts[0]->images->isNotEmpty() ? asset('storage/' . $heroProducts[0]->images->first()->path) : asset('frontend/images/dumbbell.png') }}" class="img-main" alt="{{ $heroProducts[0]->name ?? 'Featured Product' }}">
                         </div>
 
                         <svg class="accent-line-right" xmlns="http://www.w3.org/2000/svg" width="68" height="44"
@@ -86,7 +86,7 @@
                                     </linearGradient>
                                 </defs>
                             </svg>
-                            <img src="frontend/images/home-gym-kit 1.png" class="img-small">
+                            <img src="{{ isset($heroProducts) && $heroProducts->count() > 1 && $heroProducts[1]->images->isNotEmpty() ? asset('storage/' . $heroProducts[1]->images->first()->path) : asset('frontend/images/home-gym-kit 1.png') }}" class="img-small" alt="{{ $heroProducts[1]->name ?? 'Featured Product' }}">
                         </div>
 
                         <!-- LEFT BOTTOM CARD -->
@@ -102,7 +102,7 @@
                                     </linearGradient>
                                 </defs>
                             </svg>
-                            <img src="frontend/images/combo-set 1.png" class="img-small2">
+                            <img src="{{ isset($heroProducts) && $heroProducts->count() > 2 && $heroProducts[2]->images->isNotEmpty() ? asset('storage/' . $heroProducts[2]->images->first()->path) : asset('frontend/images/combo-set 1.png') }}" class="img-small2" alt="{{ $heroProducts[2]->name ?? 'Featured Product' }}">
                         </div>
                         <svg class="accent-line-left" xmlns="http://www.w3.org/2000/svg" width="68" height="44"
                             viewBox="0 0 68 64" fill="none">

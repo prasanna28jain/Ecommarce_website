@@ -247,9 +247,9 @@
                         <div class="df-tag-list">
                             @foreach($tags as $tag)
                                 <div class="df-tag-item">
-                                    <input type="checkbox" name="tags[]" value="{{ $tag->id }}"
+                                    <input type="checkbox" name="tag_ids[]" value="{{ $tag->id }}"
                                            id="tag{{ $tag->id }}"
-                                           {{ in_array($tag->id, old('tags', [])) ? 'checked' : '' }}>
+                                           {{ in_array($tag->id, old('tag_ids', [])) ? 'checked' : '' }}>
                                     <label for="tag{{ $tag->id }}">{{ $tag->name }}</label>
                                 </div>
                             @endforeach

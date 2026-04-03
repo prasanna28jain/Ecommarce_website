@@ -42,6 +42,35 @@ class FrontendCheckoutController extends Controller
 		$appliedCoupon = $this->getAppliedCouponSummary((float) $subtotal);
 		$discount = (float) ($appliedCoupon['discount'] ?? 0);
 		$grandTotal = max(0, (float) $subtotal - $discount);
+		$availableCoupons = Coupon::query()
+			->where('is_active', true)
+			->orderByDesc('id')
+			->limit(8)
+			->get()
+			->map(function (Coupon $coupon) use ($subtotal) {
+				$reason = $this->getCouponIneligibilityReason($coupon, (float) $subtotal);
+				$validityParts = [];
+
+				if ($coupon->starts_at) {
+					$validityParts[] = 'From ' . $coupon->starts_at->format('d M Y, h:i A');
+				}
+				if ($coupon->expires_at) {
+					$validityParts[] = 'Till ' . $coupon->expires_at->format('d M Y, h:i A');
+				}
+
+				return [
+					'code' => $coupon->code,
+					'type' => $coupon->type,
+					'amount' => (float) $coupon->amount,
+					'min_order_amount' => (float) ($coupon->min_order_amount ?? 0),
+					'max_uses' => $coupon->max_uses,
+					'used_count' => (int) $coupon->used_count,
+					'validity_text' => empty($validityParts) ? 'No date restriction' : implode(' | ', $validityParts),
+					'is_applicable' => $reason === null,
+					'ineligible_reason' => $reason,
+				];
+			})
+			->values();
 
 		$providers = PaymentProvider::whereIn('slug', ['cod', 'razorpay'])
 			->where('is_active', true)
@@ -54,6 +83,7 @@ class FrontendCheckoutController extends Controller
 			'discount' => $discount,
 			'grandTotal' => $grandTotal,
 			'appliedCoupon' => $appliedCoupon,
+			'availableCoupons' => $availableCoupons,
 			'codProvider' => $providers->get('cod'),
 			'razorpayProvider' => $providers->get('razorpay'),
 			'user' => Auth::user(),
@@ -72,10 +102,16 @@ class FrontendCheckoutController extends Controller
 		}
 
 		$subtotal = (float) $cartItems->sum(fn ($item) => $item->quantity * (float) $item->price);
-		$coupon = Coupon::whereRaw('UPPER(code) = ?', [strtoupper(trim($data['coupon_code']))])->first();
+		$normalizedCode = strtoupper(trim($data['coupon_code']));
+		$coupon = Coupon::whereRaw('UPPER(TRIM(code)) = ?', [$normalizedCode])->first();
 
-		if (! $coupon || ! $this->isCouponApplicable($coupon, $subtotal)) {
-			return back()->with('error', 'Invalid or expired coupon code.');
+		if (! $coupon) {
+			return back()->with('error', 'Coupon code not found.');
+		}
+
+		$ineligibilityReason = $this->getCouponIneligibilityReason($coupon, $subtotal);
+		if ($ineligibilityReason !== null) {
+			return back()->with('error', $ineligibilityReason);
 		}
 
 		session([
@@ -617,7 +653,7 @@ class FrontendCheckoutController extends Controller
 			return null;
 		}
 
-		$coupon = Coupon::whereRaw('UPPER(code) = ?', [$code])->first();
+		$coupon = Coupon::whereRaw('UPPER(TRIM(code)) = ?', [$code])->first();
 		if (! $coupon || ! $this->isCouponApplicable($coupon, $subtotal)) {
 			session()->forget('checkout_coupon');
 			return null;
@@ -636,29 +672,34 @@ class FrontendCheckoutController extends Controller
 
 	private function isCouponApplicable(Coupon $coupon, float $subtotal): bool
 	{
+		return $this->getCouponIneligibilityReason($coupon, $subtotal) === null;
+	}
+
+	private function getCouponIneligibilityReason(Coupon $coupon, float $subtotal): ?string
+	{
 		if (! $coupon->is_active) {
-			return false;
+			return 'This coupon is inactive.';
 		}
 
 		$now = now();
 
 		if ($coupon->starts_at && $coupon->starts_at->greaterThan($now)) {
-			return false;
+			return 'This coupon is not active yet. It starts on ' . $coupon->starts_at->format('d M Y, h:i A') . '.';
 		}
 
 		if ($coupon->expires_at && $coupon->expires_at->lessThan($now)) {
-			return false;
+			return 'This coupon expired on ' . $coupon->expires_at->format('d M Y, h:i A') . '.';
 		}
 
 		if (! is_null($coupon->max_uses) && (int) $coupon->used_count >= (int) $coupon->max_uses) {
-			return false;
+			return 'This coupon has reached its maximum usage limit.';
 		}
 
 		if (! is_null($coupon->min_order_amount) && $subtotal < (float) $coupon->min_order_amount) {
-			return false;
+			return 'Minimum order amount for this coupon is Rs ' . number_format((float) $coupon->min_order_amount, 2) . '.';
 		}
 
-		return true;
+		return null;
 	}
 
 	private function calculateCouponDiscount(Coupon $coupon, float $subtotal): float

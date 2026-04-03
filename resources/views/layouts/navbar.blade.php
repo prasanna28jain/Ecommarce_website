@@ -1,8 +1,11 @@
 <nav class="navbar navbar-expand-lg navbar-dark custom-navbar px-4">
     <a class="navbar-brand" href="{{ route('home') }}">
-        <img src="{{ asset('frontend/images/XRT65.png') }}" alt="Boxima Fitness" height="38"
-             onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
-        <span style="display:none; font-size:1.4rem; font-weight:900; letter-spacing:2px; color:#fff;">BOX<span style="color:#00e5ff;">IMA</span></span>
+        @if(optional($appSetting)->logo_path)
+            <img src="{{ asset('storage/' . $appSetting->logo_path) }}" alt="{{ $appSetting->site_name ?? 'Boxima Fitness' }}" height="42"
+                 onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+        @else
+            <span style="font-size:1.4rem; font-weight:900; letter-spacing:2px; color:#fff;">BOX<span style="color:#00e5ff;">IMA</span></span>
+        @endif
     </a>
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu"
@@ -10,8 +13,8 @@
         <span class="navbar-toggler-icon"></span>
     </button>
 
-    <div class="collapse navbar-collapse justify-content-between align-items-center" id="navMenu">
-        <ul class="navbar-nav gap-4">
+    <div class="collapse navbar-collapse align-items-center" id="navMenu">
+        <ul class="navbar-nav mx-auto gap-4">
             <li class="nav-item">
                 <a class="nav-link {{ request()->routeIs('home') ? 'active' : '' }}" href="{{ route('home') }}">Home</a>
             </li>
@@ -30,18 +33,14 @@
         <div class="d-flex align-items-center gap-3">
             <div class="nav-icons d-none d-lg-flex">
                 {{-- Wishlist --}}
-                <a href="{{ route('wishlist.index') }}" class="nav-icon-link nav-wishlist-link" aria-label="Wishlist">
+                <a href="#" data-bs-toggle="offcanvas" data-bs-target="#wishlistSidebar" class="nav-icon-link nav-wishlist-link" aria-label="Wishlist">
                     <i class="bi bi-heart"></i>
-                    @if(($headerWishlistCount ?? 0) > 0)
-                        <span class="wishlist-count nav-wishlist-count">{{ $headerWishlistCount }}</span>
-                    @endif
+                    <span class="wishlist-count nav-wishlist-count">{{ $headerWishlistCount ?? 0 }}</span>
                 </a>
                 {{-- Cart --}}
                 <a href="{{ route('cart.index') }}" class="nav-icon-link nav-cart-link" aria-label="Cart">
                     <i class="bi bi-cart3"></i>
-                    @if(($headerCartCount ?? 0) > 0)
-                        <span class="cart-count nav-cart-count">{{ $headerCartCount }}</span>
-                    @endif
+                    <span class="cart-count nav-cart-count">{{ $headerCartCount ?? 0 }}</span>
                 </a>
             </div>
 
@@ -71,18 +70,14 @@
                             <a class="dropdown-item d-flex align-items-center gap-2 py-2" href="{{ route('wishlist.index') }}"
                                style="font-size:0.9rem; color:#495057; font-weight:600;">
                                 <i class="bi bi-heart" style="color:#017075; width:18px;"></i> Wishlist
-                                @if(($headerWishlistCount ?? 0) > 0)
-                                    <span class="badge ms-auto" style="background:#017075; font-size:0.7rem;">{{ $headerWishlistCount }}</span>
-                                @endif
+                                <span class="badge ms-auto nav-wishlist-count" style="background:#017075; font-size:0.7rem;">{{ $headerWishlistCount ?? 0 }}</span>
                             </a>
                         </li>
                         <li>
                             <a class="dropdown-item d-flex align-items-center gap-2 py-2" href="{{ route('cart.index') }}"
                                style="font-size:0.9rem; color:#495057; font-weight:600;">
                                 <i class="bi bi-cart3" style="color:#017075; width:18px;"></i> Cart
-                                @if(($headerCartCount ?? 0) > 0)
-                                    <span class="badge ms-auto" style="background:#017075; font-size:0.7rem;">{{ $headerCartCount }}</span>
-                                @endif
+                                <span class="badge ms-auto nav-cart-count" style="background:#017075; font-size:0.7rem;">{{ $headerCartCount ?? 0 }}</span>
                             </a>
                         </li>
                         @if(Auth::user()->hasRole('admin') || Auth::user()->can('access admin'))
@@ -121,18 +116,14 @@
         <div class="d-lg-none w-100 mt-3">
             <div class="nav-icons d-flex justify-content-center gap-4 mb-3">
                 {{-- Wishlist --}}
-                <a href="{{ route('wishlist.index') }}" class="nav-icon-link nav-wishlist-link" aria-label="Wishlist">
+                <a href="#" data-bs-toggle="offcanvas" data-bs-target="#wishlistSidebar" class="nav-icon-link nav-wishlist-link" aria-label="Wishlist">
                     <i class="bi bi-heart"></i>
-                    @if(($headerWishlistCount ?? 0) > 0)
-                        <span class="wishlist-count nav-wishlist-count">{{ $headerWishlistCount }}</span>
-                    @endif
+                    <span class="wishlist-count nav-wishlist-count">{{ $headerWishlistCount ?? 0 }}</span>
                 </a>
                 {{-- Cart --}}
                 <a href="{{ route('cart.index') }}" class="nav-icon-link nav-cart-link" aria-label="Cart">
                     <i class="bi bi-cart3"></i>
-                    @if(($headerCartCount ?? 0) > 0)
-                        <span class="cart-count nav-cart-count">{{ $headerCartCount }}</span>
-                    @endif
+                    <span class="cart-count nav-cart-count">{{ $headerCartCount ?? 0 }}</span>
                 </a>
             </div>
 

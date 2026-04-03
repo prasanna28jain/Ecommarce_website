@@ -3,6 +3,7 @@
         $effPrice  = $product->sale_price ?? $product->base_price;
         $hasImages = $product->images->isNotEmpty();
         $hasVars   = $product->variations->isNotEmpty();
+        $isWishlisted = in_array((int) $product->id, $wishlistProductIds ?? [], true);
         $discount  = $product->sale_price
             ? round((($product->base_price - $product->sale_price) / $product->base_price) * 100)
             : 0;
@@ -13,7 +14,11 @@
             {{-- Image --}}
             <a href="{{ route('product.show', $product->slug) }}" class="shop-card-img-wrap">
                 @if($hasImages)
-                    <img src="{{ Storage::url($product->images->first()->image_path) }}"
+                    @php
+                        $firstImage = $product->images->first();
+                        $imagePath = $firstImage->path ?? $firstImage->image_path ?? null;
+                    @endphp
+                    <img src="{{ $imagePath ? asset('storage/' . ltrim($imagePath, '/')) : asset('frontend/images/dumbbell.png') }}"
                          alt="{{ $product->name }}" loading="lazy">
                 @else
                     <div class="shop-card-no-img">
@@ -62,8 +67,13 @@
                     <form action="{{ route('wishlist.toggle') }}" method="POST">
                         @csrf
                         <input type="hidden" name="product_id" value="{{ $product->id }}">
-                        <button type="submit" class="shop-btn-icon" title="Wishlist">
-                            <i class="bi bi-heart"></i>
+                        <button
+                            type="submit"
+                            class="shop-btn-icon {{ $isWishlisted ? 'is-wishlisted' : '' }}"
+                            title="{{ $isWishlisted ? 'Wishlisted' : 'Wishlist' }}"
+                            aria-label="{{ $isWishlisted ? 'Wishlisted' : 'Add to wishlist' }}"
+                        >
+                            <i class="bi {{ $isWishlisted ? 'bi-heart-fill' : 'bi-heart' }}"></i>
                         </button>
                     </form>
 

@@ -5,7 +5,9 @@ namespace App\Http\Controllers\Frontend;
 use App\Http\Controllers\Controller;
 use App\Models\Category;
 use App\Models\Product;
+use App\Models\Wishlist;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class FrontendProductController extends Controller
 {
@@ -52,11 +54,20 @@ class FrontendProductController extends Controller
         }
 
         $products = $query->paginate(12)->withQueryString();
+        $wishlistProductIds = Auth::check()
+            ? Wishlist::where('user_id', Auth::id())
+                ->whereIn('product_id', $products->pluck('id'))
+                ->pluck('product_id')
+                ->map(fn ($id) => (int) $id)
+                ->unique()
+                ->values()
+                ->all()
+            : [];
 
         // AJAX infinite scroll — return just the cards + pagination meta
         if ($request->ajax() || $request->header('X-Requested-With') === 'XMLHttpRequest') {
             return response()->json([
-                'html'          => view('frontend.partials.product-cards', compact('products'))->render(),
+                'html'          => view('frontend.partials.product-cards', compact('products', 'wishlistProductIds'))->render(),
                 'next_page_url' => $products->nextPageUrl(),
                 'total'         => $products->total(),
                 'last_page'     => $products->lastPage(),
@@ -66,7 +77,7 @@ class FrontendProductController extends Controller
 
         $filterCategories = Category::orderBy('name')->get();
 
-        return view('frontend.product.index', compact('products', 'filterCategories'));
+        return view('frontend.product.index', compact('products', 'filterCategories', 'wishlistProductIds'));
     }
 
     public function show($slug)

@@ -190,20 +190,29 @@ ul {
   transform: translateY(-2px);
 }
 
-.cart-badge {
+.cart-badge, .nav-icon-link .nav-wishlist-count, .nav-icon-link .nav-cart-count {
   position: absolute;
-  top: 2px;
-  right: 4px;
-  background: var(--primary);
-  color: var(--white);
-  font-size: 0.65rem;
-  width: 18px;
-  height: 18px;
+  top: -7px;
+  right: -10px;
+  background: #017075; /* Solid Teal from brand color */
+  color: #FFFFFF;
+  font-size: 0.75rem;
+  width: 20px;
+  height: 20px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-weight: 700;
+  font-weight: 900;
+  border: none;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+  pointer-events: none;
+  z-index: 5;
+}
+
+.nav-icon-link {
+  position: relative;
+  display: inline-flex;
 }
 
 /* ===== HERO SECTION ===== */
@@ -2367,47 +2376,6 @@ ul {
   justify-content: center;
 }
 
-.nav-wishlist-count {
-  position: absolute;
-  top: -7px;
-  right: -10px;
-  min-width: 18px;
-  height: 18px;
-  padding: 0 5px;
-  border-radius: 999px;
-  background: #017075;
-  color: #fff;
-  font-size: 0.65rem;
-  font-weight: 700;
-  line-height: 18px;
-  text-align: center;
-  display: none;
-}
-
-.nav-cart-link {
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.nav-cart-count {
-  position: absolute;
-  top: -7px;
-  right: -10px;
-  min-width: 18px;
-  height: 18px;
-  padding: 0 5px;
-  border-radius: 999px;
-  background: #017075;
-  color: #fff;
-  font-size: 0.65rem;
-  font-weight: 700;
-  line-height: 18px;
-  text-align: center;
-  display: none;
-}
-
 .btn-shop-now {
   display: flex;
   width: 174px;
@@ -2596,8 +2564,8 @@ ul {
 /* RIGHT CARD */
 .card-svg.right {
   width: 249px;
-  right: 100px;
-  top: 1px;
+  right: 16px;
+  top: 0px;
   z-index: 2;
 
 }
@@ -2621,8 +2589,8 @@ ul {
 
 .card-svg.back-2 {
   width: 150px;
-  right: 24px;
-  top: -1px;
+  right: -51px;
+  top: 0px;
   opacity: 0.3;
   z-index: 1;
 }
@@ -2630,7 +2598,7 @@ ul {
 /* IMAGES */
 .img-main {
   position: absolute;
-  width: 249px;
+  width: 239px;
   top: 49%;
   left: 76%;
   transform: translate(-50%, -50%);
@@ -5144,7 +5112,7 @@ ul {
 }
 
 .about-gallery img {
-  width: clamp(92px, 12vw, 149px);
+  width: clamp(92px, 12vw, 137px);
   height: 250px;
   object-fit: cover;
   border-radius: 6px;
@@ -5842,7 +5810,7 @@ ul {
 .fimg-shape {
   position: absolute;
   top: -51px;
-  left: -160px;
+  left: -99px;
   width: 220px;
   height: auto;
   z-index: 1;
@@ -5852,7 +5820,7 @@ ul {
 .fimg-shape2 {
   position: absolute;
   bottom: -51px;
-  right: -160px;
+  right: -99px;
   width: 220px;
   height: auto;
   z-index: 1;
@@ -7067,4 +7035,106 @@ img.shape-bg {
   #categoryGrid .cat-grid-large {
     min-height: 210px;
   }
+}
+
+/* ===== CONFIRM POPUP ===== */
+.confirm-popup-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 99999;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease;
+}
+
+.confirm-popup-overlay.show {
+  opacity: 1;
+  visibility: visible;
+}
+
+.confirm-popup-box {
+  background: #fff;
+  border-radius: 16px;
+  padding: 36px 32px 28px;
+  max-width: 380px;
+  width: 90%;
+  text-align: center;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  transform: scale(0.85);
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.confirm-popup-overlay.show .confirm-popup-box {
+  transform: scale(1);
+}
+
+.confirm-popup-icon {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: rgba(220, 53, 69, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 18px;
+}
+
+.confirm-popup-icon i {
+  font-size: 1.6rem;
+  color: #dc3545;
+}
+
+.confirm-popup-title {
+  font-weight: 700;
+  font-size: 1.15rem;
+  color: #0D0D0D;
+  margin-bottom: 8px;
+}
+
+.confirm-popup-msg {
+  font-size: 0.9rem;
+  color: #6C757D;
+  margin-bottom: 24px;
+  line-height: 1.5;
+}
+
+.confirm-popup-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.confirm-popup-btn {
+  flex: 1;
+  padding: 12px 20px;
+  border-radius: 10px;
+  font-weight: 700;
+  font-size: 0.9rem;
+  cursor: pointer;
+  border: none;
+  transition: all 0.2s ease;
+}
+
+.confirm-popup-cancel {
+  background: #F0F0F0;
+  color: #495057;
+}
+
+.confirm-popup-cancel:hover {
+  background: #E0E0E0;
+}
+
+.confirm-popup-yes {
+  background: #dc3545;
+  color: #fff;
+}
+
+.confirm-popup-yes:hover {
+  background: #c82333;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(220, 53, 69, 0.4);
 }

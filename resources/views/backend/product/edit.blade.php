@@ -257,12 +257,12 @@
                     <h5 class="df-card-title"><i class="bi bi-bookmark-star"></i> Tags</h5>
                 </div>
                 <div class="df-card-body">
-                    @php $selectedTags = old('tags', $product->tags->pluck('id')->toArray()); @endphp
+                    @php $selectedTags = old('tag_ids', $product->tags->pluck('id')->toArray()); @endphp
                     @if($tags->count())
                         <div class="df-tag-list">
                             @foreach($tags as $tag)
                                 <div class="df-tag-item">
-                                    <input type="checkbox" name="tags[]" value="{{ $tag->id }}"
+                                    <input type="checkbox" name="tag_ids[]" value="{{ $tag->id }}"
                                            id="tag{{ $tag->id }}"
                                            {{ in_array($tag->id, $selectedTags) ? 'checked' : '' }}>
                                     <label for="tag{{ $tag->id }}">{{ $tag->name }}</label>

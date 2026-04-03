@@ -81,7 +81,11 @@
                                 {{-- Image --}}
                                 <a href="{{ route('product.show', $product->slug) }}" class="shop-card-img-wrap">
                                     @if($hasImages)
-                                        <img src="{{ Storage::url($product->images->first()->image_path) }}"
+                                        @php
+                                            $firstImage = $product->images->first();
+                                            $imagePath = $firstImage->path ?? $firstImage->image_path ?? null;
+                                        @endphp
+                                        <img src="{{ $imagePath ? asset('storage/' . ltrim($imagePath, '/')) : asset('frontend/images/dumbbell.png') }}"
                                              alt="{{ $product->name }}" loading="lazy">
                                     @else
                                         <div class="shop-card-no-img">

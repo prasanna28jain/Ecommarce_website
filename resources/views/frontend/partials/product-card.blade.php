@@ -4,7 +4,7 @@
     <div class="pm-product-img-wrap">
         <a href="{{ route('product.show', $product->slug) }}">
             @if($product->images->isNotEmpty())
-                <img src="{{ Storage::url($product->images->first()->image_path) }}"
+                <img src="{{ asset('storage/' . $product->images->first()->path) }}"
                      alt="{{ $product->name }}" loading="lazy">
             @else
                 <div style="width:100%; aspect-ratio:1; display:flex; flex-direction:column; align-items:center; justify-content:center; color:#ccc; background:#f9f9f9;">
@@ -64,17 +64,20 @@
             </form>
 
             {{-- Wishlist --}}
-            <form action="{{ route('wishlist.toggle') }}" method="POST">
-                @csrf
-                <input type="hidden" name="product_id" value="{{ $product->id }}">
-                <button type="submit" class="pm-action-btn"
-                        title="Wishlist"
-                        style="background:#fff; border:1.5px solid #DEE2E6; color:#6C757D; width:42px; flex-shrink:0;"
-                        onmouseover="this.style.borderColor='#017075'; this.style.color='#017075';"
-                        onmouseout="this.style.borderColor='#DEE2E6'; this.style.color='#6C757D';">
+            @php
+                $inWishlist = Auth::check() && \App\Models\Wishlist::where('user_id', Auth::id())->where('product_id', $product->id)->exists();
+            @endphp
+            <button type="button" class="pm-action-btn wishlist-btn-ajax"
+                    title="Wishlist"
+                    data-product-id="{{ $product->id }}"
+                    style="background:#fff; border:1.5px solid #DEE2E6; color:#6C757D; width:42px; flex-shrink:0;"
+                    onclick="toggleAjaxWishlist({{ $product->id }}, this)">
+                @if($inWishlist)
+                    <i class="bi bi-heart-fill" style="color: red;"></i>
+                @else
                     <i class="bi bi-heart"></i>
-                </button>
-            </form>
+                @endif
+            </button>
 
             {{-- Quick View --}}
             <button type="button" class="pm-action-btn"

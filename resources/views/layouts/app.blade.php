@@ -8,7 +8,7 @@
     <!-- CSRF Token -->
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>{{ config('app.name', 'Dataflow') }} — Admin</title>
+    <title>{{ $appSetting->site_name ?? config('app.name', 'Dataflow') }} — Admin</title>
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -24,7 +24,7 @@
     <!-- Custom Styles -->
     <link href="{{ asset('backend/css/style.css') }}?v={{ time() }}" rel="stylesheet">
 
-    <link rel="icon" type="image/x-icon" href="{{ asset('frontend/images/fav.png') }}">
+    <link rel="icon" type="image/x-icon" href="{{ optional($appSetting)->favicon_path ? asset('storage/' . $appSetting->favicon_path) : asset('frontend/images/fav.png') }}">
 </head>
 
 <body>
