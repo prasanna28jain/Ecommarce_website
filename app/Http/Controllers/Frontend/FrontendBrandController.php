@@ -13,9 +13,9 @@ class FrontendBrandController extends Controller
         return view('frontend.brand.index', compact('brands'));
     }
 
-    public function show($id)
+    public function show($slug)
     {
-        $brand = Brand::with('products.images')->findOrFail($id);
+        $brand = Brand::with('products.images')->where('slug', $slug)->firstOrFail();
         return view('frontend.brand.show', compact('brand'));
     }
 }

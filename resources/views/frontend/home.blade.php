@@ -531,7 +531,7 @@
                             <h4>OUR VALUES</h4>
                         </div>
                         <div class="card-body-text">
-                            <p>
+                            <p style="width: 176px">
                                 Make fitness a necessity, not a luxury, for a happy and healthy life in every Indian
                                 household.
                             </p>
@@ -552,7 +552,7 @@
                             <h4>OUR VISION</h4>
                         </div>
                         <div class="card-body-text">
-                            <p>
+                            <p style="width: 130px">
                                 Accessibility, quality, innovation and community around fitness.
                             </p>
                             <div class="card-bracket">
@@ -572,7 +572,7 @@
                             <h4>OUR MISSION</h4>
                         </div>
                         <div class="card-body-text">
-                            <p>
+                            <p style="width: 210px">
                                 Break down barriers to fitness by providing high-quality, space-saving equipment for
                                 effective home
                                 workouts.

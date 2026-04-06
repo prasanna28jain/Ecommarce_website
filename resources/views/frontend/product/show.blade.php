@@ -30,13 +30,14 @@
 <div class="hero-dark-wrapper" style="padding-bottom: 0;">
     <section class="page-header page-header-teal" style="padding-bottom:30px;">
         <div class="container position-relative" style="z-index:2">
+            <h1 style="color: white">{{ $product->name }}</h1>
             <nav aria-label="breadcrumb">
                 <ol class="breadcrumb breadcrumb-xrt">
                     <li class="breadcrumb-item"><a href="{{ route('home') }}">Home</a></li>
                     <li class="breadcrumb-item"><a href="{{ route('products.index') }}">Shop</a></li>
-                    @if($product->category)
+                    {{-- @if($product->category)
                         <li class="breadcrumb-item"><a href="{{ route('category.show', $product->category->id) }}">{{ $product->category->name }}</a></li>
-                    @endif
+                    @endif --}}
                     <li class="breadcrumb-item active">{{ $product->name }}</li>
                 </ol>
             </nav>

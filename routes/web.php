@@ -68,7 +68,7 @@ Route::get('/product/{id}/quick-view', [FrontendProductController::class,'quickV
 Route::get('/categories', [FrontendCategoryController::class,'index'])->name('categories.index');
 Route::get('/category/{slug}', [FrontendCategoryController::class,'show'])->name('category.show');
 Route::get('/brands', [FrontendBrandController::class,'index'])->name('brands.index');
-Route::get('/brand/{id}', [FrontendBrandController::class,'show'])->name('brand.show');
+Route::get('/brand/{slug}', [FrontendBrandController::class,'show'])->name('brand.show');
 Route::get('/pages/{slug}', [FrontendPageController::class, 'show'])->name('pages.show');
 Route::post('/newsletter/subscribe', [FrontendNewsletterController::class, 'subscribe'])->name('newsletter.subscribe');
 Route::post('/cart/add', [FrontendCartController::class, 'add'])->name('cart.add');
