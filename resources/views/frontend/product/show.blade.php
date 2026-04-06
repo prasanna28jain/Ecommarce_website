@@ -7,7 +7,23 @@
 @php
     $activeVariations = $product->variations->where('is_active', true)->values();
     $isVariableProduct = $activeVariations->isNotEmpty();
-    $firstVariationPrice = $isVariableProduct ? (float) ($activeVariations->first()->price ?? 0) : null;
+    $defaultVariation = $isVariableProduct
+        ? ($activeVariations->first(fn ($variation) => (int) ($variation->stock ?? 0) > 0) ?? $activeVariations->first())
+        : null;
+    $firstVariationPrice = $defaultVariation ? (float) ($defaultVariation->price ?? 0) : null;
+    $defaultVariationId = $defaultVariation?->id;
+    $defaultVariationStock = $defaultVariation ? (int) ($defaultVariation->stock ?? 0) : 0;
+    $defaultVariationAttrs = $defaultVariation ? ($defaultVariation->attributes ?? []) : [];
+    if (is_string($defaultVariationAttrs)) {
+        $decodedDefaultAttrs = json_decode($defaultVariationAttrs, true);
+        $defaultVariationAttrs = is_array($decodedDefaultAttrs) ? $decodedDefaultAttrs : [];
+    }
+    $defaultVariationLabel = $defaultVariation
+        ? (collect($defaultVariationAttrs)->map(fn($value, $key) => ucfirst($key) . ': ' . $value)->implode(' | ') ?: ('Variation #' . $defaultVariation->id))
+        : '';
+    $firstProductImage = $product->images->first();
+    $firstProductImagePath = $firstProductImage->path ?? $firstProductImage->image_path ?? null;
+    $firstProductImageUrl = $firstProductImagePath ? asset('storage/' . ltrim($firstProductImagePath, '/')) : null;
 @endphp
 
 {{-- PAGE HEADER --}}
@@ -37,8 +53,8 @@
             <div class="col-lg-6">
                 <div class="product-gallery">
                     <div class="gallery-main" style="padding: 30px;">
-                        @if($product->images->count() > 0)
-                            <img src="{{ Storage::url($product->images->first()->image_path) }}"
+                        @if($firstProductImageUrl)
+                            <img src="{{ $firstProductImageUrl }}"
                                  alt="{{ $product->name }}"
                                  id="mainProductImg"
                                  style="max-width:100%; max-height:450px; object-fit:contain;">
@@ -53,9 +69,14 @@
                     @if($product->images->count() > 1)
                         <div class="gallery-thumbs mt-3">
                             @foreach($product->images as $image)
+                                @php
+                                    $imagePath = $image->path ?? $image->image_path ?? null;
+                                    $imageUrl = $imagePath ? asset('storage/' . ltrim($imagePath, '/')) : null;
+                                @endphp
+                                @continue(!$imageUrl)
                                 <div class="gallery-thumb {{ $loop->first ? 'active' : '' }}"
-                                     onclick="switchImage(this, '{{ Storage::url($image->image_path) }}')">
-                                    <img src="{{ Storage::url($image->image_path) }}" alt="Thumbnail">
+                                     onclick="switchImage(this, '{{ $imageUrl }}')">
+                                    <img src="{{ $imageUrl }}" alt="Thumbnail">
                                 </div>
                             @endforeach
                         </div>
@@ -106,21 +127,45 @@
                     {{-- Variation selector as weight options --}}
                     @if($isVariableProduct)
                         <div class="mb-4">
-                            <h6 class="fw-bold mb-3">Select Weight Variant</h6>
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <h6 class="fw-bold mb-0">Choose Variant</h6>
+                                <small id="selected-variation-stock" class="text-muted">
+                                    {{ $defaultVariationStock > 0 ? 'In stock' : 'Out of stock' }}
+                                </small>
+                            </div>
                             <div class="weight-selector">
-                                @foreach($activeVariations as $idx => $variation)
+                                @foreach($activeVariations as $variation)
                                     @php
-                                        $attrs = collect($variation->attributes ?? [])->map(fn($val, $key) => $val)->implode(' / ');
+                                        $variationAttrs = $variation->attributes ?? [];
+                                        if (is_string($variationAttrs)) {
+                                            $decodedAttrs = json_decode($variationAttrs, true);
+                                            $variationAttrs = is_array($decodedAttrs) ? $decodedAttrs : [];
+                                        }
+                                        $attrs = collect($variationAttrs)->map(fn($value, $key) => ucfirst($key) . ': ' . $value)->implode(' | ');
                                         $label = $attrs ?: ('Variation #' . $variation->id);
+                                        $stock = (int) ($variation->stock ?? 0);
+                                        $isOutOfStock = $stock <= 0;
                                     @endphp
-                                    <div class="weight-option {{ $idx === 0 ? 'active' : '' }}"
+                                    <button type="button"
+                                         class="weight-option variation-option {{ $variation->id === $defaultVariationId ? 'active' : '' }}"
                                          data-variation-id="{{ $variation->id }}"
                                          data-price="{{ (float) $variation->price }}"
+                                         data-stock="{{ $stock }}"
+                                         data-label="{{ $label }}"
                                          onclick="selectVariation(this)">
-                                        {{ $label }}
-                                    </div>
+                                        <span class="variation-option-title">{{ $label }}</span>
+                                        <span class="variation-option-meta">
+                                            <span class="variation-option-price">&#8377;{{ number_format((float) $variation->price, 0) }}</span>
+                                            <span class="variation-option-stock {{ $isOutOfStock ? 'out' : 'in' }}">
+                                                {{ $isOutOfStock ? 'Out of stock' : ($stock . ' in stock') }}
+                                            </span>
+                                        </span>
+                                    </button>
                                 @endforeach
                             </div>
+                            {{-- <small class="text-muted d-block mt-2" id="selected-variation-label">
+                                Selected: {{ $defaultVariationLabel }}
+                            </small> --}}
                         </div>
                     @endif
 
@@ -137,7 +182,7 @@
                         @csrf
                         <input type="hidden" name="product_id" value="{{ $product->id }}">
                         @if($isVariableProduct)
-                            <input type="hidden" name="product_variation_id" id="product_variation_id" value="{{ $activeVariations->first()->id }}">
+                            <input type="hidden" name="product_variation_id" id="product_variation_id" value="{{ $defaultVariationId }}">
                         @endif
 
                         <div class="d-flex align-items-center gap-3 mb-4">
@@ -146,10 +191,10 @@
                                 <input type="number" value="1" min="1" max="99" id="pdQty" name="quantity">
                                 <button type="button" onclick="document.getElementById('pdQty').stepUp()">+</button>
                             </div>
-                            <button type="submit" class="btn-xrt btn-teal-xrt">
+                            <button type="submit" class="btn-xrt btn-teal-xrt" id="addToCartBtn">
                                 <i class="bi bi-cart-plus"></i> Add to Cart
                             </button>
-                            <a href="{{ route('checkout.index') }}" class="btn-xrt btn-dark-teal-xrt">
+                            <a href="{{ route('checkout.index') }}" class="btn-xrt btn-dark-teal-xrt" id="buyNowBtn">
                                 <i class="bi bi-lightning"></i> Buy Now
                             </a>
                         </div>
@@ -160,7 +205,7 @@
                             @csrf
                             <input type="hidden" name="product_id" value="{{ $product->id }}">
                             @if($isVariableProduct)
-                                <input type="hidden" name="product_variation_id" id="wishlist_variation_id" value="{{ $activeVariations->first()->id }}">
+                                <input type="hidden" name="product_variation_id" id="wishlist_variation_id" value="{{ $defaultVariationId }}">
                             @endif
                             <button type="submit" class="btn btn-outline-secondary w-100">
                                 <i class="bi bi-heart me-2"></i>Add to Wishlist
@@ -241,8 +286,8 @@
                             @endif
                         </div>
                         <div class="col-md-4 text-center">
-                            @if($product->images->count() > 0)
-                                <img src="{{ Storage::url($product->images->first()->image_path) }}"
+                            @if($firstProductImageUrl)
+                                <img src="{{ $firstProductImageUrl }}"
                                      alt="{{ $product->name }}"
                                      style="max-height:250px; object-fit:contain; filter:drop-shadow(0 10px 20px rgba(0,0,0,0.15));">
                             @endif
@@ -264,7 +309,14 @@
                         @endif
                         @if($isVariableProduct)
                             @foreach($activeVariations as $variation)
-                                @php $attrs = collect($variation->attributes ?? [])->map(fn($val, $key) => ucfirst($key) . ': ' . $val)->implode(' | '); @endphp
+                                @php
+                                    $variationAttrs = $variation->attributes ?? [];
+                                    if (is_string($variationAttrs)) {
+                                        $decodedAttrs = json_decode($variationAttrs, true);
+                                        $variationAttrs = is_array($decodedAttrs) ? $decodedAttrs : [];
+                                    }
+                                    $attrs = collect($variationAttrs)->map(fn($val, $key) => ucfirst($key) . ': ' . $val)->implode(' | ');
+                                @endphp
                                 <tr>
                                     <td>{{ $attrs ?: 'Variation #' . $variation->id }}</td>
                                     <td>₹{{ number_format((float) $variation->price, 0) }}</td>
@@ -322,6 +374,68 @@
 
 @endsection
 
+@push('styles')
+<style>
+    .weight-selector {
+        display: flex;
+        flex-wrap: nowrap;
+        gap: 10px;
+        overflow-x: auto;
+        padding-bottom: 6px;
+        scrollbar-width: thin;
+    }
+    .variation-option {
+        flex: 0 0 auto;
+        min-width: 240px;
+        border: 1px solid #d7e2e8;
+        border-radius: 12px;
+        background: #fff;
+        padding: 12px 14px;
+        text-align: left;
+        transition: all 0.2s ease;
+    }
+    .variation-option:hover {
+        border-color: #0f7c88;
+        box-shadow: 0 4px 14px rgba(15, 124, 136, 0.12);
+    }
+    .variation-option.active {
+        border-color: #0f7c88;
+        background: #f2fbfd;
+        box-shadow: 0 0 0 1px rgba(15, 124, 136, 0.25);
+    }
+    .variation-option-title {
+        display: block;
+        font-weight: 700;
+        color: #132a33;
+        margin-bottom: 6px;
+    }
+    .variation-option-meta {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 8px;
+    }
+    .variation-option-price {
+        color: #0f7c88;
+        font-weight: 700;
+    }
+    .variation-option-stock {
+        font-size: 0.8rem;
+        font-weight: 600;
+        padding: 4px 8px;
+        border-radius: 999px;
+    }
+    .variation-option-stock.in {
+        color: #176f43;
+        background: #e9f8ef;
+    }
+    .variation-option-stock.out {
+        color: #9f2c2c;
+        background: #fdecec;
+    }
+</style>
+@endpush
+
 @push('scripts')
 <script>
     // Gallery thumbnail switcher
@@ -338,9 +452,11 @@
 
         const price = parseFloat(el.dataset.price || 0);
         const varId = el.dataset.variationId;
+        const stock = parseInt(el.dataset.stock || '0', 10);
+        const label = el.dataset.label || 'Variant';
 
         const priceEl = document.getElementById('product-price');
-        if (priceEl && price > 0) {
+        if (priceEl) {
             priceEl.textContent = '₹' + price.toLocaleString('en-IN');
         }
 
@@ -349,6 +465,22 @@
 
         const wishlistVarInput = document.getElementById('wishlist_variation_id');
         if (wishlistVarInput) wishlistVarInput.value = varId;
+
+        const selectedLabel = document.getElementById('selected-variation-label');
+        if (selectedLabel) selectedLabel.textContent = 'Selected: ' + label;
+
+        const stockLabel = document.getElementById('selected-variation-stock');
+        if (stockLabel) stockLabel.textContent = stock > 0 ? 'In stock' : 'Out of stock';
+
+        const addToCartBtn = document.getElementById('addToCartBtn');
+        if (addToCartBtn) addToCartBtn.disabled = stock <= 0;
     }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        const selected = document.querySelector('.weight-option.active');
+        if (selected) {
+            selectVariation(selected);
+        }
+    });
 </script>
 @endpush

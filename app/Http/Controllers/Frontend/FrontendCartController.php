@@ -31,9 +31,39 @@ class FrontendCartController extends Controller
         $subtotal = (float) $cartItems->sum(fn ($item) => (int) $item->quantity * (float) $item->price);
         $appliedCoupon = $this->getAppliedCouponSummary($subtotal);
         $discount = (float) ($appliedCoupon['discount'] ?? 0);
-        $grandTotal = max(0, $subtotal - $discount);
+        $shippingCharge = $subtotal >= 5000 ? 0.0 : 199.0;
+        $grandTotal = max(0, $subtotal - $discount) + $shippingCharge;
+        $availableCoupons = Coupon::query()
+            ->where('is_active', true)
+            ->orderByDesc('id')
+            ->limit(8)
+            ->get()
+            ->map(function (Coupon $coupon) use ($subtotal) {
+                $reason = $this->getCouponIneligibilityReason($coupon, (float) $subtotal);
+                $validityParts = [];
 
-        return view('frontend.cart.index', compact('cartItems', 'subtotal', 'discount', 'grandTotal', 'appliedCoupon'));
+                if ($coupon->starts_at) {
+                    $validityParts[] = 'From ' . $coupon->starts_at->format('d M Y, h:i A');
+                }
+                if ($coupon->expires_at) {
+                    $validityParts[] = 'Till ' . $coupon->expires_at->format('d M Y, h:i A');
+                }
+
+                return [
+                    'code' => $coupon->code,
+                    'type' => $coupon->type,
+                    'amount' => (float) $coupon->amount,
+                    'min_order_amount' => (float) ($coupon->min_order_amount ?? 0),
+                    'max_uses' => $coupon->max_uses,
+                    'used_count' => (int) $coupon->used_count,
+                    'validity_text' => empty($validityParts) ? 'No date restriction' : implode(' | ', $validityParts),
+                    'is_applicable' => $reason === null,
+                    'ineligible_reason' => $reason,
+                ];
+            })
+            ->values();
+
+        return view('frontend.cart.index', compact('cartItems', 'subtotal', 'discount', 'shippingCharge', 'grandTotal', 'appliedCoupon', 'availableCoupons'));
     }
 
     public function add(Request $request)
@@ -173,29 +203,34 @@ class FrontendCartController extends Controller
 
     private function isCouponApplicable(Coupon $coupon, float $subtotal): bool
     {
+        return $this->getCouponIneligibilityReason($coupon, $subtotal) === null;
+    }
+
+    private function getCouponIneligibilityReason(Coupon $coupon, float $subtotal): ?string
+    {
         if (! $coupon->is_active) {
-            return false;
+            return 'This coupon is inactive.';
         }
 
         $now = now();
 
         if ($coupon->starts_at && $coupon->starts_at->greaterThan($now)) {
-            return false;
+            return 'This coupon is not active yet. It starts on ' . $coupon->starts_at->format('d M Y, h:i A') . '.';
         }
 
         if ($coupon->expires_at && $coupon->expires_at->lessThan($now)) {
-            return false;
+            return 'This coupon expired on ' . $coupon->expires_at->format('d M Y, h:i A') . '.';
         }
 
         if (! is_null($coupon->max_uses) && (int) $coupon->used_count >= (int) $coupon->max_uses) {
-            return false;
+            return 'This coupon has reached its maximum usage limit.';
         }
 
         if (! is_null($coupon->min_order_amount) && $subtotal < (float) $coupon->min_order_amount) {
-            return false;
+            return 'Minimum order amount for this coupon is Rs ' . number_format((float) $coupon->min_order_amount, 2) . '.';
         }
 
-        return true;
+        return null;
     }
 
     private function calculateCouponDiscount(Coupon $coupon, float $subtotal): float

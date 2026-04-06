@@ -161,22 +161,17 @@
                 <div class="df-card-body">
                     @foreach($attributes as $attribute)
                         <div class="mb-3">
-                            <label class="df-form-label">{{ $attribute->name }}</label>
-                            <div class="d-flex flex-wrap gap-2">
-                                @foreach($attribute->values as $value)
-                                    <div class="df-form-check" style="background:var(--df-body-bg); padding:8px 14px; border-radius:10px;">
-                                        <input type="checkbox" name="attribute_values[]" value="{{ $value->id }}"
-                                               id="attrVal{{ $value->id }}"
-                                               {{ in_array($value->id, old('attribute_values', [])) ? 'checked' : '' }}>
-                                        <label for="attrVal{{ $value->id }}">{{ $value->value }}</label>
-                                    </div>
-                                @endforeach
+                            <div class="df-form-check" style="background:var(--df-body-bg); padding:10px 14px; border-radius:10px;">
+                                <input type="checkbox" name="attribute_ids[]" value="{{ $attribute->id }}"
+                                       id="attr{{ $attribute->id }}"
+                                       {{ in_array($attribute->id, old('attribute_ids', [])) ? 'checked' : '' }}>
+                                <label for="attr{{ $attribute->id }}">{{ $attribute->name }}</label>
                             </div>
                         </div>
                     @endforeach
                     <div class="df-alert df-alert-info mt-3">
                         <i class="bi bi-info-circle"></i>
-                        Select attributes that apply to this variable product. Variations will be created from selected combinations.
+                        Select attribute names that apply to this variable product. You can set the values while creating each variation.
                     </div>
                 </div>
             </div>

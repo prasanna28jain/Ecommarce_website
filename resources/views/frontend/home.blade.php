@@ -57,7 +57,7 @@
             </div>
             <div class="category-asymmetric-grid">
                 @foreach($categories as $index => $category)
-                    <a href="{{ route('category.show', $category->id) }}"
+                    <a href="{{ route('category.show', $category->slug ?? $category->id) }}"
                         class="cat-grid-item {{ $index === 0 ? 'cat-grid-large' : '' }}">
                         @if ($category->image)
                             <img src="{{ asset('storage/' . $category->image) }}" alt="{{ $category->name }}">

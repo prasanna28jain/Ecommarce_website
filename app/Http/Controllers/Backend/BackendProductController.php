@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Backend;
 
 use App\Http\Controllers\Controller;
 use App\Models\Attribute;
+use App\Models\AttributeValue;
 use App\Models\Brand;
 use App\Models\Category;
 use App\Models\Product;
@@ -99,6 +100,8 @@ class BackendProductController extends Controller
         if ($request->product_type === 'variable') {
             $rules['attribute_ids']   = 'nullable|array';
             $rules['attribute_ids.*'] = 'exists:attributes,id';
+            $rules['attribute_values']   = 'nullable|array';
+            $rules['attribute_values.*'] = 'exists:attribute_values,id';
         }
 
         $validated = $request->validate($rules);
@@ -114,8 +117,19 @@ class BackendProductController extends Controller
             }
 
             // Attach attributes (variable products only)
-            if ($request->product_type === 'variable' && $request->has('attribute_ids')) {
-                foreach ($request->attribute_ids as $index => $attributeId) {
+            if ($request->product_type === 'variable') {
+                $attributeIds = collect($request->input('attribute_ids', []))
+                    ->merge(
+                        AttributeValue::query()
+                            ->whereIn('id', $request->input('attribute_values', []))
+                            ->pluck('attribute_id')
+                            ->all()
+                    )
+                    ->filter()
+                    ->unique()
+                    ->values();
+
+                foreach ($attributeIds as $index => $attributeId) {
                     $product->attributes()->attach($attributeId, ['position' => $index]);
                 }
             }
@@ -182,6 +196,8 @@ class BackendProductController extends Controller
         if ($request->product_type === 'variable') {
             $rules['attribute_ids']   = 'nullable|array';
             $rules['attribute_ids.*'] = 'exists:attributes,id';
+            $rules['attribute_values']   = 'nullable|array';
+            $rules['attribute_values.*'] = 'exists:attribute_values,id';
         }
 
         $validated = $request->validate($rules);
@@ -196,9 +212,21 @@ class BackendProductController extends Controller
 
             // Handle attributes based on product type
             if ($request->product_type === 'variable') {
-                if ($request->has('attribute_ids')) {
+                $attributeIds = collect($request->input('attribute_ids', []))
+                    ->merge(
+                        AttributeValue::query()
+                            ->whereIn('id', $request->input('attribute_values', []))
+                            ->pluck('attribute_id')
+                            ->all()
+                    )
+                    ->filter()
+                    ->unique()
+                    ->values()
+                    ->all();
+
+                if (! empty($attributeIds)) {
                     $syncData = [];
-                    foreach ($request->attribute_ids as $index => $attributeId) {
+                    foreach ($attributeIds as $index => $attributeId) {
                         $syncData[$attributeId] = ['position' => $index];
                     }
                     $product->attributes()->sync($syncData);
@@ -251,7 +279,6 @@ class BackendProductController extends Controller
         ]);
 
         $validated['product_id'] = $product->id;
-        $validated['attributes'] = json_encode($validated['attributes']);
 
         ProductVariation::create($validated);
 
@@ -268,7 +295,6 @@ class BackendProductController extends Controller
             'is_active'  => 'boolean',
         ]);
 
-        $validated['attributes'] = json_encode($validated['attributes']);
         $variation->update($validated);
 
         return back()->with('success', 'Variation updated successfully');

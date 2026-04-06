@@ -41,7 +41,8 @@ class FrontendCheckoutController extends Controller
 		$subtotal = $cartItems->sum(fn ($item) => $item->quantity * (float) $item->price);
 		$appliedCoupon = $this->getAppliedCouponSummary((float) $subtotal);
 		$discount = (float) ($appliedCoupon['discount'] ?? 0);
-		$grandTotal = max(0, (float) $subtotal - $discount);
+		$shippingCharge = (float) $subtotal >= 5000 ? 0.0 : 199.0;
+		$grandTotal = max(0, (float) $subtotal - $discount) + $shippingCharge;
 		$availableCoupons = Coupon::query()
 			->where('is_active', true)
 			->orderByDesc('id')
@@ -81,6 +82,7 @@ class FrontendCheckoutController extends Controller
 			'cartItems' => $cartItems,
 			'subtotal' => $subtotal,
 			'discount' => $discount,
+			'shippingCharge' => $shippingCharge,
 			'grandTotal' => $grandTotal,
 			'appliedCoupon' => $appliedCoupon,
 			'availableCoupons' => $availableCoupons,
@@ -170,7 +172,8 @@ class FrontendCheckoutController extends Controller
 		$subtotal = (float) $cartItems->sum(fn ($item) => $item->quantity * (float) $item->price);
 		$appliedCoupon = $this->getAppliedCouponSummary($subtotal);
 		$discount = (float) ($appliedCoupon['discount'] ?? 0);
-		$orderTotal = max(0, $subtotal - $discount);
+		$shippingCharge = $subtotal >= 5000 ? 0.0 : 199.0;
+		$orderTotal = max(0, $subtotal - $discount) + $shippingCharge;
 		$shippingSame = $request->boolean('shipping_same_as_billing', true);
 
 		$billingAddress = [
@@ -196,7 +199,7 @@ class FrontendCheckoutController extends Controller
 				'country' => $request->input('shipping_country'),
 			];
 
-		$order = DB::transaction(function () use ($provider, $subtotal, $discount, $orderTotal, $billingAddress, $shippingAddress, $data, $cartItems, $appliedCoupon) {
+		$order = DB::transaction(function () use ($provider, $subtotal, $discount, $shippingCharge, $orderTotal, $billingAddress, $shippingAddress, $data, $cartItems, $appliedCoupon) {
 			$order = Order::create([
 				'user_id' => Auth::id(),
 				'payment_provider_id' => $provider->id,
@@ -212,6 +215,7 @@ class FrontendCheckoutController extends Controller
 					'pricing' => [
 						'subtotal' => $subtotal,
 						'discount' => $discount,
+						'shipping_charge' => $shippingCharge,
 						'grand_total' => $orderTotal,
 					],
 					'coupon' => $appliedCoupon ? [

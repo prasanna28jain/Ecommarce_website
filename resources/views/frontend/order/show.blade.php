@@ -9,11 +9,11 @@
             <div class="container">
                 <h1 class="page-header-title" style="color: white !important;">Order #{{ $order->id }}</h1>
                 <nav aria-label="breadcrumb" style="color: white !important;">
-                    <ol class="breadcrumb-xrt">
-                        <li><a href="{{ route('home') }}">Home</a></li>
-                        <li><a href="{{ route('account.index') }}">Account</a></li>
-                        <li><a href="{{ route('account.orders') }}">Orders</a></li>
-                        <li>#{{ $order->id }}</li>
+                    <ol class="breadcrumb breadcrumb-xrt">
+                        <li class="breadcrumb-item"><a href="{{ route('home') }}">Home</a></li>
+                        <li class="breadcrumb-item"><a href="{{ route('account.index') }}">Account</a></li>
+                        <li class="breadcrumb-item"><a href="{{ route('account.orders') }}">Orders</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">#{{ $order->id }}</li>
                     </ol>
                 </nav>
             </div>

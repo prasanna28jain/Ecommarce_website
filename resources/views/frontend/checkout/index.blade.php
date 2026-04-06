@@ -219,7 +219,7 @@
                         </div>
 
                         {{-- Coupon --}}
-                        <div style="margin-bottom:16px; padding-bottom:16px; border-bottom:1px solid #f0f0f0;">
+                        {{-- <div style="margin-bottom:16px; padding-bottom:16px; border-bottom:1px solid #f0f0f0;">
                             <form action="{{ route('checkout.coupon.apply') }}" method="POST" style="display:flex; gap:8px;">
                                 @csrf
                                 <input type="text" name="coupon_code" value="{{ old('coupon_code', $appliedCoupon['code'] ?? '') }}"
@@ -305,7 +305,7 @@
                                     </div>
                                 </div>
                             @endif
-                        </div>
+                        </div> --}}
 
                         {{-- Totals --}}
                         <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
@@ -315,6 +315,10 @@
                         <div style="display:flex; justify-content:space-between; margin-bottom:16px; padding-bottom:16px; border-bottom:1px solid #f0f0f0;">
                             <span style="color:#6C757D; font-size:0.9rem;">Discount</span>
                             <span style="color:#198754; font-size:0.9rem; font-weight:600;">- Rs {{ number_format($discount, 2) }}</span>
+                        </div>
+                        <div style="display:flex; justify-content:space-between; margin-bottom:16px; padding-bottom:16px; border-bottom:1px solid #f0f0f0;">
+                            <span style="color:#6C757D; font-size:0.9rem;">Shipping</span>
+                            <span style="color:#495057; font-size:0.9rem; font-weight:600;">{{ $shippingCharge <= 0 ? 'FREE' : ('Rs ' . number_format($shippingCharge, 2)) }}</span>
                         </div>
                         <div style="display:flex; justify-content:space-between; align-items:center;">
                             <span style="color:#0D0D0D; font-weight:800; font-size:1rem; text-transform:uppercase; letter-spacing:1px;">Total</span>
