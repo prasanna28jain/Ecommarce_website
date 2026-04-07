@@ -26,9 +26,10 @@
     $firstProductImageUrl = $firstProductImagePath ? asset('storage/' . ltrim($firstProductImagePath, '/')) : null;
 @endphp
 
+
+
 {{-- PAGE HEADER --}}
-<div class="hero-dark-wrapper" style="padding-bottom: 0;">
-    <section class="page-header page-header-teal" style="padding-bottom:30px;">
+<div class="hero-dark-wrapper" style="background:linear-gradient(135deg,#013a3c 0%,#017075 60%,#02AAB1 100%)">
         <div class="container position-relative" style="z-index:2">
             <h1 style="color: white">{{ $product->name }}</h1>
             <nav aria-label="breadcrumb">
@@ -42,7 +43,6 @@
                 </ol>
             </nav>
         </div>
-    </section>
 </div>
 
 {{-- PRODUCT DETAIL --}}

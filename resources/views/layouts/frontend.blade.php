@@ -152,7 +152,7 @@
             const modal    = document.getElementById("videoModal");
             const iframe   = document.getElementById("videoFrame");
             const closeBtn = document.querySelector(".close-btn");
-            const watchBtn = document.querySelector(".watch-video");
+            const watchButtons = document.querySelectorAll(".watch-video");
             if (!modal || !iframe) return;
 
             document.querySelectorAll(".video-circle").forEach(item => {
@@ -162,12 +162,12 @@
                 });
             });
 
-            if (watchBtn) {
+            watchButtons.forEach((watchBtn) => {
                 watchBtn.addEventListener("click", function() {
                     iframe.src = this.dataset.video;
                     modal.classList.add("active");
                 });
-            }
+            });
 
             if (closeBtn) {
                 closeBtn.addEventListener("click", () => {

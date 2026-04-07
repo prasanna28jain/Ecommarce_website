@@ -56,7 +56,7 @@
                 <div class="pm-title-line"></div>
             </div>
             <div class="category-asymmetric-grid">
-                @foreach($categories as $index => $category)
+                @foreach ($categories as $index => $category)
                     <a href="{{ route('category.show', $category->slug ?? $category->id) }}"
                         class="cat-grid-item {{ $index === 0 ? 'cat-grid-large' : '' }}">
                         @if ($category->image)
@@ -84,7 +84,7 @@
                 </div>
                 <div class="pm-tab-nav" id="productCategoryTabs">
                     <button class="pm-tab-btn active" data-tab="all">All Products</button>
-                    @foreach($tabCategories as $tabCat)
+                    @foreach ($tabCategories as $tabCat)
                         <button class="pm-tab-btn" data-tab="cat-{{ $tabCat->id }}">{{ $tabCat->name }}</button>
                     @endforeach
                 </div>
@@ -94,7 +94,7 @@
             <div class="pm-tab-panel" data-panel="all">
                 <div class="swiper product-category-swiper">
                     <div class="swiper-wrapper">
-                        @foreach($featuredProducts as $product)
+                        @foreach ($featuredProducts as $product)
                             <div class="swiper-slide">
                                 @include('frontend.partials.product-card', ['product' => $product])
                             </div>
@@ -106,14 +106,14 @@
             </div>
 
             {{-- PER-CATEGORY TAB PANELS --}}
-            @foreach($tabCategories as $tabCat)
+            @foreach ($tabCategories as $tabCat)
                 <div class="pm-tab-panel" data-panel="cat-{{ $tabCat->id }}" style="display:none;">
-                    @if($tabCat->products->isEmpty())
+                    @if ($tabCat->products->isEmpty())
                         <p style="color:#6C757D; text-align:center; padding:40px 0;">No products in this category yet.</p>
                     @else
                         <div class="swiper product-category-swiper swiper-cat-{{ $tabCat->id }}">
                             <div class="swiper-wrapper">
-                                @foreach($tabCat->products as $product)
+                                @foreach ($tabCat->products as $product)
                                     <div class="swiper-slide">
                                         @include('frontend.partials.product-card', ['product' => $product])
                                     </div>
@@ -397,6 +397,17 @@
 
                         <div class="story-line"></div>
 
+                        <button type="button" class="story-watch-video watch-video"
+                            data-video="https://www.youtube.com/embed/VIDEO_ID_1" aria-label="Watch video">
+                            <span class="story-watch-icon">
+                                <img src="{{ asset('frontend/images/Ellipse 19.png') }}" alt=""
+                                    class="story-watch-ring">
+                                <img src="{{ asset('frontend/images/play-circle.png') }}" alt="Play"
+                                    class="story-watch-play">
+                            </span>
+                            <span class="story-watch-text">WATCH VIDEO</span>
+                        </button>
+
                         <div class="story-image">
                             <img src="frontend/images/founder copy.png" alt="Founder">
                         </div>
@@ -408,7 +419,7 @@
                         <p>
                             The pandemic hit us all hard. It forced us to re-evaluate our lives, our habits, and our
                             health.
-                            For me, it revealed a truth I couldn’t ignore any longer: I was battling addiction.
+                            For me, it revealed a truth I couldn't ignore any longer: I was battling addiction.
                         </p>
 
                         <p>
@@ -418,19 +429,19 @@
                         </p>
 
                         <p>
-                            I knew I wasn’t alone. Millions were grappling with similar challenges, even after the
+                            I knew I wasn't alone. Millions were grappling with similar challenges, even after the
                             pandemic
                             eased.
-                            That’s when I realized fitness wasn’t a luxury — it was a necessity.
+                            That's when I realized fitness wasn't a luxury - it was a necessity.
                         </p>
 
                         <p>
-                            XRT65 was born to break those barriers. No more excuses, just effective workouts — right at
+                            XRT65 was born to break those barriers. No more excuses, just effective workouts - right at
                             home.
                         </p>
 
                         <p>
-                            XRT65 is more than a brand; it's a movement – Keep India Fit and Keep Going.
+                            XRT65 is more than a brand; it's a movement - Keep India Fit and Keep Going.
                         </p>
                     </div>
                     <img src="frontend/images/fSectionvector2.png" class="fimg-shape2" alt="Vector Background">
@@ -471,7 +482,7 @@
                 <div class="mindset-line"></div>
                 <div class="mindset-dot"></div>
 
-                <img src="frontend/images/nopainnogain.png" class="mindset-logo" alt="">
+                <img src="frontend/images/keepgoing.png" class="mindset-logo" alt="">
             </div>
 
         </div>
@@ -491,7 +502,8 @@
                 <h2 class="philosophy-title mb-0">The XRT65 Philosophy</h2>
 
                 <!-- Line from Title to Foundation -->
-                <img src="frontend/images/line1.png" class="branch-line flex-grow-1" style="min-width: 50px;" alt="">
+                <img src="frontend/images/line1.png" class="branch-line flex-grow-1" style="min-width: 50px;"
+                    alt="">
 
                 <div class="branch-node d-flex align-items-center flex-shrink-0">
                     <div class="node-dot"></div>
@@ -500,7 +512,7 @@
 
                 <!-- Stepped Line from Foundation to Purpose -->
                 <div class="flex-grow-1 position-relative"
-                    style="height: 19px; margin: 0 6px; border-top: 1.5px solid #a4cece; border-right: 1.5px solid #a4cece; align-self: center; margin-top: 19px; right: -0.6%;">
+                    style="height: 19px; margin: 0 6px; border-top: 1.5px solid #a4cece; border-right: 1.5px solid #a4cece; align-self: center; margin-top: 23px; right: -0.7%;">
                 </div>
 
                 <div class="branch-node d-flex align-items-center position-relative flex-shrink-0"
@@ -521,9 +533,10 @@
 
                     <!-- CARD 1 -->
                     <div class="philosophy-card">
-
                         <div class="tree-branch-down"></div>
-                        <img src="frontend/images/phyvector.png" class="phy-shape" alt="Vector Background">
+
+
+                        <img src="frontend/images/fSectionvector.png" class="phy-shape" alt="Vector Background">
 
                         <div class="card-top">
                             <img src="frontend/images/philosophyvector.png" class="shape-bg" alt="">
@@ -536,8 +549,9 @@
                                 household.
                             </p>
                             <div class="card-bracket">
-                                <img src="frontend/images/philosophycircle.png" class="bracket-end-icon" alt="">
-                                <div class="bracket-shadow"></div>
+                                <img src="frontend/images/philosophycirclesmall.png" class="bracket-end-icon"
+                                    alt="">
+                                <img src="frontend/images/fSectionvector2.png" class="phy-shape2" alt="Vector Background">
                             </div>
                         </div>
                     </div>
@@ -545,10 +559,11 @@
                     <!-- CARD 2 -->
                     <div class="philosophy-card">
                         <div class="tree-branch-down"></div>
+
                         <img src="frontend/images/phyvector.png" class="phy-shape" alt="Vector Background">
                         <div class="card-top">
                             <img src="frontend/images/philosophyvector.png" class="shape-bg" alt="">
-                            <img src="frontend/images/philosophycircle.png" class="circle-img" alt="Philosophy Icon">
+                            <img src="frontend/images/philosophycircle1.png" class="circle-img" alt="Philosophy Icon">
                             <h4>OUR VISION</h4>
                         </div>
                         <div class="card-body-text">
@@ -556,8 +571,9 @@
                                 Accessibility, quality, innovation and community around fitness.
                             </p>
                             <div class="card-bracket">
-                                <img src="frontend/images/philosophycircle.png" class="bracket-end-icon" alt="">
-                                <div class="bracket-shadow"></div>
+                                <img src="frontend/images/philosophycircle1small.png" class="bracket-end-icon"
+                                    alt="">
+                                <img src="frontend/images/fSectionvector2.png" class="phy-shape2" alt="Vector Background">
                             </div>
                         </div>
                     </div>
@@ -565,10 +581,11 @@
                     <!-- CARD 3 -->
                     <div class="philosophy-card">
                         <div class="tree-branch-down"></div>
+
                         <img src="frontend/images/phyvector.png" class="phy-shape" alt="Vector Background">
                         <div class="card-top">
                             <img src="frontend/images/philosophyvector.png" class="shape-bg" alt="">
-                            <img src="frontend/images/philosophycircle.png" class="circle-img" alt="Philosophy Icon">
+                            <img src="frontend/images/philosophycircle2.png" class="circle-img" alt="Philosophy Icon">
                             <h4>OUR MISSION</h4>
                         </div>
                         <div class="card-body-text">
@@ -578,8 +595,9 @@
                                 workouts.
                             </p>
                             <div class="card-bracket">
-                                <img src="frontend/images/philosophycircle.png" class="bracket-end-icon" alt="">
-                                <div class="bracket-shadow"></div>
+                                <img src="frontend/images/philosophycircle2small.png" class="bracket-end-icon"
+                                    alt="">
+                                <img src="frontend/images/fSectionvector2.png" class="phy-shape2" alt="Vector Background">
                             </div>
                         </div>
                     </div>
@@ -779,26 +797,26 @@
                         @php
                             $rating = max(0, min(5, (float) $testimonial->rating));
                             $fullStars = (int) floor($rating);
-                            $hasHalfStar = ($rating - $fullStars) >= 0.5;
+                            $hasHalfStar = $rating - $fullStars >= 0.5;
                             $emptyStars = 5 - $fullStars - ($hasHalfStar ? 1 : 0);
                             $avatarText = $testimonial->initials
                                 ? strtoupper($testimonial->initials)
                                 : collect(preg_split('/\s+/', trim($testimonial->name)))
                                     ->filter()
                                     ->take(2)
-                                    ->map(fn ($part) => strtoupper(substr($part, 0, 1)))
+                                    ->map(fn($part) => strtoupper(substr($part, 0, 1)))
                                     ->join('');
                         @endphp
                         <div class="col-lg-4 col-md-6">
                             <div class="pm-testimonial-card">
                                 <div class="pm-testimonial-stars">
-                                    @for($i = 0; $i < $fullStars; $i++)
+                                    @for ($i = 0; $i < $fullStars; $i++)
                                         <i class="bi bi-star-fill"></i>
                                     @endfor
-                                    @if($hasHalfStar)
+                                    @if ($hasHalfStar)
                                         <i class="bi bi-star-half"></i>
                                     @endif
-                                    @for($i = 0; $i < $emptyStars; $i++)
+                                    @for ($i = 0; $i < $emptyStars; $i++)
                                         <i class="bi bi-star"></i>
                                     @endfor
                                 </div>
@@ -815,7 +833,9 @@
                     @empty
                         <div class="col-lg-4 col-md-6">
                             <div class="pm-testimonial-card">
-                                <div class="pm-testimonial-stars"><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i></div>
+                                <div class="pm-testimonial-stars"><i class="bi bi-star-fill"></i><i
+                                        class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i
+                                        class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i></div>
                                 <p class="pm-testimonial-text">"Customer testimonials will be available soon."</p>
                                 <div class="pm-testimonial-author">
                                     <div class="pm-testimonial-avatar">NA</div>
@@ -833,7 +853,7 @@
     </section>
 
     <!-- ===== FEATURED ON (Press Logos) ===== -->
-    <section class="pm-featured-on-section" id="featuredOn">
+    {{-- <section class="pm-featured-on-section" id="featuredOn">
         <div class="container-fluid text-center">
             <span class="pm-section-sub">Making Waves Across Platforms</span>
             <h2 class="pm-section-title">OUR BRAND PROUDLY FEATURED ON</h2>
@@ -856,11 +876,11 @@
                 </div>
             </div>
         </div>
-    </section>
+    </section> --}}
 
 
     <!-- ===== NEWSLETTER ===== -->
-    <section class="pm-newsletter-section" id="newsletterSection">
+    {{-- <section class="pm-newsletter-section" id="newsletterSection">
         <div class="container-fluid text-center">
             <span class="pm-section-sub">Stay Updated</span>
             <h2 class="pm-section-title">SUBSCRIBE TO OUR NEWSLETTER</h2>
@@ -873,100 +893,115 @@
                 <button type="submit"><i class="bi bi-arrow-right"></i></button>
             </form>
         </div>
-    </section>
+    </section> --}}
 
 @endsection
 
 @push('scripts')
     <script>
-    // ===== PRODUCT CATEGORY TABS =====
-    (function () {
-        const tabs = document.querySelectorAll('#productCategoryTabs .pm-tab-btn');
-        const panels = document.querySelectorAll('.pm-tab-panel');
-        const swiperInstances = {};
+        // ===== PRODUCT CATEGORY TABS =====
+        (function() {
+            const tabs = document.querySelectorAll('#productCategoryTabs .pm-tab-btn');
+            const panels = document.querySelectorAll('.pm-tab-panel');
+            const swiperInstances = {};
 
-        function initSwiper(panel) {
-            const swiperEl = panel.querySelector('.swiper');
-            if (!swiperEl || swiperEl._swiperInit) return;
-            swiperEl._swiperInit = true;
-            new Swiper(swiperEl, {
-                slidesPerView: 1.2,
-                spaceBetween: 16,
-                navigation: {
-                    nextEl: swiperEl.querySelector('.swiper-button-next'),
-                    prevEl: swiperEl.querySelector('.swiper-button-prev'),
-                },
-                breakpoints: {
-                    480:  { slidesPerView: 2,   spaceBetween: 16 },
-                    768:  { slidesPerView: 3,   spaceBetween: 20 },
-                    1200: { slidesPerView: 4,   spaceBetween: 24 },
-                }
-            });
-        }
-
-        // Init the default visible panel's swiper
-        const defaultPanel = document.querySelector('.pm-tab-panel[data-panel="all"]');
-        if (defaultPanel) initSwiper(defaultPanel);
-
-        tabs.forEach(function (tab) {
-            tab.addEventListener('click', function () {
-                tabs.forEach(t => t.classList.remove('active'));
-                tab.classList.add('active');
-
-                const target = tab.dataset.tab;
-                panels.forEach(function (panel) {
-                    if (panel.dataset.panel === target) {
-                        panel.style.display = 'block';
-                        initSwiper(panel);
-                    } else {
-                        panel.style.display = 'none';
+            function initSwiper(panel) {
+                const swiperEl = panel.querySelector('.swiper');
+                if (!swiperEl || swiperEl._swiperInit) return;
+                swiperEl._swiperInit = true;
+                new Swiper(swiperEl, {
+                    slidesPerView: 1.2,
+                    spaceBetween: 16,
+                    navigation: {
+                        nextEl: swiperEl.querySelector('.swiper-button-next'),
+                        prevEl: swiperEl.querySelector('.swiper-button-prev'),
+                    },
+                    breakpoints: {
+                        480: {
+                            slidesPerView: 2,
+                            spaceBetween: 16
+                        },
+                        768: {
+                            slidesPerView: 3,
+                            spaceBetween: 20
+                        },
+                        1200: {
+                            slidesPerView: 4,
+                            spaceBetween: 24
+                        },
                     }
                 });
+            }
+
+            // Init the default visible panel's swiper
+            const defaultPanel = document.querySelector('.pm-tab-panel[data-panel="all"]');
+            if (defaultPanel) initSwiper(defaultPanel);
+
+            tabs.forEach(function(tab) {
+                tab.addEventListener('click', function() {
+                    tabs.forEach(t => t.classList.remove('active'));
+                    tab.classList.add('active');
+
+                    const target = tab.dataset.tab;
+                    panels.forEach(function(panel) {
+                        if (panel.dataset.panel === target) {
+                            panel.style.display = 'block';
+                            initSwiper(panel);
+                        } else {
+                            panel.style.display = 'none';
+                        }
+                    });
+                });
             });
-        });
-    })();
+        })();
 
-    // ===== CART CLICK HANDLER =====
-    // If product has variations, redirect to product page instead of submitting cart
-    function handleCartClick(event, productId, slug, hasVariations) {
-        if (hasVariations) {
-            event.preventDefault();
-            event.stopPropagation();
-            window.location.href = '/product/' + slug;
+        // ===== CART CLICK HANDLER =====
+        // If product has variations, redirect to product page instead of submitting cart
+        function handleCartClick(event, productId, slug, hasVariations) {
+            if (hasVariations) {
+                event.preventDefault();
+                event.stopPropagation();
+                window.location.href = '/product/' + slug;
+            }
+            // Otherwise let the form submit naturally
         }
-        // Otherwise let the form submit naturally
-    }
 
-    // ===== QUICK VIEW =====
-    function openQuickView(productId, productName) {
-        const modal = document.getElementById('quickViewModal');
-        const title = document.getElementById('quickViewTitle');
-        const body  = document.getElementById('quickViewBody');
+        // ===== QUICK VIEW =====
+        function openQuickView(productId, productName) {
+            const modal = document.getElementById('quickViewModal');
+            const title = document.getElementById('quickViewTitle');
+            const body = document.getElementById('quickViewBody');
 
-        if (!modal) return;
+            if (!modal) return;
 
-        title.textContent = productName;
-        body.innerHTML = '<div class="text-center py-4"><div class="spinner-border" style="color:#017075;" role="status"></div><p class="mt-3 text-muted" style="font-size:0.9rem;">Loading...</p></div>';
+            title.textContent = productName;
+            body.innerHTML =
+                '<div class="text-center py-4"><div class="spinner-border" style="color:#017075;" role="status"></div><p class="mt-3 text-muted" style="font-size:0.9rem;">Loading...</p></div>';
 
-        var bsModal = bootstrap.Modal.getOrCreateInstance(modal);
-        bsModal.show();
+            var bsModal = bootstrap.Modal.getOrCreateInstance(modal);
+            bsModal.show();
 
-        fetch('/product/' + productId + '/quick-view', {
-            headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'text/html' }
-        })
-        .then(function(res) {
-            if (!res.ok) throw new Error('Failed');
-            return res.text();
-        })
-        .then(function(html) {
-            body.innerHTML = html;
-        })
-        .catch(function() {
-            body.innerHTML = '<div class="text-center py-4"><p class="text-muted">Could not load product. <a href="/product/' + productId + '" style="color:#017075;">View full page →</a></p></div>';
-        });
-    }
+            fetch('/product/' + productId + '/quick-view', {
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'text/html'
+                    }
+                })
+                .then(function(res) {
+                    if (!res.ok) throw new Error('Failed');
+                    return res.text();
+                })
+                .then(function(html) {
+                    body.innerHTML = html;
+                })
+                .catch(function() {
+                    body.innerHTML =
+                        '<div class="text-center py-4"><p class="text-muted">Could not load product. <a href="/product/' +
+                        productId + '" style="color:#017075;">View full page →</a></p></div>';
+                });
+        }
 
-    // Counter animation for stats
+        // Counter animation for stats
         (function() {
             const counters = document.querySelectorAll('.pm-trust-number[data-count]');
             const observer = new IntersectionObserver(function(entries) {

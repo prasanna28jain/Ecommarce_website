@@ -1,11 +1,15 @@
 <nav class="navbar navbar-expand-lg navbar-dark custom-navbar px-4">
-    <a class="navbar-brand" href="{{ route('home') }}">
+    <a class="navbar-brand d-flex flex-column align-items-start" href="{{ route('home') }}" style="line-height:1;">
         @if(optional($appSetting)->logo_path)
             <img src="{{ asset('storage/' . $appSetting->logo_path) }}" alt="{{ $appSetting->site_name ?? 'Boxima Fitness' }}" height="42"
-                 onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                 onerror="this.style.display='none'; this.nextElementSibling.style.display='inline-block';">
+            <span style="display:none; font-size:1.4rem; font-weight:900; letter-spacing:2px; color:#fff;">BOX<span style="color:#00e5ff;">IMA</span></span>
         @else
             <span style="font-size:1.4rem; font-weight:900; letter-spacing:2px; color:#fff;">BOX<span style="color:#00e5ff;">IMA</span></span>
         @endif
+        <span style="font-size:10px; font-style:italic; font-weight:800; letter-spacing:1.6px; color:#fff; margin-top:2px; text-transform:uppercase; align-self:flex-end; text-align:right; font-family: 'Sprintura' !important; position: relative; left: 56px;">
+            KEEP GOING
+        </span>
     </a>
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu"
@@ -105,9 +109,9 @@
                 <div class="d-none d-lg-flex gap-2">
                     <a href="{{ route('login') }}" class="btn btn-shop-now rounded-pill px-4">Log In</a>
                     <a href="{{ route('register') }}" class="btn rounded-pill px-4"
-                       style="border:1.5px solid rgba(255,255,255,0.3); color:#fff; font-weight:600; background:transparent; transition:all 0.2s;"
-                       onmouseover="this.style.background='rgba(255,255,255,0.1)';"
-                       onmouseout="this.style.background='transparent';">Sign Up</a>
+                       style="border:1.5px solid #02AAB1; color:#fff; font-weight:600; background:transparent; transition:all 0.2s; display:flex; align-items:center; justify-content:center;"
+                       onmouseover="this.style.background='rgba(2,170,177,0.15)'; this.style.borderColor='#00c9e0';"
+                       onmouseout="this.style.background='transparent'; this.style.borderColor='#02AAB1';">Sign Up</a>
                 </div>
             @endauth
         </div>
