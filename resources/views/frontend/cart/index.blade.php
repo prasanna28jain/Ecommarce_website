@@ -7,7 +7,7 @@
 {{-- PAGE HEADER --}}
 <div class="hero-dark-wrapper" style="padding-bottom: 0;">
     <section class="page-header page-header-teal" style="padding-bottom:30px;">
-        <div class="container position-relative" style="z-index:2">
+        <div class="container-fluid px-4 position-relative" style="z-index:2">
             <nav aria-label="breadcrumb">
                 <ol class="breadcrumb breadcrumb-xrt">
                     <li class="breadcrumb-item"><a href="{{ route('home') }}">Home</a></li>
@@ -24,7 +24,7 @@
 
 {{-- CART CONTENT --}}
 <section class="py-5" id="cartPageWrap">
-    <div class="container">
+    <div class="container-fluid px-4">
 
         @if(session('success'))
             <div class="alert alert-success alert-dismissible fade show mb-4" role="alert">
