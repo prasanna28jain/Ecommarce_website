@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Backend;
 
 use App\Http\Controllers\Controller;
+use App\Models\Category;
 use App\Models\Order;
 use App\Models\Product;
 use App\Models\ProductVariation;
@@ -38,6 +39,11 @@ class DashboardController extends Controller
             ->limit(10)
             ->get();
 
+        $categoryDistribution = Category::query()
+            ->withCount('products')
+            ->orderByDesc('products_count')
+            ->get(['id', 'name']);
+
         return view('dashboard', [
             'totalProducts' => Product::count(),
             'totalOrders' => Order::count(),
@@ -46,6 +52,8 @@ class DashboardController extends Controller
             'lowStockProducts' => $lowStockProducts,
             'lowStockVariations' => $lowStockVariations,
             'lowStockThreshold' => $lowStockThreshold,
+            'categoryChartLabels' => $categoryDistribution->pluck('name')->values(),
+            'categoryChartData' => $categoryDistribution->pluck('products_count')->values(),
         ]);
     }
 }

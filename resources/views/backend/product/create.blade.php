@@ -40,14 +40,26 @@
                     <h5 class="df-card-title"><i class="bi bi-image"></i> Upload Images</h5>
                 </div>
                 <div class="df-card-body">
-                    <div class="df-upload-zone" onclick="document.getElementById('product-images').click()">
+                    <label class="df-form-label">Primary Image (Single)</label>
+                    <div class="df-upload-zone" onclick="document.getElementById('primary-image').click()">
                         <div class="upload-icon"><i class="bi bi-cloud-arrow-up"></i></div>
-                        <p>Drop your images here or <span class="browse-link">click to browse</span></p>
+                        <p>Drop your primary image here or <span class="browse-link">click to browse</span></p>
+                    </div>
+                    <input type="file" id="primary-image" name="primary_image" accept="image/*"
+                           style="display:none" onchange="previewPrimaryImage(this)">
+                    <div id="primary-image-preview" class="d-flex flex-wrap gap-3 mt-3"></div>
+
+                    <hr class="my-4">
+
+                    <label class="df-form-label">Additional Images (Multiple)</label>
+                    <div class="df-upload-zone" onclick="document.getElementById('product-images').click()">
+                        <div class="upload-icon"><i class="bi bi-images"></i></div>
+                        <p>Drop additional images here or <span class="browse-link">click to browse</span></p>
                     </div>
                     <input type="file" id="product-images" name="images[]" multiple accept="image/*"
-                           style="display:none" onchange="previewImages(this)">
-                    <div id="image-preview" class="d-flex flex-wrap gap-3 mt-3"></div>
-                    <p class="df-form-hint mt-2">You can add multiple images. First image will be used as the primary.</p>
+                           style="display:none" onchange="previewGalleryImages(this)">
+                    <div id="gallery-image-preview" class="d-flex flex-wrap gap-3 mt-3"></div>
+                    <p class="df-form-hint mt-2">These images will be used as gallery images for the product.</p>
                 </div>
             </div>
 
@@ -267,8 +279,24 @@ function toggleProductType() {
     document.getElementById('variableFields').style.display  = type === 'variable' ? 'block' : 'none';
 }
 
-function previewImages(input) {
-    const preview = document.getElementById('image-preview');
+function previewPrimaryImage(input) {
+    const preview = document.getElementById('primary-image-preview');
+    preview.innerHTML = '';
+
+    if (!input.files.length) return;
+
+    const reader = new FileReader();
+    reader.onload = e => {
+        const img = document.createElement('img');
+        img.src = e.target.result;
+        img.style.cssText = 'width:100px;height:100px;object-fit:cover;border-radius:12px;border:1px solid var(--df-border-color);';
+        preview.appendChild(img);
+    };
+    reader.readAsDataURL(input.files[0]);
+}
+
+function previewGalleryImages(input) {
+    const preview = document.getElementById('gallery-image-preview');
     preview.innerHTML = '';
     Array.from(input.files).forEach(file => {
         const reader = new FileReader();

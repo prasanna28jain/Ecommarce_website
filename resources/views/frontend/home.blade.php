@@ -352,7 +352,7 @@
 
                         <!-- RIGHT: CTA -->
                         <div class="watch-video" data-video="https://www.youtube.com/embed/VIDEO_ID_1">
-                            <button class="play-btn">▶</button>
+                            <button class="play-btn"><span>&#9654;</span></button>
                             <span>WATCH VIDEO</span>
                         </div>
 
@@ -791,62 +791,73 @@
                 <h2 class="pm-section-title">CUSTOMERS THEMSELVES</h2>
                 <div class="pm-title-line"></div>
             </div>
+        </div>
+
+        <div class="pm-testimonial-slider-wrap">
             <div class="pm-testimonial-slider">
-                <div class="row g-4 pm-testimonial-track">
-                    @forelse($testimonials as $testimonial)
-                        @php
-                            $rating = max(0, min(5, (float) $testimonial->rating));
-                            $fullStars = (int) floor($rating);
-                            $hasHalfStar = $rating - $fullStars >= 0.5;
-                            $emptyStars = 5 - $fullStars - ($hasHalfStar ? 1 : 0);
-                            $avatarText = $testimonial->initials
-                                ? strtoupper($testimonial->initials)
-                                : collect(preg_split('/\s+/', trim($testimonial->name)))
-                                    ->filter()
-                                    ->take(2)
-                                    ->map(fn($part) => strtoupper(substr($part, 0, 1)))
-                                    ->join('');
-                        @endphp
-                        <div class="col-lg-4 col-md-6">
-                            <div class="pm-testimonial-card">
-                                <div class="pm-testimonial-stars">
-                                    @for ($i = 0; $i < $fullStars; $i++)
-                                        <i class="bi bi-star-fill"></i>
-                                    @endfor
-                                    @if ($hasHalfStar)
-                                        <i class="bi bi-star-half"></i>
-                                    @endif
-                                    @for ($i = 0; $i < $emptyStars; $i++)
-                                        <i class="bi bi-star"></i>
-                                    @endfor
-                                </div>
-                                <p class="pm-testimonial-text">"{{ $testimonial->content }}"</p>
-                                <div class="pm-testimonial-author">
-                                    <div class="pm-testimonial-avatar">{{ $avatarText ?: 'NA' }}</div>
-                                    <div>
-                                        <h6>{{ $testimonial->name }}</h6>
-                                        <span>{{ $testimonial->designation ?: 'Verified Customer' }}</span>
+                <div class="pm-testimonial-track">
+                    @php
+                        $marqueeTestimonials = $testimonials->isNotEmpty() ? $testimonials : collect([null]);
+                    @endphp
+
+                    @for ($loopPass = 0; $loopPass < 2; $loopPass++)
+                        @foreach ($marqueeTestimonials as $testimonial)
+                            @if ($testimonial)
+                                @php
+                                    $rating = max(0, min(5, (float) $testimonial->rating));
+                                    $fullStars = (int) floor($rating);
+                                    $hasHalfStar = $rating - $fullStars >= 0.5;
+                                    $emptyStars = 5 - $fullStars - ($hasHalfStar ? 1 : 0);
+                                    $avatarText = $testimonial->initials
+                                        ? strtoupper($testimonial->initials)
+                                        : collect(preg_split('/\s+/', trim($testimonial->name)))
+                                            ->filter()
+                                            ->take(2)
+                                            ->map(fn($part) => strtoupper(substr($part, 0, 1)))
+                                            ->join('');
+                                @endphp
+                                <article class="pm-testimonial-item">
+                                    <div class="pm-testimonial-card">
+                                        <div class="pm-testimonial-stars">
+                                            @for ($i = 0; $i < $fullStars; $i++)
+                                                <i class="bi bi-star-fill"></i>
+                                            @endfor
+                                            @if ($hasHalfStar)
+                                                <i class="bi bi-star-half"></i>
+                                            @endif
+                                            @for ($i = 0; $i < $emptyStars; $i++)
+                                                <i class="bi bi-star"></i>
+                                            @endfor
+                                        </div>
+                                        <p class="pm-testimonial-text">"{{ $testimonial->content }}"</p>
+                                        <div class="pm-testimonial-author">
+                                            <div class="pm-testimonial-avatar">{{ $avatarText ?: 'NA' }}</div>
+                                            <div>
+                                                <h6>{{ $testimonial->name }}</h6>
+                                                <span>{{ $testimonial->designation ?: 'Verified Customer' }}</span>
+                                            </div>
+                                        </div>
                                     </div>
-                                </div>
-                            </div>
-                        </div>
-                    @empty
-                        <div class="col-lg-4 col-md-6">
-                            <div class="pm-testimonial-card">
-                                <div class="pm-testimonial-stars"><i class="bi bi-star-fill"></i><i
-                                        class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i
-                                        class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i></div>
-                                <p class="pm-testimonial-text">"Customer testimonials will be available soon."</p>
-                                <div class="pm-testimonial-author">
-                                    <div class="pm-testimonial-avatar">NA</div>
-                                    <div>
-                                        <h6>XRT65 Customer</h6>
-                                        <span>Stay tuned</span>
+                                </article>
+                            @else
+                                <article class="pm-testimonial-item">
+                                    <div class="pm-testimonial-card">
+                                        <div class="pm-testimonial-stars"><i class="bi bi-star-fill"></i><i
+                                                class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i
+                                                class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i></div>
+                                        <p class="pm-testimonial-text">"Customer testimonials will be available soon."</p>
+                                        <div class="pm-testimonial-author">
+                                            <div class="pm-testimonial-avatar">NA</div>
+                                            <div>
+                                                <h6>XRT65 Customer</h6>
+                                                <span>Stay tuned</span>
+                                            </div>
+                                        </div>
                                     </div>
-                                </div>
-                            </div>
-                        </div>
-                    @endforelse
+                                </article>
+                            @endif
+                        @endforeach
+                    @endfor
                 </div>
             </div>
         </div>
@@ -1024,6 +1035,56 @@
             counters.forEach(function(el) {
                 observer.observe(el);
             });
+        })();
+
+        // Auto-open founder story video once when user reaches story section
+        (function() {
+            const storySection = document.querySelector('.story-section');
+            const storyVideoTrigger = document.querySelector('.story-watch-video.watch-video');
+            const modal = document.getElementById('videoModal');
+            const iframe = document.getElementById('videoFrame');
+            if (!storySection || !storyVideoTrigger || !modal || !iframe) return;
+
+            const storageKey = 'xrt65_story_video_auto_opened_v1';
+
+            function hasAutoOpenedAlready() {
+                try {
+                    return localStorage.getItem(storageKey) === '1';
+                } catch (error) {
+                    return false;
+                }
+            }
+
+            function markAutoOpened() {
+                try {
+                    localStorage.setItem(storageKey, '1');
+                } catch (error) {
+                    // no-op
+                }
+            }
+
+            if (hasAutoOpenedAlready()) return;
+
+            const openVideoOnce = function() {
+                const videoUrl = storyVideoTrigger.dataset.video;
+                if (!videoUrl) return;
+
+                iframe.src = videoUrl;
+                modal.classList.add('active');
+                markAutoOpened();
+            };
+
+            const observer = new IntersectionObserver(function(entries, obs) {
+                entries.forEach(function(entry) {
+                    if (!entry.isIntersecting) return;
+                    openVideoOnce();
+                    obs.unobserve(storySection);
+                });
+            }, {
+                threshold: 0.45
+            });
+
+            observer.observe(storySection);
         })();
     </script>
 @endpush

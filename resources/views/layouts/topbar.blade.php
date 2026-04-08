@@ -1,6 +1,6 @@
 <!-- ===== TOP BAR ===== -->
     <div class="top-bar" id="topBar">
-        <div class="container d-flex justify-content-between align-items-center">
+        <div class="container-fluid d-flex justify-content-between align-items-center" >
             <div class="d-flex align-items-center gap-4">
                 <span><i class="bi bi-telephone-fill me-1"></i> Service: +91-98765-43210</span>
                 <span><i class="bi bi-tag-fill me-1"></i> Sale: +91-80800-65065</span>

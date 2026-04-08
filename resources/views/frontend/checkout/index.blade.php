@@ -6,7 +6,7 @@
 
 {{-- Page Header --}}
 <div class="page-header-teal" style="color: white">
-    <div class="container-fluid px-4">
+    <div class="container-fluid">
         <h1 class="page-header-title">Checkout</h1>
         <nav aria-label="breadcrumb">
             <ol class="breadcrumb breadcrumb-xrt">
@@ -18,8 +18,8 @@
     </div>
 </div>
 
-<section style="background:#f5f5f5; padding: 50px 0;">
-    <div class="container-fluid px-4">
+<section style="background:#f5f5f5; padding: 50px 50px;">
+    <div class="container-fluid">
         <div class="row g-4">
 
             {{-- Left: Forms --}}

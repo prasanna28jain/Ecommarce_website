@@ -117,36 +117,6 @@
 
     <!-- <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script> -->
     <script>
-        // Hero image rotator — only on home page
-        (function() {
-            const imgMain  = document.querySelector(".img-main");
-            const imgSmall = document.querySelector(".img-small");
-            const imgSmall2 = document.querySelector(".img-small2");
-            if (!imgMain || !imgSmall || !imgSmall2) return;
-
-            const images = [
-                @if(isset($heroProducts) && $heroProducts->count() > 0)
-                    @foreach($heroProducts as $hp)
-                        "{{ $hp->images->isNotEmpty() ? asset('storage/' . $hp->images->first()->path) : asset('frontend/images/dumbbell.png') }}",
-                    @endforeach
-                @else
-                    "{{ asset('frontend/images/combo-set 1.png') }}",
-                    "{{ asset('frontend/images/dumbbell.png') }}",
-                    "{{ asset('frontend/images/home-gym-kit 1.png') }}"
-                @endif
-            ];
-            if (images.length < 3) return;
-            function rotateImages() {
-                images.push(images.shift());
-                imgSmall2.src = images[0];
-                imgMain.src   = images[1];
-                imgSmall.src  = images[2];
-            }
-            setInterval(rotateImages, 3000);
-        })();
-    </script>
-
-    <script>
         // Video modal — only on home page
         (function() {
             const modal    = document.getElementById("videoModal");
@@ -516,3 +486,4 @@
 </body>
 
 </html>
+

@@ -1,4 +1,4 @@
-<nav class="navbar navbar-expand-lg navbar-dark custom-navbar px-4">
+<nav class="navbar navbar-expand-lg navbar-dark custom-navbar">
     <a class="navbar-brand d-flex flex-column align-items-start" href="{{ route('home') }}" style="line-height:1;">
         @if(optional($appSetting)->logo_path)
             <img src="{{ asset('storage/' . $appSetting->logo_path) }}" alt="{{ $appSetting->site_name ?? 'Boxima Fitness' }}" height="42"
@@ -7,7 +7,7 @@
         @else
             <span style="font-size:1.4rem; font-weight:900; letter-spacing:2px; color:#fff;">BOX<span style="color:#00e5ff;">IMA</span></span>
         @endif
-        <span style="font-size:10px; font-style:italic; font-weight:800; letter-spacing:1.6px; color:#fff; margin-top:2px; text-transform:uppercase; align-self:flex-end; text-align:right; font-family: 'Sprintura' !important; position: relative; left: 56px;">
+        <span style="font-size:10px; font-style:italic; letter-spacing:1.6px; color:#fff; margin-top:2px; text-transform:uppercase; align-self:flex-end; text-align:right; font-family: 'Sprintura' !important; position: relative; left: 56px;">
             KEEP GOING
         </span>
     </a>

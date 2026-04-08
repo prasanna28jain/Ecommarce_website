@@ -48,7 +48,10 @@
 
                         {{-- Bottom product image --}}
                         <div class="text-center mt-4 d-none d-lg-block">
-                            <img src="{{ asset('frontend/images/dumbbell.png') }}" alt="Equipment"
+                            <img
+                                 id="loginPromoImage"
+                                 src="{{ ($loginSliderImages ?? collect())->first() ?? asset('frontend/images/dumbbell.png') }}"
+                                 alt="Equipment"
                                  style="max-height:160px; object-fit:contain; filter:drop-shadow(0 10px 20px rgba(0,229,255,0.3)); opacity:0.85;">
                         </div>
                     </div>
@@ -150,6 +153,24 @@ function togglePass(inputId, iconId) {
         input.type = 'password';
         icon.className = 'bi bi-eye';
     }
+}
+
+const loginSliderImages = @json($loginSliderImages ?? []);
+const loginPromoImage = document.getElementById('loginPromoImage');
+
+if (loginPromoImage && loginSliderImages.length > 1) {
+    let currentImageIndex = 0;
+    loginPromoImage.style.transition = 'opacity 0.35s ease';
+
+    setInterval(function () {
+        currentImageIndex = (currentImageIndex + 1) % loginSliderImages.length;
+        loginPromoImage.style.opacity = '0.2';
+
+        setTimeout(function () {
+            loginPromoImage.src = loginSliderImages[currentImageIndex];
+            loginPromoImage.style.opacity = '0.85';
+        }, 180);
+    }, 3500);
 }
 </script>
 @endpush

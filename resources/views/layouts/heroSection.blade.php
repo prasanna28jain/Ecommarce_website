@@ -1,4 +1,14 @@
 <!-- ================= HERO ================= -->
+        @php
+            $heroSlides = isset($sliders)
+                ? $sliders->filter(fn ($slide) => filled($slide->image_path))->values()
+                : collect();
+
+            $slideCount = $heroSlides->count();
+            $mainSlide = $slideCount > 0 ? $heroSlides->get(0) : null;
+            $rightSlide = $slideCount > 1 ? $heroSlides->get(1) : $mainSlide;
+            $leftSlide = $slideCount > 2 ? $heroSlides->get(2) : $mainSlide;
+        @endphp
         <section class="hero-section">
 
             <div class="container-fluid">
@@ -40,26 +50,10 @@
                                         d="M52.952 110.816L41.2328 90.5176L100.283 56.4252L60.9882 45.8963L66.4476 25.5214L140.67 45.4094L121.562 116.721L101.187 111.262L110.546 76.3336L52.952 110.816Z"
                                         stroke="#FF6311" stroke-width="3.85965" />
                                 </g>
-                                <defs>
-                                    <filter id="filter0_d_6171_241_new" x="0.00018692" y="1.90735e-06" width="150"
-                                        height="124" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
-                                        <feFlood flood-opacity="0" result="BackgroundImageFix" />
-                                        <feColorMatrix in="SourceAlpha" type="matrix"
-                                            values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha" />
-                                        <feOffset dy="15.4386" />
-                                        <feGaussianBlur stdDeviation="19.2982" />
-                                        <feComposite in2="hardAlpha" operator="out" />
-                                        <feColorMatrix type="matrix"
-                                            values="0 0 0 0 1 0 0 0 0 0.503935 0 0 0 0 0.243183 0 0 0 0.5 0" />
-                                        <feBlend mode="normal" in2="BackgroundImageFix"
-                                            result="effect1_dropShadow_6171_241" />
-                                        <feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow_6171_241"
-                                            result="shape" />
-                                    </filter>
-                                </defs>
+                                
                             </svg>
 
-                            <img src="{{ isset($heroProducts) && $heroProducts->count() > 0 && $heroProducts[0]->images->isNotEmpty() ? asset('storage/' . $heroProducts[0]->images->first()->path) : asset('frontend/images/dumbbell.png') }}" class="img-main" alt="{{ $heroProducts[0]->name ?? 'Featured Product' }}">
+                            <img src="{{ $mainSlide ? asset('storage/' . ltrim($mainSlide->image_path, '/')) : '' }}" class="img-main" alt="{{ $mainSlide->title ?? 'Featured Slide' }}">
                         </div>
 
                         <svg class="accent-line-right" xmlns="http://www.w3.org/2000/svg" width="68" height="44"
@@ -86,7 +80,7 @@
                                     </linearGradient>
                                 </defs>
                             </svg>
-                            <img src="{{ isset($heroProducts) && $heroProducts->count() > 1 && $heroProducts[1]->images->isNotEmpty() ? asset('storage/' . $heroProducts[1]->images->first()->path) : asset('frontend/images/home-gym-kit 1.png') }}" class="img-small" alt="{{ $heroProducts[1]->name ?? 'Featured Product' }}">
+                            <img src="{{ $rightSlide ? asset('storage/' . ltrim($rightSlide->image_path, '/')) : '' }}" class="img-small" alt="{{ $rightSlide->title ?? 'Featured Slide' }}">
                         </div>
 
                         <!-- LEFT BOTTOM CARD -->
@@ -102,7 +96,7 @@
                                     </linearGradient>
                                 </defs>
                             </svg>
-                            <img src="{{ isset($heroProducts) && $heroProducts->count() > 2 && $heroProducts[2]->images->isNotEmpty() ? asset('storage/' . $heroProducts[2]->images->first()->path) : asset('frontend/images/combo-set 1.png') }}" class="img-small2" alt="{{ $heroProducts[2]->name ?? 'Featured Product' }}">
+                            <img src="{{ $leftSlide ? asset('storage/' . ltrim($leftSlide->image_path, '/')) : '' }}" class="img-small2" alt="{{ $leftSlide->title ?? 'Featured Slide' }}">
                         </div>
                         <svg class="accent-line-left" xmlns="http://www.w3.org/2000/svg" width="68" height="44"
                             viewBox="0 0 68 64" fill="none">
@@ -171,7 +165,7 @@
 
 
 
-
+        <div style="padding-bottom: 50px">
         <section class="features-bar container">
             <div class="features-bar-inner">
                 <svg class="feature-curve-left" xmlns="http://www.w3.org/2000/svg" width="39" height="95"
@@ -240,3 +234,42 @@
 
                 </div>
         </section>
+</div>
+
+@push('scripts')
+<script>
+    // Hero image rotator - only for hero section
+    (function() {
+        const imgMain = document.querySelector('.img-main');
+        const imgSmall = document.querySelector('.img-small');
+        const imgSmall2 = document.querySelector('.img-small2');
+        if (!imgMain || !imgSmall || !imgSmall2) return;
+
+        const images = [
+            @if(isset($heroSlides) && $heroSlides->count() > 0)
+                @foreach($heroSlides as $slide)
+                    "{{ asset('storage/' . ltrim($slide->image_path, '/')) }}",
+                @endforeach
+            @endif
+        ];
+
+        if (images.length === 0) return;
+
+        function applyImages(index) {
+            imgMain.src = images[index % images.length];
+            imgSmall.src = images[(index + 1) % images.length];
+            imgSmall2.src = images[(index + 2) % images.length];
+        }
+
+        let currentIndex = 0;
+        applyImages(currentIndex);
+
+        if (images.length === 1) return;
+
+        setInterval(function() {
+            currentIndex = (currentIndex + 1) % images.length;
+            applyImages(currentIndex);
+        }, 3000);
+    })();
+</script>
+@endpush

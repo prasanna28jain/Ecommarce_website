@@ -1,18 +1,31 @@
 {{-- Quick View Modal Body --}}
+@php
+    $activeVariations = $product->variations->where('is_active', true)->values();
+    $mainImagePath = optional($product->images->first())->path ?? optional($product->images->first())->image_path ?? null;
+    $mainImageUrl = $mainImagePath ? asset('storage/' . ltrim($mainImagePath, '/')) : null;
+    $mainQuickViewImageId = 'quick-view-main-image-' . $product->id;
+@endphp
+
 <div class="row g-4">
     {{-- Product Image --}}
     <div class="col-md-5">
         @if($product->images->isNotEmpty())
-            <img src="{{ Storage::url($product->images->first()->image_path) }}"
+            <img id="{{ $mainQuickViewImageId }}"
+                 src="{{ $mainImageUrl }}"
                  alt="{{ $product->name }}"
                  style="width:100%; border-radius:10px; object-fit:contain; background:#f9f9f9; padding:16px; max-height:320px;">
             @if($product->images->count() > 1)
                 <div style="display:flex; gap:8px; margin-top:10px; flex-wrap:wrap;">
                     @foreach($product->images->take(4) as $img)
-                        <img src="{{ Storage::url($img->image_path) }}"
+                        @php
+                            $thumbPath = $img->path ?? $img->image_path ?? null;
+                            $thumbUrl = $thumbPath ? asset('storage/' . ltrim($thumbPath, '/')) : null;
+                        @endphp
+                        @continue(!$thumbUrl)
+                        <img src="{{ $thumbUrl }}"
                              alt="{{ $product->name }}"
                              style="width:60px; height:60px; object-fit:contain; border-radius:6px; background:#f9f9f9; padding:4px; border:1.5px solid #DEE2E6; cursor:pointer;"
-                             onclick="document.querySelector('#quickViewModal .col-md-5 img:first-child').src = this.src;">
+                             onclick="document.getElementById('{{ $mainQuickViewImageId }}').src = this.src;">
                     @endforeach
                 </div>
             @endif
@@ -41,7 +54,11 @@
             @if($product->sale_price)
                 <span style="font-size:1.6rem; font-weight:900; color:#017075;">Rs {{ number_format($product->sale_price, 2) }}</span>
                 <span style="font-size:1rem; color:#aaa; text-decoration:line-through; margin-left:8px;">Rs {{ number_format($product->base_price, 2) }}</span>
-                @php $disc = round((($product->base_price - $product->sale_price) / $product->base_price) * 100); @endphp
+                @php
+                    $base = (float) $product->base_price;
+                    $sale = (float) $product->sale_price;
+                    $disc = $base > 0 ? round((($base - $sale) / $base) * 100) : 0;
+                @endphp
                 <span style="display:inline-block; padding:2px 8px; background:#dc3545; color:#fff; font-size:0.75rem; font-weight:700; border-radius:4px; margin-left:8px;">-{{ $disc }}%</span>
             @else
                 <span style="font-size:1.6rem; font-weight:900; color:#017075;">Rs {{ number_format($product->base_price, 2) }}</span>
@@ -56,13 +73,18 @@
         @endif
 
         {{-- Variations --}}
-        @if($product->variations->isNotEmpty())
+        @if($activeVariations->isNotEmpty())
             <div style="margin-bottom:16px;">
                 <label style="font-size:0.75rem; font-weight:700; text-transform:uppercase; letter-spacing:1px; color:#6C757D; display:block; margin-bottom:8px;">Select Variation</label>
                 <div style="display:flex; flex-wrap:wrap; gap:8px;">
-                    @foreach($product->variations->where('is_active', true) as $variation)
+                    @foreach($activeVariations as $variation)
                         @php
-                            $label = collect($variation->attributes ?? [])->map(fn($v,$k) => ucfirst($k).': '.$v)->implode(' | ');
+                            $variationAttributes = $variation->attributes ?? [];
+                            if (is_string($variationAttributes)) {
+                                $decodedVariationAttributes = json_decode($variationAttributes, true);
+                                $variationAttributes = is_array($decodedVariationAttributes) ? $decodedVariationAttributes : [];
+                            }
+                            $label = collect($variationAttributes)->map(fn($v,$k) => ucfirst($k).': '.$v)->implode(' | ');
                             $label = $label ?: $variation->sku;
                         @endphp
                         <a href="{{ route('product.show', $product->slug) }}"
@@ -104,7 +126,7 @@
                style="flex:1; display:flex; align-items:center; justify-content:center; gap:6px; padding:10px; border-radius:8px; border:1.5px solid #DEE2E6; background:#fff; color:#6C757D; font-size:0.9rem; font-weight:700; text-decoration:none; transition:all 0.2s;"
                onmouseover="this.style.borderColor='#495057'; this.style.color='#495057';"
                onmouseout="this.style.borderColor='#DEE2E6'; this.style.color='#6C757D';">
-                <i class="bi bi-box-arrow-up-right"></i> Full Page
+                <i class="bi bi-box-arrow-up-right"></i> View Details
             </a>
         </div>
     </div>

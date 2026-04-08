@@ -13,6 +13,7 @@ use App\Models\ProductVariation;
 use App\Models\Tag;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 class BackendProductController extends Controller
 {
@@ -83,6 +84,8 @@ class BackendProductController extends Controller
             'category_id'       => 'nullable|exists:categories,id',
             'is_active'         => 'boolean',
             'product_type'      => 'required|in:simple,variable',
+            'primary_image'     => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
+            'images'            => 'nullable|array',
             'images.*'          => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
             'tag_ids'           => 'nullable|array',
             'tag_ids.*'         => 'exists:tags,id',
@@ -109,7 +112,14 @@ class BackendProductController extends Controller
         DB::beginTransaction();
 
         try {
-            $product = Product::create($validated);
+            $productData = $validated;
+            unset($productData['images'], $productData['tag_ids'], $productData['attribute_ids'], $productData['attribute_values']);
+
+            if ($request->hasFile('primary_image')) {
+                $productData['primary_image'] = $request->file('primary_image')->store('products', 'public');
+            }
+
+            $product = Product::create($productData);
 
             // Attach tags
             if ($request->has('tag_ids')) {
@@ -134,14 +144,22 @@ class BackendProductController extends Controller
                 }
             }
 
+            if (! empty($product->primary_image)) {
+                ProductImage::create([
+                    'product_id' => $product->id,
+                    'path'       => $product->primary_image,
+                    'is_primary' => true,
+                ]);
+            }
+
             // Upload images
             if ($request->hasFile('images')) {
-                foreach ($request->file('images') as $key => $file) {
+                foreach ($request->file('images') as $file) {
                     $path = $file->store('products', 'public');
                     ProductImage::create([
                         'product_id' => $product->id,
                         'path'       => $path,
-                        'is_primary' => ($key === 0),
+                        'is_primary' => false,
                     ]);
                 }
             }
@@ -181,6 +199,8 @@ class BackendProductController extends Controller
             'category_id'       => 'nullable|exists:categories,id',
             'is_active'         => 'boolean',
             'product_type'      => 'required|in:simple,variable',
+            'primary_image'     => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
+            'images'            => 'nullable|array',
             'images.*'          => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
             'tag_ids'           => 'nullable|array',
             'tag_ids.*'         => 'exists:tags,id',
@@ -205,7 +225,14 @@ class BackendProductController extends Controller
         DB::beginTransaction();
 
         try {
-            $product->update($validated);
+            $productData = $validated;
+            unset($productData['images'], $productData['tag_ids'], $productData['attribute_ids'], $productData['attribute_values']);
+
+            if ($request->hasFile('primary_image')) {
+                $productData['primary_image'] = $request->file('primary_image')->store('products', 'public');
+            }
+
+            $product->update($productData);
 
             // Sync tags
             $product->tags()->sync($request->tag_ids ?? []);
@@ -238,14 +265,28 @@ class BackendProductController extends Controller
                 $product->attributes()->detach();
             }
 
+            if ($request->hasFile('primary_image')) {
+                $primaryImage = $product->images()->where('is_primary', true)->first();
+
+                if ($primaryImage) {
+                    $primaryImage->update(['path' => $product->primary_image]);
+                } else {
+                    ProductImage::create([
+                        'product_id' => $product->id,
+                        'path'       => $product->primary_image,
+                        'is_primary' => true,
+                    ]);
+                }
+            }
+
             // Upload new images
             if ($request->hasFile('images')) {
-                foreach ($request->file('images') as $key => $file) {
+                foreach ($request->file('images') as $file) {
                     $path = $file->store('products', 'public');
                     ProductImage::create([
                         'product_id' => $product->id,
                         'path'       => $path,
-                        'is_primary' => ($key === 0 && $product->images()->count() === 0),
+                        'is_primary' => false,
                     ]);
                 }
             }
@@ -304,6 +345,33 @@ class BackendProductController extends Controller
     {
         $variation->delete();
         return back()->with('success', 'Variation deleted successfully');
+    }
+
+    public function destroyImage(Product $product, ProductImage $image)
+    {
+        if ((int) $image->product_id !== (int) $product->id) {
+            abort(404);
+        }
+
+        $deletedPath = $image->path;
+        $wasPrimary = (bool) $image->is_primary;
+
+        $image->delete();
+
+        if ($wasPrimary || $product->primary_image === $deletedPath) {
+            $product->update(['primary_image' => null]);
+        }
+
+        if (! empty($deletedPath)) {
+            $isPathStillUsed = ProductImage::where('path', $deletedPath)->exists()
+                || Product::where('primary_image', $deletedPath)->exists();
+
+            if (! $isPathStillUsed && Storage::disk('public')->exists($deletedPath)) {
+                Storage::disk('public')->delete($deletedPath);
+            }
+        }
+
+        return back()->with('success', 'Product image deleted successfully.');
     }
 
     public function destroy(Product $product)

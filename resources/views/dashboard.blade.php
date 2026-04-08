@@ -411,6 +411,9 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
 
 <script>
+    const categoryLabels = @json($categoryChartLabels);
+    const categoryData = @json($categoryChartData);
+
     // Sales Chart
     const salesCtx = document.getElementById('salesChart');
     if (salesCtx) {
@@ -480,19 +483,26 @@
     // Category Chart
     const categoryCtx = document.getElementById('categoryChart');
     if (categoryCtx) {
+        const palette = [
+            '#6366f1',
+            '#10b981',
+            '#f59e0b',
+            '#06b6d4',
+            '#ef4444',
+            '#8b5cf6',
+            '#14b8a6',
+            '#f97316',
+            '#84cc16',
+            '#ec4899'
+        ];
+
         new Chart(categoryCtx, {
             type: 'doughnut',
             data: {
-                labels: ['Electronics', 'Computers', 'Audio', 'Tablets', 'Wearables'],
+                labels: categoryLabels,
                 datasets: [{
-                    data: [348, 234, 567, 412, 289],
-                    backgroundColor: [
-                        '#6366f1',
-                        '#10b981',
-                        '#f59e0b',
-                        '#06b6d4',
-                        '#ef4444'
-                    ],
+                    data: categoryData,
+                    backgroundColor: categoryLabels.map((_, index) => palette[index % palette.length]),
                     borderWidth: 0
                 }]
             },

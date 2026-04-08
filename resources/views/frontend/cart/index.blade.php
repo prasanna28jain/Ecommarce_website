@@ -50,7 +50,7 @@
                 </a>
             </div>
         @else
-            <div class="row g-5">
+            <div class="row g-5 cart-page-wrap" >
 
                 {{-- Cart Items --}}
                 <div class="col-lg-8">

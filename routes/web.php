@@ -113,6 +113,7 @@ Route::middleware(['auth'])->group(function(){
 Route::prefix('admin')->middleware(['auth','admin'])->name('admin.')->group(function(){
     Route::get('/', DashboardController::class . '@index')->name('dashboard');
     Route::resource('products', BackendProductController::class);
+    Route::delete('products/{product}/images/{image}', [BackendProductController::class, 'destroyImage'])->name('products.images.destroy');
     
     // Product variation routes
     Route::post('products/{product}/variations', [BackendProductController::class, 'storeVariation'])->name('products.variations.store');

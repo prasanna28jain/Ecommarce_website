@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
+use App\Models\Slider;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -16,7 +17,17 @@ class AuthenticatedSessionController extends Controller
      */
     public function create(): View
     {
-        return view('auth.login');
+        $loginSliderImages = Slider::query()
+            ->where('is_active', true)
+            ->whereNotNull('image_path')
+            ->where('image_path', '!=', '')
+            ->orderBy('sort_order')
+            ->orderByDesc('id')
+            ->pluck('image_path')
+            ->map(fn ($path) => asset('storage/' . ltrim($path, '/')))
+            ->values();
+
+        return view('auth.login', compact('loginSliderImages'));
     }
 
     /**

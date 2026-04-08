@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Models\Slider;
 use App\Models\User;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
@@ -20,7 +21,17 @@ class RegisteredUserController extends Controller
      */
     public function create(): View
     {
-        return view('auth.register');
+        $registerSliderImages = Slider::query()
+            ->where('is_active', true)
+            ->whereNotNull('image_path')
+            ->where('image_path', '!=', '')
+            ->orderBy('sort_order')
+            ->orderByDesc('id')
+            ->pluck('image_path')
+            ->map(fn ($path) => asset('storage/' . ltrim($path, '/')))
+            ->values();
+
+        return view('auth.register', compact('registerSliderImages'));
     }
 
     /**

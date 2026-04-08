@@ -117,7 +117,7 @@
         <div class="footer-right">
 
             <div class="footer-col">
-                <h6>Menu</h6>
+                <h6>Quick Links</h6>
                 <a href="{{ route('home') }}">Home</a>
                 @if (!empty($aboutUsPage))
                     <a href="{{ route('pages.show', $aboutUsPage->slug) }}">{{ $aboutUsPage->title }}</a>
@@ -185,42 +185,35 @@
             </div>
 
             <div class="footer-social">
-                @if ($appSetting && $appSetting->linkedin_url)
-                    <a href="{{ $appSetting->linkedin_url }}" target="_blank" rel="noopener" aria-label="LinkedIn">
-                        <i class="bi bi-linkedin"></i>
-                    </a>
-                @else
-                    <a href="#" aria-label="LinkedIn"><i class="bi bi-linkedin"></i></a>
-                @endif
+                <a href="{{ ($appSetting && $appSetting->linkedin_url) ? $appSetting->linkedin_url : '#' }}"
+                    @if($appSetting && $appSetting->linkedin_url) target="_blank" rel="noopener" @endif
+                    class="social-link social-linkedin" aria-label="LinkedIn">
+                    <i class="bi bi-linkedin"></i>
+                </a>
 
-                @if ($appSetting && $appSetting->facebook_url)
-                    <a href="{{ $appSetting->facebook_url }}" target="_blank" rel="noopener" aria-label="Facebook">
-                        <i class="bi bi-facebook"></i>
-                    </a>
-                @else
-                    <a href="#" aria-label="Facebook"><i class="bi bi-facebook"></i></a>
-                @endif
+                <a href="{{ ($appSetting && $appSetting->facebook_url) ? $appSetting->facebook_url : '#' }}"
+                    @if($appSetting && $appSetting->facebook_url) target="_blank" rel="noopener" @endif
+                    class="social-link social-facebook" aria-label="Facebook">
+                    <i class="bi bi-facebook"></i>
+                </a>
 
-                @if ($appSetting && $appSetting->twitter_url)
-                    <a href="{{ $appSetting->twitter_url }}" target="_blank" rel="noopener" aria-label="Twitter/X">
-                        <i class="bi bi-twitter-x"></i>
-                    </a>
-                @else
-                    <a href="#" aria-label="Twitter"><i class="bi bi-twitter-x"></i></a>
-                @endif
+                <a href="{{ ($appSetting && $appSetting->twitter_url) ? $appSetting->twitter_url : '#' }}"
+                    @if($appSetting && $appSetting->twitter_url) target="_blank" rel="noopener" @endif
+                    class="social-link social-twitter" aria-label="Twitter/X">
+                    <i class="bi bi-twitter-x"></i>
+                </a>
 
-                @if ($appSetting && $appSetting->instagram_url)
-                    <a href="{{ $appSetting->instagram_url }}" target="_blank" rel="noopener"
-                        aria-label="Instagram">
-                        <i class="bi bi-instagram"></i>
-                    </a>
-                @endif
+                <a href="{{ ($appSetting && $appSetting->instagram_url) ? $appSetting->instagram_url : '#' }}"
+                    @if($appSetting && $appSetting->instagram_url) target="_blank" rel="noopener" @endif
+                    class="social-link social-instagram" aria-label="Instagram">
+                    <i class="bi bi-instagram"></i>
+                </a>
 
-                @if ($appSetting && $appSetting->youtube_url)
-                    <a href="{{ $appSetting->youtube_url }}" target="_blank" rel="noopener" aria-label="YouTube">
-                        <i class="bi bi-youtube"></i>
-                    </a>
-                @endif
+                <a href="{{ ($appSetting && $appSetting->youtube_url) ? $appSetting->youtube_url : '#' }}"
+                    @if($appSetting && $appSetting->youtube_url) target="_blank" rel="noopener" @endif
+                    class="social-link social-youtube" aria-label="YouTube">
+                    <i class="bi bi-youtube"></i>
+                </a>
             </div>
         </div>
     </div>

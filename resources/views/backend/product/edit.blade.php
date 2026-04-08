@@ -39,17 +39,52 @@
         {{-- LEFT COLUMN --}}
         <div class="col-lg-8">
 
+            {{-- Current Primary Image --}}
+            @if($product->primary_image)
+                @php
+                    $primaryImageRecord = $product->images->firstWhere('is_primary', true);
+                @endphp
+                <div class="df-card">
+                    <div class="df-card-header">
+                        <h5 class="df-card-title"><i class="bi bi-image"></i> Current Primary Image</h5>
+                    </div>
+                    <div class="df-card-body">
+                        <div class="position-relative d-inline-block">
+                            <img src="{{ asset('storage/' . $product->primary_image) }}" alt=""
+                                 style="width:120px;height:120px;object-fit:cover;border-radius:12px;border:1px solid var(--df-border-color);">
+                            @if($primaryImageRecord)
+                                <button type="button"
+                                        class="btn btn-sm btn-danger position-absolute"
+                                        style="top:6px;right:6px;line-height:1;"
+                                        onclick="deleteProductImage('{{ route('admin.products.images.destroy', [$product, $primaryImageRecord]) }}', 'primary image')">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            @endif
+                        </div>
+                    </div>
+                </div>
+            @endif
+
             {{-- Current Images --}}
-            @if($product->images->count())
+            @php $galleryImages = $product->images->where('is_primary', false); @endphp
+            @if($galleryImages->count())
                 <div class="df-card">
                     <div class="df-card-header">
                         <h5 class="df-card-title"><i class="bi bi-images"></i> Current Images</h5>
                     </div>
                     <div class="df-card-body">
                         <div class="d-flex flex-wrap gap-3">
-                            @foreach($product->images as $image)
-                                <img src="{{ asset('storage/' . $image->path) }}" alt=""
-                                     style="width:100px;height:100px;object-fit:cover;border-radius:12px;border:1px solid var(--df-border-color);">
+                            @foreach($galleryImages as $image)
+                                <div class="position-relative">
+                                    <img src="{{ asset('storage/' . $image->path) }}" alt=""
+                                         style="width:100px;height:100px;object-fit:cover;border-radius:12px;border:1px solid var(--df-border-color);">
+                                    <button type="button"
+                                            class="btn btn-sm btn-danger position-absolute"
+                                            style="top:6px;right:6px;line-height:1;"
+                                            onclick="deleteProductImage('{{ route('admin.products.images.destroy', [$product, $image]) }}', 'this image')">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </div>
                             @endforeach
                         </div>
                     </div>
@@ -62,13 +97,25 @@
                     <h5 class="df-card-title"><i class="bi bi-cloud-arrow-up"></i> Upload New Images</h5>
                 </div>
                 <div class="df-card-body">
+                    <label class="df-form-label">Primary Image (Single)</label>
+                    <div class="df-upload-zone" onclick="document.getElementById('primary-image').click()">
+                        <div class="upload-icon"><i class="bi bi-image"></i></div>
+                        <p>Replace primary image or <span class="browse-link">click to browse</span></p>
+                    </div>
+                    <input type="file" id="primary-image" name="primary_image" accept="image/*"
+                           style="display:none" onchange="previewPrimaryImage(this)">
+                    <div id="primary-image-preview" class="d-flex flex-wrap gap-3 mt-3"></div>
+
+                    <hr class="my-4">
+
+                    <label class="df-form-label">Additional Images (Multiple)</label>
                     <div class="df-upload-zone" onclick="document.getElementById('product-images').click()">
                         <div class="upload-icon"><i class="bi bi-cloud-arrow-up"></i></div>
-                        <p>Drop your images here or <span class="browse-link">click to browse</span></p>
+                        <p>Drop additional images here or <span class="browse-link">click to browse</span></p>
                     </div>
                     <input type="file" id="product-images" name="images[]" multiple accept="image/*"
-                           style="display:none" onchange="previewImages(this)">
-                    <div id="image-preview" class="d-flex flex-wrap gap-3 mt-3"></div>
+                           style="display:none" onchange="previewGalleryImages(this)">
+                    <div id="gallery-image-preview" class="d-flex flex-wrap gap-3 mt-3"></div>
                 </div>
             </div>
 
@@ -281,8 +328,24 @@ function toggleProductType() {
     document.getElementById('variableFields').style.display  = type === 'variable' ? 'block' : 'none';
 }
 
-function previewImages(input) {
-    const preview = document.getElementById('image-preview');
+function previewPrimaryImage(input) {
+    const preview = document.getElementById('primary-image-preview');
+    preview.innerHTML = '';
+
+    if (!input.files.length) return;
+
+    const reader = new FileReader();
+    reader.onload = e => {
+        const img = document.createElement('img');
+        img.src = e.target.result;
+        img.style.cssText = 'width:100px;height:100px;object-fit:cover;border-radius:12px;border:1px solid var(--df-border-color);';
+        preview.appendChild(img);
+    };
+    reader.readAsDataURL(input.files[0]);
+}
+
+function previewGalleryImages(input) {
+    const preview = document.getElementById('gallery-image-preview');
     preview.innerHTML = '';
     Array.from(input.files).forEach(file => {
         const reader = new FileReader();
@@ -294,6 +357,31 @@ function previewImages(input) {
         };
         reader.readAsDataURL(file);
     });
+}
+
+function deleteProductImage(url, label) {
+    if (!confirm(`Are you sure you want to delete ${label}?`)) {
+        return;
+    }
+
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = url;
+
+    const csrf = document.createElement('input');
+    csrf.type = 'hidden';
+    csrf.name = '_token';
+    csrf.value = '{{ csrf_token() }}';
+    form.appendChild(csrf);
+
+    const method = document.createElement('input');
+    method.type = 'hidden';
+    method.name = '_method';
+    method.value = 'DELETE';
+    form.appendChild(method);
+
+    document.body.appendChild(form);
+    form.submit();
 }
 
 document.addEventListener('DOMContentLoaded', toggleProductType);

@@ -5,7 +5,7 @@
 @section('content')
 
     {{-- PAGE HEADER --}}
-    <section style="background:linear-gradient(135deg,#013a3c 0%,#017075 60%,#02AAB1 100%); padding:48px 0 40px;">
+    <section style="background:linear-gradient(135deg,#013a3c 0%,#017075 60%,#02AAB1 100%); padding:48px 50px 40px;">
         <div class="container-fluid px-4">
             <nav aria-label="breadcrumb" class="mb-3">
                 <ol class="breadcrumb mb-0" style="background:none; padding:0;">
@@ -23,7 +23,7 @@
     </section>
 
     {{-- PRODUCT LISTING --}}
-    <section style="padding:40px 0 60px; background:#f8f9fa;">
+    <section style="padding:40px 50px 60px; background:#f8f9fa;">
         <div class="container-fluid px-4">
             <div class="row g-4">
 
