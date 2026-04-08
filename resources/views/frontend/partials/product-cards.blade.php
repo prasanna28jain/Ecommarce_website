@@ -1,14 +1,14 @@
 @foreach($products as $product)
     @php
-        $effPrice  = $product->sale_price ?? $product->base_price;
+        $effPrice = $product->sale_price ?? $product->base_price;
         $hasImages = $product->images->isNotEmpty();
-        $hasVars   = $product->variations->isNotEmpty();
+        $hasVars = $product->variations->isNotEmpty();
         $isWishlisted = in_array((int) $product->id, $wishlistProductIds ?? [], true);
-        $discount  = $product->sale_price
+        $discount = $product->sale_price
             ? round((($product->base_price - $product->sale_price) / $product->base_price) * 100)
             : 0;
     @endphp
-    <div class="col-6 col-md-4">
+    <div class="col-6 col-md-3">
         <div class="shop-card">
 
             {{-- Image --}}
@@ -19,7 +19,7 @@
                         $imagePath = $firstImage->path ?? $firstImage->image_path ?? null;
                     @endphp
                     <img src="{{ $imagePath ? asset('storage/' . ltrim($imagePath, '/')) : asset('frontend/images/dumbbell.png') }}"
-                         alt="{{ $product->name }}" loading="lazy">
+                        alt="{{ $product->name }}" loading="lazy">
                 @else
                     <div class="shop-card-no-img">
                         <i class="bi bi-image"></i>
@@ -58,7 +58,7 @@
                         <input type="hidden" name="product_id" value="{{ $product->id }}">
                         <input type="hidden" name="quantity" value="1">
                         <button type="submit" class="shop-btn-cart w-100"
-                                onclick="if({{ $hasVars ? 'true' : 'false' }}){ event.preventDefault(); window.location.href='{{ route('product.show', $product->slug) }}'; }">
+                            onclick="if({{ $hasVars ? 'true' : 'false' }}){ event.preventDefault(); window.location.href='{{ route('product.show', $product->slug) }}'; }">
                             <i class="bi bi-cart-plus"></i>
                             {{ $hasVars ? 'Options' : 'Add to Cart' }}
                         </button>
@@ -67,18 +67,15 @@
                     <form action="{{ route('wishlist.toggle') }}" method="POST">
                         @csrf
                         <input type="hidden" name="product_id" value="{{ $product->id }}">
-                        <button
-                            type="submit"
-                            class="shop-btn-icon {{ $isWishlisted ? 'is-wishlisted' : '' }}"
+                        <button type="submit" class="shop-btn-icon {{ $isWishlisted ? 'is-wishlisted' : '' }}"
                             title="{{ $isWishlisted ? 'Wishlisted' : 'Wishlist' }}"
-                            aria-label="{{ $isWishlisted ? 'Wishlisted' : 'Add to wishlist' }}"
-                        >
+                            aria-label="{{ $isWishlisted ? 'Wishlisted' : 'Add to wishlist' }}">
                             <i class="bi {{ $isWishlisted ? 'bi-heart-fill' : 'bi-heart' }}"></i>
                         </button>
                     </form>
 
                     <button type="button" class="shop-btn-icon" title="Quick View"
-                            onclick="openQuickView({{ $product->id }}, '{{ addslashes($product->name) }}')">
+                        onclick="openQuickView({{ $product->id }}, '{{ addslashes($product->name) }}')">
                         <i class="bi bi-eye"></i>
                     </button>
                 </div>

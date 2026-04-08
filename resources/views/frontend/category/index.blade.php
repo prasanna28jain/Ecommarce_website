@@ -6,7 +6,7 @@
 
     {{-- PAGE HEADER --}}
     <section style="background:linear-gradient(135deg,#013a3c 0%,#017075 60%,#02AAB1 100%); padding:48px 0 40px;">
-        <div class="container">
+        <div class="container-fluid px-4">
             <nav aria-label="breadcrumb" class="mb-3">
                 <ol class="breadcrumb mb-0" style="background:none; padding:0;">
                     <li class="breadcrumb-item">
@@ -26,7 +26,7 @@
 
     {{-- CATEGORIES GRID --}}
     <section style="background:#f8f9fa; padding:50px 0 70px;">
-        <div class="container">
+        <div class="container-fluid px-4">
 
             @if($categories->isEmpty())
                 <div style="background:#fff; border-radius:16px; padding:80px 40px; text-align:center; border:1px solid #e9ecef;">
@@ -37,7 +37,7 @@
             @else
                 <div class="row g-4">
                     @foreach($categories as $category)
-                        <div class="col-sm-6 col-lg-4">
+                        <div class="col-sm-6 col-lg-3">
                             <a href="{{ route('category.show', $category->slug) }}" class="cat-card">
 
                                 {{-- Background image / gradient --}}

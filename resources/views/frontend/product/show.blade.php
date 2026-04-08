@@ -30,7 +30,7 @@
 
 {{-- PAGE HEADER --}}
 <div class="hero-dark-wrapper" style="background:linear-gradient(135deg,#013a3c 0%,#017075 60%,#02AAB1 100%)">
-        <div class="container position-relative" style="z-index:2">
+        <div class="container-fluid px-4 position-relative" style="z-index:2">
             <h1 style="color: white">{{ $product->name }}</h1>
             <nav aria-label="breadcrumb">
                 <ol class="breadcrumb breadcrumb-xrt">
@@ -47,7 +47,7 @@
 
 {{-- PRODUCT DETAIL --}}
 <section class="py-5" id="productDetailWrap">
-    <div class="container">
+    <div class="container-fluid px-4">
         <div class="row g-5">
 
             {{-- GALLERY --}}
