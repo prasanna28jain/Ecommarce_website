@@ -1,51 +1,13 @@
 @extends('layouts.frontend')
 
-@section('title', 'XRT65 Fitness | Premium Gym & Home Equipment')
+@section('title', 'Eleganza | Premium Women\'s Collection')
 
 @section('content')
 
 
 
 
-    {{-- ===== BANNER ===== --}}
-    <section class="banner">
-        <svg class="banner1" xmlns="http://www.w3.org/2000/svg" width="239" height="108" viewBox="0 0 239 108"
-            fill="none">
-            <path d="M216 108H108L0 0H108L216 108Z" fill="url(#paint0_ban1)" fill-opacity="0.3" />
-            <path d="M239 53H185.5L132 0H185.5L239 53Z" fill="url(#paint1_ban1)" fill-opacity="0.3" />
-            <defs>
-                <linearGradient id="paint0_ban1" x1="108" y1="0" x2="108" y2="108"
-                    gradientUnits="userSpaceOnUse">
-                    <stop stop-color="#4F9597" />
-                    <stop offset="1" stop-color="white" stop-opacity="0" />
-                </linearGradient>
-                <linearGradient id="paint1_ban1" x1="185.5" y1="0" x2="185.5" y2="53"
-                    gradientUnits="userSpaceOnUse">
-                    <stop stop-color="#4F9597" />
-                    <stop offset="1" stop-color="white" stop-opacity="0" />
-                </linearGradient>
-            </defs>
-        </svg>
-        <h1>KEEP GOING</h1>
-        <p>ELEVATE YOUR FITNESS GAME</p>
-        <svg class="banner2" xmlns="http://www.w3.org/2000/svg" width="239" height="108" viewBox="0 0 239 108"
-            fill="none">
-            <path d="M23 0H131L239 108H131L23 0Z" fill="url(#paint0_ban2)" fill-opacity="0.3" />
-            <path d="M0 55H53.5L107 108H53.5L0 55Z" fill="url(#paint1_ban2)" fill-opacity="0.3" />
-            <defs>
-                <linearGradient id="paint0_ban2" x1="131" y1="108" x2="131" y2="0"
-                    gradientUnits="userSpaceOnUse">
-                    <stop stop-color="#4F9597" />
-                    <stop offset="1" stop-color="white" stop-opacity="0" />
-                </linearGradient>
-                <linearGradient id="paint1_ban2" x1="53.5" y1="108" x2="53.5" y2="55"
-                    gradientUnits="userSpaceOnUse">
-                    <stop stop-color="#4F9597" />
-                    <stop offset="1" stop-color="white" stop-opacity="0" />
-                </linearGradient>
-            </defs>
-        </svg>
-    </section>
+    
 
     {{-- ===== EXPLORE BY CATEGORY ===== --}}
     <section class="category-grid-section" id="categoryGrid">
@@ -155,19 +117,13 @@
 
                 <!-- LEFT CONTENT -->
                 <div class="about-left">
-                    <p class="about-tag">ABOUT <span>XRT65</span></p>
-                    <svg class="about-svg" xmlns="http://www.w3.org/2000/svg" width="71" height="36"
-                        viewBox="0 0 91 36" fill="none">
-                        <path
-                            d="M85.5 25.2559C88.1453 25.3861 90.25 27.5724 90.25 30.25C90.25 33.0114 88.0114 35.25 85.25 35.25C82.4886 35.25 80.25 33.0114 80.25 30.25C80.25 27.5724 82.3547 25.3861 85 25.2559V0.5H0.25C0.111929 0.5 0 0.388071 0 0.25C0 0.111929 0.111929 0 0.25 0H85.5V25.2559Z"
-                            fill="white" />
-                    </svg>
-                    <h2>
-                        Engineered for Strength. Designed for You. <br>
-                        Built for Your Space.
+                    <p class="about-tag" style="color: #F4B952; font-weight:600; letter-spacing:1px; margin-bottom: 20px;">ABOUT <span>ELEGANZA</span></p>
+                    <h2 style="font-weight: 700; color: #1E4D4F;">
+                        Crafted with Care. Designed for You. <br>
+                        Beautiful in Every Way.
                     </h2>
 
-                    <h3>Shaped to Fit Your Life.</h3>
+                    <h3 style="font-weight: 400; color: #9FB8B4; margin-top: 10px;">Shaped to Empower Your Everyday.</h3>
 
                     <div class="about-image">
                         <img src="frontend/images/gymVector.png" class="img-shape" alt="Vector Background">
@@ -218,12 +174,8 @@
                         <img src="frontend/images/about6.png" alt="Workout Photo">
                     </div>
 
-                    <p class="about-desc">
-                        XRT65 brings complete fitness into your everyday space with thoughtfully designed equipment and
-                        accessories. Built for
-                        performance without bulk, our range helps you train efficiently and make the most of your space.
-                        Whether you’re starting out or staying consistent, XRT65 keeps your fitness simple, flexible,
-                        and within reach.
+                    <p class="about-desc" style="color: #6C757D; font-size: 1rem; margin-top: 20px;">
+                        Eleganza brings premium refinement into your everyday life with thoughtfully designed accessories and self-care essentials. Built for modern women without compromise, our range helps you look and feel your absolute best. Whether you’re finding your confidence or curating your lifestyle, Eleganza keeps everyday luxury simple, beautiful, and within reach.
                     </p>
 
                     <!-- Stats -->
@@ -384,16 +336,16 @@
                     <!-- LEFT SIDE -->
                     <div class="story-left">
                         <img src="frontend/images/fSectionvector.png" class="fimg-shape" alt="Vector Background">
-                        <h1 class="story-title">Leo Singh Arora</h1>
+                        <h1 class="story-title" style="color: #1E4D4F;">Sarah Arora</h1>
 
-                        <p class="story-sub">(Founder XRT65 FITNESS)</p>
+                        <p class="story-sub" style="color: #E36C61;">(Founder ELEGANZA)</p>
 
-                        <p class="story-tagline">
-                            From Pandemic Struggles to <br>
-                            Your Home Gym Solution:
+                        <p class="story-tagline" style="color: #6C757D;">
+                            From Everyday Life to <br>
+                            Your Everyday Luxury:
                         </p>
 
-                        <h2 class="story-heading">XRT65's Story</h2>
+                        <h2 class="story-heading" style="color: #1E4D4F;">Eleganza's Story</h2>
 
                         <div class="story-line"></div>
 
@@ -417,31 +369,23 @@
                     <!-- RIGHT SIDE -->
                     <div class="story-right">
                         <p>
-                            The pandemic hit us all hard. It forced us to re-evaluate our lives, our habits, and our
-                            health.
-                            For me, it revealed a truth I couldn't ignore any longer: I was battling addiction.
+                            We started with a simple belief: that premium quality and beautiful design should be a part of every woman's daily routine, accessible without the overwhelming complexity.
                         </p>
 
                         <p>
-                            But within the struggle, I found my escape. Fitness became my lifeline. It pushed back the
-                            anxiety,
-                            the depression, and the addiction, replacing them with a newfound strength and purpose.
+                            Through curating the finest materials, we found our passion. It replaced the clutter of modern expectations with a newfound appreciation for simplicity, elegance, and purpose.
                         </p>
 
                         <p>
-                            I knew I wasn't alone. Millions were grappling with similar challenges, even after the
-                            pandemic
-                            eased.
-                            That's when I realized fitness wasn't a luxury - it was a necessity.
+                            I knew I wasn't alone. Millions of women seek products that not only serve a function but also inspire confidence and joy in the small moments of their everyday lives.
                         </p>
 
                         <p>
-                            XRT65 was born to break those barriers. No more excuses, just effective workouts - right at
-                            home.
+                            Eleganza was born to break those barriers. No more compromises, just effortlessly beautiful essentials - right at your fingertips.
                         </p>
 
                         <p>
-                            XRT65 is more than a brand; it's a movement - Keep India Fit and Keep Going.
+                            Eleganza is more than a brand; it's an experience - Embrace your beauty and shine everyday.
                         </p>
                     </div>
                     <img src="frontend/images/fSectionvector2.png" class="fimg-shape2" alt="Vector Background">
@@ -462,17 +406,17 @@
 
             <!-- LEFT CONTENT -->
             <div class="mindset-left">
-                <h2 class="title">The XRT65 Mindset</h2>
+                <h2 class="title" style="color: #1E4D4F;">The Eleganza Mindset</h2>
 
-                <div class="text-wrapper">
+                <div class="text-wrapper" style="margin-top: 15px;">
                     <!-- DULL TEXT -->
-                    <p class="text dull">
-                        Strength is not just about what you can do, but about how you conquer what you cannot do.
+                    <p class="text dull" style="color:#A0A0A0;">
+                        Style is not just about what you wear, but about the confidence that radiates from within.
                     </p>
 
                     <!-- BOLD TEXT -->
-                    <p class="text highlight">
-                        Strength is not just about what you can do, but about how you conquer what you cannot do.
+                    <p class="text highlight" style="color:#1E4D4F;">
+                        Style is not just about what you wear, but about the confidence that radiates from within.
                     </p>
                 </div>
             </div>
@@ -499,7 +443,7 @@
 
             <!-- TOP HEADER -->
             <div class="philosophy-header-row d-flex align-items-center mb-4">
-                <h2 class="philosophy-title mb-0">The XRT65 Philosophy</h2>
+                <h2 class="philosophy-title mb-0" style="color: #1E4D4F;">The Eleganza Philosophy</h2>
 
                 <!-- Line from Title to Foundation -->
                 <img src="frontend/images/line1.png" class="branch-line flex-grow-1" style="min-width: 50px;"
@@ -589,10 +533,8 @@
                             <h4>OUR MISSION</h4>
                         </div>
                         <div class="card-body-text">
-                            <p style="width: 210px">
-                                Break down barriers to fitness by providing high-quality, space-saving equipment for
-                                effective home
-                                workouts.
+                            <p style="width: 210px; color:#6C757D;">
+                                Break down barriers to beauty by providing high-quality, elegant essentials that elevate your lifestyle with grace.
                             </p>
                             <div class="card-bracket">
                                 <img src="frontend/images/philosophycircle2small.png" class="bracket-end-icon"
@@ -675,13 +617,13 @@
         <div class="container-fluid">
 
             <!-- HEADER -->
-            <div class="community-header">
-                <h2>XRT65 Community </h2>
+            <div class="community-header" style="text-align: center; margin-bottom: 40px;">
+                <h2 style="color:#1E4D4F;">Eleganza Community </h2>
 
 
-                <div class="subtitle">
+                <div class="subtitle" style="color:#E36C61; font-weight:600;">
                     <span class="line"></span>
-                    <p>Insights from Real Journeys</p>
+                    <p>Insights from Real Women</p>
                     <span class="dot"></span>
                 </div>
             </div>
@@ -700,7 +642,7 @@
 
                         <!-- CONTENT -->
                         <img src="frontend/images/comm1.png" class="card-img" alt="">
-                        <p>Tips to crush your fitness at home</p>
+                        <p style="color:#1E4D4F; font-weight: 600; margin-top:20px;">Tips to elevate your daily style</p>
 
                         <!-- ARROW -->
                         <svg class="arrow-overlay-svg" xmlns="http://www.w3.org/2000/svg" width="132" height="114"
@@ -723,7 +665,7 @@
                     <div class="card-inner">
                         <img src="frontend/images/communityback.png" class="bg-vector" alt="">
                         <img src="frontend/images/comm2.png" class="card-img" alt="">
-                        <p>Effective Home Workout for Every Goal</p>
+                        <p style="color:#1E4D4F; font-weight: 600; margin-top:20px;">Effective Wellness for Every Goal</p>
                         <!-- ORANGE ACCENT SVG -->
                         <svg class="arrow-overlay-svg" xmlns="http://www.w3.org/2000/svg" width="132" height="114"
                             viewBox="0 0 182 174" fill="none">

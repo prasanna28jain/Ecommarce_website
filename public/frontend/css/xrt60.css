@@ -205,11 +205,14 @@ ul {
   transform: translateY(-2px);
 }
 
-.cart-badge, .nav-icon-link .nav-wishlist-count, .nav-icon-link .nav-cart-count {
+.cart-badge,
+.nav-icon-link .nav-wishlist-count,
+.nav-icon-link .nav-cart-count {
   position: absolute;
   top: -7px;
   right: -10px;
-  background: #017075; /* Solid Teal from brand color */
+  background: #017075;
+  /* Solid Teal from brand color */
   color: #FFFFFF;
   font-size: 0.75rem;
   width: 20px;
@@ -2485,16 +2488,16 @@ ul {
 
 .glass-box .btn-info {
   display: flex;
-    width: 174px;
-    height: 50px;
-    padding: 4px 50px 6px 50px;
-    justify-content: center;
-    align-items: center;
-    gap: 4px;
-    border-radius: 100px;
-      border: 1px solid #004B4E;
-      background: linear-gradient(95deg, #017075 0%, #02AAB1 55.61%, #00595D 101.11%);
-      box-shadow: 0 4px 15px 0 rgba(0, 107, 112, 0.50);
+  width: 174px;
+  height: 50px;
+  padding: 4px 50px 6px 50px;
+  justify-content: center;
+  align-items: center;
+  gap: 4px;
+  border-radius: 100px;
+  border: 1px solid #004B4E;
+  background: linear-gradient(95deg, #017075 0%, #02AAB1 55.61%, #00595D 101.11%);
+  box-shadow: 0 4px 15px 0 rgba(0, 107, 112, 0.50);
 }
 
 /* ===== SLIDER / PRODUCT CARDS ===== */
@@ -2705,80 +2708,6 @@ ul {
 }
 
 /* ===== FEATURES BAR ===== */
-.features-bar {
-  border-radius: 100px;
-  background: rgba(255, 255, 255, 0.40);
-  padding: 22px 40px;
-  backdrop-filter: blur(15px);
-  border: 1.5px solid rgba(0, 255, 255, 0.25);
-  box-shadow: 0 0 30px rgba(0, 255, 255, 0.1);
-  position: relative;
-  z-index: 20;
-  margin-top: -35px;
-  max-width: 90%;
-  margin-left: auto;
-  margin-right: auto;
-}
-
-.feature-item {
-  color: #fff;
-  padding: 0 15px;
-}
-
-.feature-item h6 {
-  margin: 0;
-  font-size: 14px;
-  font-weight: 600;
-}
-
-.feature-item p {
-  margin: 0;
-  font-size: 12px;
-  color: #aaa;
-}
-
-.feature-item .icon {
-  font-size: 28px;
-  color: #00e5ff;
-}
-
-.feature-item:not(:last-child) {
-  border-right: 1px solid rgba(255, 255, 255, 0.15);
-}
-
-@media (max-width: 768px) {
-  .feature-item {
-    justify-content: center;
-    text-align: center;
-    border-right: none !important;
-    /* margin-bottom: 15px; */
-  }
-
-  .features-bar {
-    border-radius: 20px;
-    margin-top: -20px;
-  }
-}
-
-.feature-curve-left {
-  position: absolute;
-  left: 10px;
-  top: 50%;
-  transform: translateY(-50%);
-  height: 80px;
-  opacity: 0.8;
-  pointer-events: none;
-}
-
-.feature-curve-right {
-  position: absolute;
-  right: -4px;
-  top: 50%;
-  transform: translateY(-50%);
-  height: 80px;
-  opacity: 0.8;
-  pointer-events: none;
-}
 
 /* ================= RESPONSIVE HERO FIX ================= */
 
@@ -2837,9 +2766,7 @@ ul {
     gap: 12px;
   }
 
-  .features-bar {
-    padding: 18px 18px;
-  }
+
 }
 
 @media (max-width: 767px) {
@@ -3033,7 +2960,7 @@ ul {
 }
 
 .cat-grid-label-primary {
-  
+
   color: #000;
 }
 
@@ -4164,36 +4091,6 @@ ul {
     font-size: 26px;
   }
 
-  /* --- Features Bar --- */
-  .features-bar {
-    border-radius: 16px;
-    padding: 16px 14px;
-  }
-
-  .features-bar .row {
-    gap: 10px 0;
-  }
-
-  .feature-item {
-    padding: 8px 10px;
-  }
-
-  .feature-item h6 {
-    font-size: 12px;
-  }
-
-  .feature-item p {
-    font-size: 11px;
-  }
-
-  .feature-item .icon {
-    font-size: 22px;
-  }
-
-  .feature-curve-left,
-  .feature-curve-right {
-    display: none;
-  }
 
   /* --- Category Grid --- */
   .category-grid-section {
@@ -5472,7 +5369,7 @@ ul {
   text-align: center;
 }
 
-.about-cta .watch-video > span {
+.about-cta .watch-video>span {
   /* color: #E4F2F2; */
   text-align: center;
   font-size: 18px;
@@ -5497,7 +5394,7 @@ ul {
   font-size: 0;
 }
 
-.about-cta .play-btn > span {
+.about-cta .play-btn>span {
   display: block;
   font-size: clamp(16px, 1.5vw, 22px);
   line-height: 1;
@@ -5631,7 +5528,7 @@ ul {
     height: var(--video-thumb-size);
   }
 
-  .about-cta .watch-video > span {
+  .about-cta .watch-video>span {
     font-size: 16px;
   }
 
@@ -5640,7 +5537,7 @@ ul {
     height: 56px;
   }
 
-  .about-cta .play-btn > span {
+  .about-cta .play-btn>span {
     font-size: 16px;
   }
 
@@ -6481,7 +6378,7 @@ img.shape-bg {
   /* height: 46px; */
   z-index: 1;
   pointer-events: none;
-} 
+}
 
 .circle-img {
   width: auto;
@@ -6516,15 +6413,15 @@ img.shape-bg {
 }
 
 .card-bracket {
-    position: absolute;
-      left: 35px;
-      top: -15px;
-      bottom: -14px;
-      width: 50%;
-      border-left: 1px solid #a4cece;
-      border-bottom: 1px solid #a4cece;
-      border-bottom-left-radius: 30px;
-      pointer-events: none;
+  position: absolute;
+  left: 35px;
+  top: -15px;
+  bottom: -14px;
+  width: 50%;
+  border-left: 1px solid #a4cece;
+  border-bottom: 1px solid #a4cece;
+  border-bottom-left-radius: 30px;
+  pointer-events: none;
 }
 
 .bracket-end-icon {
@@ -6648,7 +6545,7 @@ img.shape-bg {
   }
 
   /* Hide stepped connector line on mobile */
-  .philosophy-header-row > .flex-grow-1.position-relative {
+  .philosophy-header-row>.flex-grow-1.position-relative {
     display: none;
   }
 
@@ -6661,7 +6558,7 @@ img.shape-bg {
   }
 
   /* Keep "Built on Purpose" directly under "Our Foundation" on mobile */
-  .philosophy-header-row > .branch-node:last-child {
+  .philosophy-header-row>.branch-node:last-child {
     position: static !important;
     height: auto !important;
     align-self: flex-start !important;
@@ -6670,7 +6567,7 @@ img.shape-bg {
     margin-left: 0 !important;
   }
 
-  .philosophy-header-row > .branch-node:last-child .node-text {
+  .philosophy-header-row>.branch-node:last-child .node-text {
     position: static !important;
     top: auto !important;
     right: auto !important;
@@ -7699,6 +7596,7 @@ img.shape-bg {
     width: 230px !important;
     right: 116px !important;
   }
+
   .card-svg.back-2 {
     width: 150px;
     right: 25px;
@@ -7728,10 +7626,11 @@ img.shape-bg {
     left: 80px;
     top: 148px;
   }
-    .card-svg.back-2 {
-      width: 150px !important;
-      right: -13px !important;
-    }
+
+  .card-svg.back-2 {
+    width: 150px !important;
+    right: -13px !important;
+  }
 
   .img-main {
     width: 220px;
@@ -7893,6 +7792,6 @@ img.shape-bg {
 
 
 
-.cart-page-wrap{
+.cart-page-wrap {
   padding: 0 50px;
 }
